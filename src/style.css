@@ -312,6 +312,218 @@ section[id^='slide_'] {
   }
 }
 
+/* ——— модальное окно заказа (ORDER) ——— */
+body.order-modal-active {
+  overflow: hidden;
+}
+
+.order-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 220;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px))
+    max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+  box-sizing: border-box;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0.35s;
+}
+
+.order-modal.order-modal--open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.order-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(2, 6, 10, 0.82);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  cursor: pointer;
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.order-modal__panel {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: min(440px, 100%);
+  max-height: min(92vh, 100%);
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: clamp(22px, 4vw, 32px);
+  box-sizing: border-box;
+  background: linear-gradient(165deg, #0f1824 0%, #080f16 45%, #060a10 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+  color: #e8eef2;
+}
+
+.order-modal__close {
+  position: absolute;
+  top: max(10px, env(safe-area-inset-top, 0px));
+  right: max(10px, env(safe-area-inset-right, 0px));
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.order-modal__close:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.order-modal__title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(1.15rem, 3.5vw, 1.35rem);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin: 0 44px 8px 0;
+  color: #fff;
+}
+
+.order-modal__lead {
+  margin: 0 44px 20px 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  opacity: 0.82;
+}
+
+.order-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.order-form__hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.order-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+}
+
+.order-form__label {
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+.order-form__field input,
+.order-form__field textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.95rem;
+  color: #f0f4f8;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 6px;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.order-form__field textarea {
+  resize: vertical;
+  min-height: 96px;
+}
+
+.order-form__field input::placeholder,
+.order-form__field textarea::placeholder {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.order-form__field input:focus,
+.order-form__field textarea:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.38);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.08);
+}
+
+.order-form__status {
+  min-height: 1.25em;
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: rgba(180, 220, 200, 0.95);
+}
+
+.order-form__status--error {
+  color: #ffb4a8;
+}
+
+.order-form__submit {
+  margin-top: 4px;
+  padding: 14px 24px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #080f16;
+  background: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.order-form__submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+}
+
+.order-form__submit:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .order-modal {
+    transition: none;
+  }
+
+  .order-form__submit:hover:not(:disabled) {
+    transform: none;
+  }
+}
+
 /*               SECTION 2              */
 
 #slide_2 {

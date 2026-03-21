@@ -19,7 +19,7 @@
     <div class="slide_1--content-wrapper">
       <div class="slide_1--content">
         
-        <button class="btn_order">
+        <button type="button" class="btn_order">
           <svg viewBox="0 0 300 80" preserveAspectRatio="none">
             <polygon points="15,0 285,0 300,40 285,80 15,80 0,40"></polygon>
           </svg>
@@ -362,6 +362,48 @@
       </div>
     </div>
   </section>
+
+  <!-- Order modal: opened from .btn_order; send via Formspree (VITE_FORMSPREE_FORM_ID) or mailto fallback -->
+  <div
+    id="order-modal"
+    class="order-modal"
+    aria-hidden="true"
+    role="dialog"
+    aria-labelledby="order-modal-title"
+    aria-modal="true"
+  >
+    <div class="order-modal__backdrop" data-order-close tabindex="-1"></div>
+    <div class="order-modal__panel" role="document">
+      <button type="button" class="order-modal__close" data-order-close aria-label="Close">&times;</button>
+      <h2 id="order-modal-title" class="order-modal__title">Order request</h2>
+      <p class="order-modal__lead">Fill in the form — we will contact you shortly.</p>
+      <form id="order-form" class="order-form" novalidate>
+        <input type="text" name="_gotcha" class="order-form__hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+        <label class="order-form__field">
+          <span class="order-form__label">Name</span>
+          <input name="name" type="text" required autocomplete="given-name" />
+        </label>
+        <label class="order-form__field">
+          <span class="order-form__label">Full name</span>
+          <input name="full_name" type="text" required autocomplete="family-name" />
+        </label>
+        <label class="order-form__field">
+          <span class="order-form__label">WhatsApp number</span>
+          <input name="whatsapp" type="tel" required autocomplete="tel" placeholder="+998 90 123 45 67" />
+        </label>
+        <label class="order-form__field">
+          <span class="order-form__label">E-mail</span>
+          <input name="email" type="email" required autocomplete="email" />
+        </label>
+        <label class="order-form__field">
+          <span class="order-form__label">Comments — what would you like?</span>
+          <textarea name="comments" rows="4" placeholder="Model, dial, strap, questions…"></textarea>
+        </label>
+        <p id="order-form-status" class="order-form__status" role="status" aria-live="polite"></p>
+        <button type="submit" class="order-form__submit">Send</button>
+      </form>
+    </div>
+  </div>
 
   <script type="module" src="/src/main.js"></script>
 </body>
