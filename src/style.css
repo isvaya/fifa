@@ -1548,39 +1548,84 @@ section[id^='slide_'] {
 }
 
 
-/* SECTION 11 */
+/* SECTION 11
+   >767px: часы по центру на всю ширину контента; текст и подпись — справа (сверху / снизу).
+   ≤767px: часы у правого края (cover); заголовок и подпись — справа (сверху / снизу). */
 
 #slide_11 {
   position: relative;
   padding: 0 clamp(20px, 8vw, 220px);
   height: 100vh;
-
+  min-height: 100dvh;
   overflow: hidden;
 }
 
-#slide_11 h2 {
+#slide_11 .slide_11-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+}
+
+#slide_11 .slide_11-watch-wrap {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+
+#slide_11 .slide_11-watch {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  object-position: center;
+  margin: 0;
+}
+
+/* Текст сверху справа, подпись снизу справа; поверх градиента */
+#slide_11 .slide_11-copy {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: clamp(16px, 3vh, 48px) clamp(16px, 4vw, 72px);
+  padding-right: max(clamp(16px, 4vw, 72px), env(safe-area-inset-right, 0px));
+  padding-left: max(clamp(16px, 4vw, 72px), env(safe-area-inset-left, 0px));
+  padding-top: max(clamp(16px, 3vh, 48px), env(safe-area-inset-top, 0px));
+  padding-bottom: max(clamp(16px, 3vh, 48px), env(safe-area-inset-bottom, 0px));
+}
+
+#slide_11 .slide_11-copy h2 {
   font-weight: 700;
   font-size: 50px;
-
-  position: absolute;
-  top: 10%;
+  margin: 0;
+  line-height: 1.05;
+  text-align: right;
+  max-width: min(42vw, 380px);
 }
 
-
-#slide_11 .signature{
-  position: absolute;
-  bottom: 0;
-  right: 10%;
+#slide_11 .slide_11-copy .signature {
+  width: min(120px, 18vw);
+  max-width: 140px;
+  height: auto;
+  opacity: 0.9;
+  margin: 0;
+  display: block;
+  align-self: flex-end;
 }
 
-.slide_11-watch {
-  height: 100vh;
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
+/* Виньетка: поверх часов, под .slide_11-copy */
 #slide_11::after {
   content: '';
   position: absolute;
@@ -1598,17 +1643,6 @@ section[id^='slide_'] {
 
   pointer-events: none;
   z-index: 2;
-}
-
-
-.slide_11-watch {
-  z-index: 1;
-}
-
-#slide_11 h2,
-#slide_11 .signature {
-  z-index: 3;
-  position: absolute;
 }
 
 
@@ -1791,7 +1825,7 @@ section[id^='slide_'] {
   position: absolute;
   top: 25%;
   left: 50%;
-  transform: translateX((-50%));
+  transform: translateX(-50%);
 }
 
 .slide_13-right p {
@@ -1930,7 +1964,7 @@ section[id^='slide_'] {
   background-color: #050a12;
   background-image: url('/images/bg-cherchill.png');
   background-repeat: no-repeat;
-  background-position: right -4% center;
+  background-position: right 0 center;
   background-size: auto min(108%, 100vh);
 }
 
@@ -2056,28 +2090,35 @@ section[id^='slide_'] {
 
 .slide_16-watch-stack {
   position: relative;
-  width: min(100%, clamp(240px, 27vw, 440px));
-  min-height: clamp(240px, 42vh, 560px);
+  width: min(100%, clamp(260px, min(30vw, 26vh + 100px), 480px));
+  min-height: clamp(280px, 52vh, 640px);
+  /* центр блока по паре, а не по передним часам (вторые уходят вправо) */
+  transform: translateX(-3.75%);
 }
 
 .slide_16-left .watch {
   position: absolute;
-  width: 88%;
+  width: auto;
+  max-width: 88%;
+  max-height: min(68vh, 720px);
   height: auto;
   top: 50%;
   left: 0;
 
+  object-fit: contain;
   filter: drop-shadow(0 28px 72px rgba(0, 0, 0, 0.72));
 }
 
+/* пара по центру стека; золото по центру, чёрные чуть вправо (~половина справа) */
 .slide_16-left .watch-gold {
-  transform: translateY(-50%);
+  left: 50%;
+  transform: translate(-50%, -50%);
   z-index: 2;
 }
 
 .slide_16-left .watch-black {
-  left: 26%;
-  transform: translateY(-50%) scale(0.87);
+  left: 50%;
+  transform: translate(4%, -50%) scale(0.87);
   z-index: 1;
 }
 
@@ -2103,10 +2144,16 @@ section[id^='slide_'] {
   filter: brightness(0) invert(1) drop-shadow(0 2px 18px rgba(0, 0, 0, 0.45));
 }
 
-@media (max-width: 1024px) {
+/* До телефона: фон уезжает влево; пара часов по центру строки */
+@media (max-width: 1100px) {
   #slide_16 {
-    background-size: auto min(95%, 100vh);
-    background-position: right -12% center;
+    background-size: cover;
+    background-position: 34% center;
+    min-height: 100vh;
+    min-height: 100dvh;
+    height: auto;
+    overflow-x: hidden;
+    overflow-y: visible;
   }
 
   #slide_16::before {
@@ -2116,27 +2163,44 @@ section[id^='slide_'] {
 
   .slide_16-content {
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     gap: clamp(16px, 4vh, 32px);
     padding-top: clamp(88px, 14vh, 140px);
+    padding-left: max(clamp(16px, 4vw, 48px), env(safe-area-inset-left, 0px));
+    padding-right: max(clamp(16px, 4vw, 48px), env(safe-area-inset-right, 0px));
   }
 
   .slide_16-left {
     flex: 0 0 auto;
     max-width: none;
     width: 100%;
+    display: flex;
+    justify-content: center;
+    align-self: stretch;
   }
 
   .slide_16-watch-stack {
-    width: min(100%, clamp(220px, 58vw, 380px));
-    min-height: clamp(220px, 34vh, 400px);
-    margin: 0 auto;
+    /* ширина + высота от вьюпорта: два часа рядом как на десктопе, крупнее по высоте экрана */
+    width: min(100%, clamp(260px, min(68vw, 48vh + 120px), 520px));
+    min-height: clamp(280px, 56vh, min(78dvh, 720px));
+    margin-left: auto;
+    margin-right: auto;
+    overflow: visible;
+    transform: translateX(-3.75%);
+  }
+
+  .slide_16-left .watch {
+    width: auto;
+    height: auto;
+    max-width: 92%;
+    max-height: min(62dvh, 620px);
+    object-fit: contain;
   }
 
   .slide_16-left .watch-black {
-    left: 22%;
-    transform: translateY(-50%) scale(0.84);
+    left: 50%;
+    transform: translate(4%, -50%) scale(0.84);
   }
 
   .slide_16-signature {
@@ -2146,7 +2210,8 @@ section[id^='slide_'] {
     align-self: flex-end;
     width: min(72vw, 360px);
     max-width: none;
-    margin-right: clamp(12px, 4vw, 32px);
+    margin-right: 0;
+    margin-left: auto;
   }
 
   .slide_16-right {
@@ -2154,6 +2219,44 @@ section[id^='slide_'] {
     width: 100%;
     display: flex;
     justify-content: flex-end;
+  }
+}
+
+@media (max-width: 900px) {
+  #slide_16 {
+    background-position: 26% center;
+  }
+}
+
+@media (max-width: 768px) {
+  #slide_16 {
+    background-position: 20% center;
+  }
+}
+
+/* Слайд 16 — планшет: слева градиент уже и мягче (лицо и фон читаются лучше) */
+@media (max-width: 1100px) and (min-width: 768px) {
+  #slide_16::after {
+    background: linear-gradient(
+      to right,
+      rgba(5, 10, 18, 0.88) 0%,
+      rgba(5, 10, 18, 0.55) 16%,
+      rgba(5, 10, 18, 0.28) 30%,
+      rgba(5, 10, 18, 0.08) 46%,
+      transparent 64%
+    );
+  }
+
+  #slide_16::before {
+    background-image: linear-gradient(
+      to bottom,
+      rgba(2, 6, 12, 0.88) 0%,
+      rgba(5, 10, 18, 0.62) 6%,
+      rgba(5, 10, 18, 0.32) 12%,
+      rgba(5, 10, 18, 0) 22%,
+      rgba(5, 10, 18, 0) 86%,
+      rgba(5, 10, 18, 0.78) 100%
+    );
   }
 }
 
@@ -2176,8 +2279,9 @@ section[id^='slide_'] {
   background-color: #0c0b0a;
   background-image: url('/images/registan.jpg');
   background-repeat: no-repeat;
-  background-position: right -6% center;
-  background-size: auto min(112%, 100vh);
+  /* прижато к правому краю слайда; cover убирает чёрную полосу справа */
+  background-position: right center;
+  background-size: cover;
 
   filter: grayscale(1);
 }
@@ -2312,6 +2416,8 @@ section[id^='slide_'] {
   position: relative;
   width: min(100%, clamp(240px, 27vw, 440px));
   min-height: clamp(240px, 42vh, 560px);
+  /* как слайд 16: центр блока по паре часов */
+  transform: translateX(-3.75%);
 }
 
 .slide_17-left .watch {
@@ -2325,13 +2431,14 @@ section[id^='slide_'] {
 }
 
 .slide_17-left .watch-blue {
-  transform: translateY(-50%);
+  left: 50%;
+  transform: translate(-50%, -50%);
   z-index: 2;
 }
 
 .slide_17-left .watch-green {
-  left: 26%;
-  transform: translateY(-50%) scale(0.87);
+  left: 50%;
+  transform: translate(4%, -50%) scale(0.87);
   z-index: 1;
 }
 
@@ -2402,10 +2509,20 @@ section[id^='slide_'] {
   font-weight: 600;
 }
 
-@media (max-width: 1024px) {
+/* Слайд 17 — только телефон: часы сверху, контекст снизу; планшет и выше — две колонки как на десктопе */
+@media (max-width: 767px) {
+  #slide_17 {
+    box-sizing: border-box;
+    min-height: 100vh;
+    min-height: 100dvh;
+    height: auto;
+    overflow-x: hidden;
+    overflow-y: visible;
+  }
+
   .slide_17-photo-bg {
-    background-size: auto min(96%, 100vh);
-    background-position: right -14% center;
+    background-size: cover;
+    background-position: right center;
   }
 
   #slide_17::before {
@@ -2416,36 +2533,86 @@ section[id^='slide_'] {
   .slide_17-content {
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: clamp(20px, 4vh, 36px);
-    padding-top: clamp(88px, 14vh, 140px);
+    /* center по вертикали поднимал часы под шапку и сжимал зазор до текста */
+    justify-content: flex-start;
+    isolation: isolate;
+    gap: clamp(28px, 8vh, 48px);
+    height: auto;
+    min-height: 0;
+    padding-top: max(96px, calc(env(safe-area-inset-top, 0px) + 56px));
+    padding-bottom: max(24px, env(safe-area-inset-bottom, 0px));
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
   }
 
   .slide_17-left {
     flex: 0 0 auto;
     max-width: none;
     width: 100%;
+    display: flex;
+    justify-content: center;
+    z-index: 0;
+    /* запас под половину часов выше центра стека (absolute + translateY) */
+    padding-top: clamp(8px, 2vmin, 16px);
   }
 
   .slide_17-watch-stack {
-    width: min(100%, clamp(220px, 58vw, 380px));
-    min-height: clamp(220px, 34vh, 400px);
-    margin: 0 auto;
+    box-sizing: border-box;
+    width: min(96vw, 520px);
+    /* absolute-часы не задают высоту ряду — min-height + padding = место под весь PNG */
+    min-height: clamp(300px, 58vmin, 480px);
+    padding: clamp(22px, 5.5vmin, 40px) 0 clamp(48px, 12vmin, 80px);
+    margin-left: auto;
+    margin-right: auto;
+    overflow: visible;
+    transform: translateX(calc(-3.75% - clamp(10px, 4.5vw, 36px)));
+  }
+
+  .slide_17-left .watch {
+    max-height: min(70dvh, 100vmin, 580px);
+    width: auto;
+    max-width: 96%;
+    object-fit: contain;
+  }
+
+  .slide_17-left .watch-blue {
+    left: 50%;
+    transform: translate(-50%, -50%);
   }
 
   .slide_17-left .watch-green {
-    left: 22%;
-    transform: translateY(-50%) scale(0.84);
+    left: 50%;
+    transform: translate(4%, -50%) scale(0.84);
   }
 
   .slide_17-right {
     flex: 0 0 auto;
     width: 100%;
+    position: relative;
+    z-index: 2;
   }
 
   .slide_17-copy {
-    max-width: min(400px, 92%);
-    padding: 0 0.5rem;
+    max-width: min(36ch, 94vw);
+    padding: 0;
+    gap: clamp(12px, 3vw, 20px);
+  }
+
+  .slide_17-monogram {
+    width: min(100px, 24vw);
+  }
+
+  .slide_17-title {
+    font-size: clamp(22px, 6vw, 30px);
+  }
+
+  .slide_17-subtitle {
+    font-size: clamp(11px, 3vw, 15px);
+    letter-spacing: 0.38em;
+  }
+
+  .slide_17-text {
+    font-size: clamp(14px, 3.8vw, 16px);
   }
 }
 
@@ -2575,24 +2742,13 @@ section[id^='slide_'] {
     padding-inline: clamp(12px, 4vw, 48px);
   }
 
-  #slide_11 h2 {
-    font-size: clamp(26px, 6.5vw, 44px);
-    left: max(12px, env(safe-area-inset-left, 0px));
-    right: max(12px, env(safe-area-inset-right, 0px));
-    width: auto;
-    text-align: center;
+  #slide_11 .slide_11-copy h2 {
+    font-size: clamp(28px, 6.5vw, 44px);
+    max-width: min(46vw, 320px);
   }
 
-  .slide_11-watch {
-    height: auto;
-    max-height: min(88vh, 88dvh);
-    max-width: min(96vw, 1400px);
-    width: auto;
-  }
-
-  #slide_11 .signature {
-    right: max(10px, env(safe-area-inset-right, 0px));
-    bottom: max(8px, env(safe-area-inset-bottom, 0px));
+  #slide_11 .slide_11-copy .signature {
+    width: min(100px, 20vw);
   }
 
   .slide_12-content,
@@ -2617,6 +2773,43 @@ section[id^='slide_'] {
 
   .rolls-logo {
     max-width: min(200px, 42vw);
+  }
+
+  /* Slide 13 — планшет: фон cover; максимально влево по горизонтали */
+  #slide_13 {
+    background-size: cover;
+    background-position: left center;
+  }
+
+  #slide_13 .slide_13-content {
+    gap: clamp(14px, 2.5vw, 24px);
+  }
+
+  #slide_13 .slide_13-left {
+    flex: 0 1 min(46vw, 360px);
+    min-width: 0;
+  }
+
+  #slide_13 .slide_13-right {
+    top: 18%;
+    max-width: min(420px, 44vw);
+    gap: clamp(12px, 2vw, 20px);
+  }
+
+  #slide_13 .slide_13-right h2 {
+    font-size: clamp(22px, 2.8vw, 36px);
+    text-align: center;
+  }
+
+  #slide_13 .slide_13-right p {
+    font-size: clamp(16px, 1.8vw, 24px);
+    text-align: center;
+  }
+
+  #slide_13 .rolls-logo {
+    width: min(160px, 30vw);
+    right: max(12px, env(safe-area-inset-right, 0px));
+    bottom: max(7%, env(safe-area-inset-bottom, 0px));
   }
 
   .slide_6-right,
@@ -2994,10 +3187,709 @@ section[id^='slide_'] {
   #slide_9 .arc-text text {
     font-size: clamp(8px, 2.5vw, 15px);
   }
+
+  /* Slide 11 — телефон: часы у правого края (cover); текст и подпись справа */
+  #slide_11 {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    padding-top: max(88px, calc(env(safe-area-inset-top, 0px) + 48px));
+    padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
+    height: auto;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow-x: hidden;
+  }
+
+  #slide_11 .slide_11-inner {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    position: relative;
+    width: 100%;
+  }
+
+  #slide_11 .slide_11-watch-wrap {
+    flex: 1 1 auto;
+    position: relative;
+    width: 100vw;
+    max-width: none;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    min-height: min(65dvh, 520px);
+    overflow: hidden;
+    display: block;
+  }
+
+  /* cover + якорь справа: на узких ширинах не «вылезает» левый край за вьюпорт */
+  #slide_11 .slide_11-watch {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    transform: none;
+    object-fit: cover;
+    object-position: right center;
+  }
+
+  #slide_11 .slide_11-copy {
+    position: absolute;
+    inset: 0;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding-top: max(88px, calc(env(safe-area-inset-top, 0px) + 48px));
+    padding-bottom: max(16px, env(safe-area-inset-bottom, 0px));
+    padding-left: max(12px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+
+  #slide_11 .slide_11-copy h2 {
+    text-align: right;
+    font-size: clamp(22px, 6.5vw, 34px);
+    max-width: min(52vw, 220px);
+    align-self: flex-end;
+  }
+
+  #slide_11 .slide_11-copy .signature {
+    align-self: flex-end;
+    width: min(100px, 30vw);
+    max-width: 120px;
+  }
+
+  /* Slide 12 — телефон: заголовок → часы → параграф, блок по центру по высоте экрана */
+  #slide_12 {
+    box-sizing: border-box;
+    min-height: 100vh;
+    min-height: 100dvh;
+    height: auto;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    padding-top: max(88px, calc(env(safe-area-inset-top, 0px) + 48px));
+    padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
+  }
+
+  #slide_12 .slide_12-content {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+    justify-items: center;
+    align-content: center;
+    row-gap: clamp(28px, 7vw, 52px);
+    column-gap: clamp(16px, 4vw, 32px);
+    flex: 0 1 auto;
+    width: 100%;
+  }
+
+  #slide_12 .slide_12-right {
+    display: contents;
+  }
+
+  #slide_12 .slide_12-right h2 {
+    grid-row: 1;
+    width: 100%;
+    max-width: min(36ch, 100%);
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  #slide_12 .slide_12-left {
+    grid-row: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+    /* запас под тень, чтобы визуально не слипалось со следующей строкой */
+    padding-bottom: clamp(12px, 3vw, 28px);
+  }
+
+  #slide_12 .slide_12-left .watch-wrapper {
+    width: min(88vw, 420px);
+    max-width: 100%;
+    margin: 0;
+    flex-shrink: 0;
+  }
+
+  /* Сброс глобального .watch (absolute + фикс. height) — иначе сетка схлопывается и текст наезжает */
+  #slide_12 .slide_12-left img.watch,
+  #slide_12 .slide_12-left .watch {
+    position: relative;
+    inset: auto;
+    top: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    transform: none;
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: min(52vh, 420px);
+    margin: 0 auto;
+    object-fit: contain;
+    object-position: center;
+    filter: drop-shadow(0 12px 36px rgba(0, 0, 0, 0.42));
+  }
+
+  #slide_12 .slide_12-right p {
+    grid-row: 3;
+    width: 100%;
+    max-width: min(34ch, 100%);
+    text-align: center;
+    position: relative;
+    z-index: 2;
+    margin: 0;
+    margin-top: clamp(4px, 1.5vw, 12px);
+    padding-top: clamp(4px, 1.2vw, 10px);
+    padding-bottom: 4px;
+  }
+
+  #slide_12::after {
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.35) 0%,
+      transparent 28%,
+      transparent 72%,
+      rgba(0, 0, 0, 0.5) 100%
+    );
+  }
+
+  /* Slide 13 — телефон: без фото машины; тёмный фон + сильная виньетка */
+  #slide_13 {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    min-height: 100vh;
+    min-height: 100dvh;
+    height: auto;
+    background-color: #030304;
+    background-image: radial-gradient(
+      ellipse 120% 95% at 50% 36%,
+      #1c1f28 0%,
+      #0e1016 38%,
+      #060708 68%,
+      #010102 100%
+    );
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    padding-top: max(88px, calc(env(safe-area-inset-top, 0px) + 48px));
+    padding-bottom: max(24px, env(safe-area-inset-bottom, 0px));
+  }
+
+  #slide_13 .slide_13-content {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    align-content: center;
+    row-gap: clamp(18px, 4vh, 32px);
+    flex: 0 1 auto;
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  #slide_13 .slide_13-right {
+    position: static;
+    top: auto;
+    left: auto;
+    transform: none;
+    display: contents;
+    max-width: none;
+    align-items: center;
+  }
+
+  #slide_13 .slide_13-right h2 {
+    grid-row: 1;
+    width: 100%;
+    max-width: min(22ch, 92vw);
+    text-align: center;
+    margin: 0;
+  }
+
+  #slide_13 .slide_13-left {
+    grid-row: 2;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    z-index: 4;
+  }
+
+  #slide_13 .slide_13-left .watch-wrapper {
+    width: min(88vw, 400px);
+    max-width: 100%;
+    margin: 0 auto;
+    flex-shrink: 0;
+  }
+
+  #slide_13 .slide_13-left img.watch,
+  #slide_13 .slide_13-left .watch {
+    position: relative;
+    inset: auto;
+    top: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    transform: none;
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: min(46vh, 400px);
+    margin: 0 auto;
+    object-fit: contain;
+    object-position: center;
+    filter: drop-shadow(0 14px 40px rgba(0, 0, 0, 0.55));
+  }
+
+  #slide_13 .slide_13-right > p:first-of-type {
+    grid-row: 3;
+    width: 100%;
+    max-width: min(34ch, 92vw);
+    text-align: center;
+    margin: 0;
+  }
+
+  #slide_13 .slide_13-right > p:last-of-type {
+    grid-row: 4;
+    width: 100%;
+    max-width: min(30ch, 92vw);
+    text-align: center;
+    margin: 0;
+  }
+
+  #slide_13 .slide_13-content > img.rolls-logo {
+    grid-row: 5;
+    position: relative;
+    bottom: auto;
+    right: auto;
+    width: min(140px, 42vw);
+    max-width: 100%;
+    margin: clamp(6px, 2vh, 16px) auto 0;
+  }
+
+  #slide_13::after {
+    background:
+      radial-gradient(
+        ellipse 90% 75% at 50% 48%,
+        rgba(0, 0, 0, 0) 32%,
+        rgba(0, 0, 0, 0.55) 68%,
+        rgba(0, 0, 0, 0.9) 100%
+      ),
+      linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.65) 0%,
+        transparent 28%,
+        transparent 72%,
+        rgba(0, 0, 0, 0.8) 100%
+      ),
+      linear-gradient(
+        to right,
+        rgba(0, 0, 0, 0.35) 0%,
+        transparent 40%,
+        transparent 60%,
+        rgba(0, 0, 0, 0.35) 100%
+      );
+  }
+
+  /* Slide 14 — телефон: текст → часы; фон левее (машина), справа градиент-тень */
+  #slide_14 {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    min-height: 100vh;
+    min-height: 100dvh;
+    height: auto;
+    background-size: cover;
+    background-position: 52% center;
+    background-repeat: no-repeat;
+    padding-top: max(88px, calc(env(safe-area-inset-top, 0px) + 48px));
+    padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
+  }
+
+  #slide_14::after {
+    background:
+      linear-gradient(
+        to left,
+        rgba(0, 0, 0, 0.82) 0%,
+        rgba(0, 0, 0, 0.45) 22%,
+        rgba(0, 0, 0, 0.12) 48%,
+        transparent 72%
+      ),
+      linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.5) 0%,
+        transparent 26%,
+        transparent 48%,
+        rgba(0, 0, 0, 0.45) 72%,
+        rgba(0, 0, 0, 0.78) 92%,
+        rgba(0, 0, 0, 0.9) 100%
+      ),
+      linear-gradient(
+        to right,
+        rgba(0, 0, 0, 0.55) 0%,
+        rgba(0, 0, 0, 0.18) 38%,
+        transparent 68%
+      );
+  }
+
+  #slide_14 .slide_14-content {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    align-content: center;
+    row-gap: clamp(22px, 5vh, 40px);
+    flex: 0 1 auto;
+    width: 100%;
+    height: auto;
+    min-height: 0;
+  }
+
+  #slide_14 .slide_14-right {
+    display: contents;
+  }
+
+  #slide_14 .slide_14-right h2 {
+    grid-row: 1;
+    width: 100%;
+    max-width: min(36ch, 92vw);
+    text-align: center;
+    margin: 0;
+    font-size: clamp(22px, 5.5vw, 32px);
+  }
+
+  #slide_14 .slide_14-left {
+    grid-row: 2;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+
+  #slide_14 .slide_14-left .watch-wrapper {
+    width: min(88vw, 400px);
+    max-width: 100%;
+    margin: 0 auto;
+    flex-shrink: 0;
+  }
+
+  #slide_14 .slide_14-left img.watch,
+  #slide_14 .slide_14-left .watch {
+    position: relative;
+    inset: auto;
+    top: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    transform: none;
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: min(48vh, 420px);
+    margin: 0 auto;
+    object-fit: contain;
+    object-position: center;
+    filter: drop-shadow(0 14px 40px rgba(0, 0, 0, 0.55));
+  }
+
+  /* Slide 15 — телефон: как слайд 14 — текст → часы; фон, тень справа и усиленный низ */
+  #slide_15 {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    min-height: 100vh;
+    min-height: 100dvh;
+    height: auto;
+    background-size: cover;
+    background-position: 52% center;
+    background-repeat: no-repeat;
+    padding-top: max(88px, calc(env(safe-area-inset-top, 0px) + 48px));
+    padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
+  }
+
+  #slide_15::after {
+    background:
+      linear-gradient(
+        to left,
+        rgba(0, 0, 0, 0.82) 0%,
+        rgba(0, 0, 0, 0.45) 22%,
+        rgba(0, 0, 0, 0.12) 48%,
+        transparent 72%
+      ),
+      linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.5) 0%,
+        transparent 26%,
+        transparent 48%,
+        rgba(0, 0, 0, 0.45) 72%,
+        rgba(0, 0, 0, 0.78) 92%,
+        rgba(0, 0, 0, 0.9) 100%
+      ),
+      linear-gradient(
+        to right,
+        rgba(0, 0, 0, 0.55) 0%,
+        rgba(0, 0, 0, 0.18) 38%,
+        transparent 68%
+      );
+  }
+
+  #slide_15 .slide_15-content {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    align-content: center;
+    row-gap: clamp(22px, 5vh, 40px);
+    flex: 0 1 auto;
+    width: 100%;
+    height: auto;
+    min-height: 0;
+  }
+
+  #slide_15 .slide_15-right {
+    display: contents;
+  }
+
+  #slide_15 .slide_15-right h2 {
+    grid-row: 1;
+    width: 100%;
+    max-width: min(38ch, 94vw);
+    text-align: center;
+    margin: 0;
+    font-size: clamp(20px, 5vw, 30px);
+  }
+
+  #slide_15 .slide_15-left {
+    grid-row: 2;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+
+  #slide_15 .slide_15-left .watch-wrapper {
+    width: min(88vw, 400px);
+    max-width: 100%;
+    margin: 0 auto;
+    flex-shrink: 0;
+  }
+
+  #slide_15 .slide_15-left img.watch,
+  #slide_15 .slide_15-left .watch {
+    position: relative;
+    inset: auto;
+    top: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    transform: none;
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: min(48vh, 420px);
+    margin: 0 auto;
+    object-fit: contain;
+    object-position: center;
+    filter: drop-shadow(0 14px 40px rgba(0, 0, 0, 0.55));
+  }
+
+  /* Slide 16 — телефон: часы сверху, подпись снизу; фон + градиенты как 14/15 */
+  #slide_16 {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    min-height: 100vh;
+    min-height: 100dvh;
+    height: auto;
+    /* иначе overflow:hidden с десктопа режет стек часов (absolute + translateY) в ландшафте */
+    overflow-x: hidden;
+    overflow-y: visible;
+    background-size: cover;
+    background-position: 24% center;
+    background-repeat: no-repeat;
+    padding-top: max(88px, calc(env(safe-area-inset-top, 0px) + 48px));
+    padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
+  }
+
+  #slide_16::before {
+    -webkit-mask-image: none;
+    mask-image: none;
+    background-image: none;
+    background: linear-gradient(
+      to bottom,
+      rgba(2, 6, 12, 0.78) 0%,
+      transparent 18%,
+      transparent 55%,
+      rgba(2, 6, 12, 0.2) 100%
+    );
+  }
+
+  #slide_16::after {
+    background:
+      linear-gradient(
+        to left,
+        rgba(0, 0, 0, 0.82) 0%,
+        rgba(0, 0, 0, 0.45) 22%,
+        rgba(0, 0, 0, 0.12) 48%,
+        transparent 72%
+      ),
+      linear-gradient(
+        to bottom,
+        rgba(5, 10, 18, 0.5) 0%,
+        transparent 26%,
+        transparent 48%,
+        rgba(5, 10, 18, 0.45) 72%,
+        rgba(5, 10, 18, 0.78) 92%,
+        rgba(5, 10, 18, 0.9) 100%
+      ),
+      linear-gradient(
+        to right,
+        rgba(5, 10, 18, 0.55) 0%,
+        rgba(5, 10, 18, 0.18) 38%,
+        transparent 68%
+      );
+  }
+
+  #slide_16 .slide_16-content {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    align-content: center;
+    row-gap: clamp(32px, 10vh, 72px);
+    flex: 0 1 auto;
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    padding: 0 max(16px, env(safe-area-inset-left, 0px)) 0
+      max(16px, env(safe-area-inset-right, 0px));
+  }
+
+  #slide_16 .slide_16-right {
+    display: contents;
+    flex: unset;
+    width: auto;
+    min-height: 0;
+  }
+
+  #slide_16 .slide_16-left {
+    grid-row: 1;
+    flex: none;
+    max-width: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  #slide_16 .slide_16-signature {
+    grid-row: 2;
+    position: relative;
+    bottom: auto;
+    right: auto;
+    align-self: center;
+    justify-self: center;
+    width: min(88vw, 300px);
+    max-width: 100%;
+    margin: clamp(20px, 6vh, 56px) auto 0;
+  }
+
+  #slide_16 .slide_16-watch-stack {
+    width: min(98vw, 600px);
+    min-height: clamp(300px, 54vh, min(72dvh, 680px));
+    margin-left: auto;
+    margin-right: auto;
+    overflow: visible;
+    transform: translateX(calc(-3.75% - clamp(10px, 4.5vw, 36px)));
+  }
+
+  #slide_16 .slide_16-left .watch {
+    width: auto;
+    max-width: 96%;
+    max-height: min(66dvh, 100vmin, 620px);
+    height: auto;
+    object-fit: contain;
+  }
+
+  /* стек от центра блока, как текст и подпись ниже */
+  #slide_16 .slide_16-left .watch-gold {
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  #slide_16 .slide_16-left .watch-black {
+    left: 50%;
+    transform: translate(4%, -50%) scale(0.84);
+  }
+}
+
+/* Слайд 16 — низкая высота: компактные отступы, часы всё ещё от высоты экрана (не крошечные) */
+@media (max-width: 1100px) and (max-height: 520px) {
+  #slide_16 {
+    padding-top: max(48px, calc(env(safe-area-inset-top, 0px) + 20px));
+    padding-bottom: max(10px, env(safe-area-inset-bottom, 0px));
+  }
+
+  .slide_16-content {
+    padding-top: clamp(48px, 10vh, 88px);
+    gap: clamp(8px, 2.5vh, 18px);
+  }
+
+  #slide_16 .slide_16-content {
+    row-gap: clamp(8px, 2.5vh, 18px);
+  }
+
+  #slide_16 .slide_16-watch-stack,
+  .slide_16-watch-stack {
+    min-height: clamp(160px, min(52dvh, 78vmin), 360px);
+    width: min(96vw, min(520px, 96vmin));
+    transform: translateX(calc(-3.75% - clamp(6px, 3vw, 20px)));
+  }
+
+  .slide_16-left .watch {
+    max-height: min(72dvh, 82vmin, 420px);
+    width: auto;
+    max-width: 92%;
+    object-fit: contain;
+  }
+
+  .slide_16-left .watch-gold {
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .slide_16-left .watch-black {
+    left: 50%;
+    transform: translate(4%, -50%) scale(0.82);
+  }
+
+  #slide_16 .slide_16-signature {
+    margin: clamp(6px, 2vh, 16px) auto 0;
+    width: min(72vw, 260px);
+  }
 }
 
 /* Узкий планшет в двух колонках: ещё ужать часы, чтобы текст не заходил на картинку */
 @media (max-width: 900px) and (min-width: 768px) {
+  #slide_13 .slide_13-left .watch-wrapper {
+    max-width: min(38vw, 300px);
+  }
+
+  #slide_13 .slide_13-right {
+    top: 14%;
+    max-width: min(400px, 50vw);
+  }
+
   #slide_7 .slide_7-left .watch {
     max-width: min(44vw, 400px);
     max-height: min(72vh, 72dvh);
