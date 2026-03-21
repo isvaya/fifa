@@ -23,6 +23,8 @@ html {
   /* hidden — fallback; clip — не создаёт scrollport по X, sticky по секциям работает */
   overflow-x: hidden;
   overflow-x: clip;
+  /* явная вертикаль: на части Windows-браузеров без этого Lenis получает limit=0 до первого reflow */
+  overflow-y: auto;
   max-width: 100%;
   scroll-padding-top: max(96px, calc(env(safe-area-inset-top, 0px) + 64px));
 }

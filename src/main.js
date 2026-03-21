@@ -76,8 +76,12 @@ function initLenisSnap(slides, reduceMotion) {
   const lenis = new Lenis({
     autoRaf: true,
     lerp: 0.055,
-    /* меньше инерции за один тик — меньше «выпирания» следующего слайда до дотяжки */
-    wheelMultiplier: 0.44,
+    /*
+     * Windows (Chrome/Edge): wheel надёжнее ловить на document, не только на window.
+     * Слишком малый wheelMultiplier + mandatory snap давал ощущение «колесо не крутит страницу».
+     */
+    eventsTarget: document,
+    wheelMultiplier: 0.72,
     touchMultiplier: 0.82,
     smoothWheel: true,
     syncTouch: true,
@@ -122,8 +126,22 @@ function initLenisSnap(slides, reduceMotion) {
   }
 
   requestAnimationFrame(() => syncSnapPositions());
-  window.addEventListener('load', () => syncSnapPositions(), { once: true });
-  window.addEventListener('resize', () => syncSnapPositions(), { passive: true });
+  window.addEventListener(
+    'load',
+    () => {
+      lenis.resize();
+      syncSnapPositions();
+    },
+    { once: true }
+  );
+  window.addEventListener(
+    'resize',
+    () => {
+      lenis.resize();
+      syncSnapPositions();
+    },
+    { passive: true }
+  );
 
   /*
    * До загрузки картинок высота секций (в т.ч. #slide_10) может быть ~1 экран — interior snap не создаётся.
