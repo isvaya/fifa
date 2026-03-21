@@ -1259,7 +1259,7 @@ body.order-modal-active {
 #slide_5 {
   height: 100vh;
 
-  background: url('/images/slide5_bg.png') center/cover no-repeat;
+  background: url('/images/webp-images/slide5_bg.webp') center/cover no-repeat;
 
   display: flex;
   align-items: center;
@@ -2601,7 +2601,7 @@ body.order-modal-active {
 #slide_12 {
   height: 100vh;
 
-  background: url('/images/bg-green.png') center/cover no-repeat;
+  background: url('/images/webp-images/bg-green.webp') center/cover no-repeat;
 
   display: flex;
   align-items: center;
@@ -2789,7 +2789,7 @@ body.order-modal-active {
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background: url('/images/bg-rolls.jpg') no-repeat;
+  background: url('/images/webp-images/bg-rolls.webp') no-repeat;
   background-size: 70%;
   background-position: right -100px center;
 }
@@ -3045,14 +3045,14 @@ body.order-modal-active {
 #slide_15 {
   height: 100vh;
 
-  background: url('/images/bg-f1.png') center/cover no-repeat;
+  background: url('/images/webp-images/bg-f1.webp') center/cover no-repeat;
 
   display: flex;
   align-items: center;
 }
 
 #slide_15 {
-  background: url('/images/bg-lamba.png') center/cover no-repeat;
+  background: url('/images/webp-images/bg-lamba.webp') center/cover no-repeat;
 }
 #slide_14::after,
 #slide_15::after {
@@ -3231,7 +3231,7 @@ body.order-modal-active {
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background-image: url('/images/bg-cherchill.png');
+  background-image: url('/images/webp-images/bg-cherchill.webp');
   background-repeat: no-repeat;
   background-position: right 0 center;
   background-size: auto min(108%, 100vh);
@@ -3652,7 +3652,7 @@ body.order-modal-active {
   pointer-events: none;
 
   background-color: #0c0b0a;
-  background-image: url('/images/registan.jpg');
+  background-image: url('/images/webp-images/registan.webp');
   background-repeat: no-repeat;
   /* прижато к правому краю слайда; cover убирает чёрную полосу справа */
   background-position: right center;
