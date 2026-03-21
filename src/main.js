@@ -1,20 +1,6 @@
 import './style.css';
-import Lenis from 'lenis';
-import Snap from 'lenis/snap';
-import 'lenis/dist/lenis.css';
 
 const SLIDE_SELECTOR = 'section[id^="slide_"]';
-
-/** Суммарный offsetTop по цепочке offsetParent (нормальный поток, без «липкого» смещения). */
-function flowOffsetTop(el) {
-  let y = 0;
-  let n = el;
-  while (n) {
-    y += n.offsetTop;
-    n = n.offsetParent;
-  }
-  return y;
-}
 
 /** Зона «главного кадра» sticky-слайда (совпадает с порогами анимаций 5–7). */
 function slideRevealInZone(r, vh) {
@@ -66,123 +52,17 @@ function bindSlideRevealOnZone(sectionId, className, reduceMotion, lenis) {
 }
 
 /**
- * На слабых GPU и тач-устройствах Lenis + mandatory snap дают заметные подвисания.
- * Нативный скролл + CSS scroll-snap (как при prefers-reduced-motion) обычно плавнее.
+ * Везде нативный скролл + CSS scroll-snap (см. html.use-native-scroll-snap в style.css).
+ * Раньше: Lenis + Snap на десктопе — на таче/Windows/слабом GPU давало «не доскроллило», обрыв анимаций, фризы.
+ * Премиальные лендинги вроде jacobandco.com опираются на нативный скролл ОС, без виртуального скролла.
  */
-function shouldUseNativeScroll(reduceMotion) {
-  if (reduceMotion) return true;
-  try {
-    if (window.matchMedia('(max-width: 900px)').matches) return true;
-    if (window.matchMedia('(pointer: coarse)').matches) return true;
-    if (navigator.connection?.saveData === true) return true;
-    if (typeof navigator.deviceMemory === 'number' && navigator.deviceMemory <= 4) return true;
-  } catch {
-    /* ignore */
-  }
-  return false;
+function shouldUseNativeScroll() {
+  return true;
 }
 
-/**
- * Плавный скролл + snap к слайдам.
- * Визуальная «стопка» (предыдущий слайд под следующим) даётся в CSS: .snap-section { position: sticky }
- * и возрастающий z-index по порядку в initSlidesStackAndReveal.
- */
-function initLenisSnap(slides, skipLenis) {
-  if (skipLenis) return null;
-
-  const lenis = new Lenis({
-    autoRaf: true,
-    /* выше lerp = быстрее догоняет цель, меньше «тяжёлого» сглаживания при скролле */
-    lerp: 0.1,
-    /*
-     * Windows (Chrome/Edge): wheel надёжнее ловить на document, не только на window.
-     * Слишком малый wheelMultiplier + mandatory snap давал ощущение «колесо не крутит страницу».
-     */
-    eventsTarget: document,
-    wheelMultiplier: 0.72,
-    touchMultiplier: 0.82,
-    smoothWheel: true,
-    syncTouch: true,
-    syncTouchLerp: 0.055,
-    /* false: иначе Lenis вешает click на window и перехватывает все <a href="#..."> — ломает .slide-rail */
-    anchors: false,
-  });
-
-  /*
-   * mandatory: после паузы в жесте дотягиваем до ближайшей snap-точки — без «выпирания» следующего слайда.
-   * Для каждой секции выше одного экрана добавляем точки top+vh, top+2vh… (как для 200vh у #slide_3),
-   * иначе mandatory всё время тянет к верху длинного слайда и ломает скролл по всему лендингу.
-   */
-  const snap = new Snap(lenis, {
-    type: 'mandatory',
-    duration: 0.68,
-    easing: (t) => 1 - Math.pow(1 - t, 3),
-    /* реже пересчитывать snap во время инерции колеса — меньше микролагов */
-    debounce: 80,
-  });
-
-  snap.addElements([...slides], { align: 'start', ignoreSticky: true });
-
-  let interiorSnapRemovers = [];
-
-  function syncSnapPositions() {
-    snap.resize();
-    interiorSnapRemovers.forEach((unsub) => unsub());
-    interiorSnapRemovers = [];
-    const vh = Math.max(1, window.visualViewport?.height ?? window.innerHeight);
-
-    for (const el of slides) {
-      if (!(el instanceof HTMLElement)) continue;
-      const h = el.offsetHeight;
-      /* только заметно выше экрана — иначе лишние точки дают «прыжки» между соседними слайдами */
-      if (h <= vh * 1.12) continue;
-      const top = flowOffsetTop(el);
-      const pageCount = Math.max(1, Math.ceil(h / vh));
-      for (let k = 1; k < pageCount; k += 1) {
-        interiorSnapRemovers.push(snap.add(Math.ceil(top + k * vh)));
-      }
-    }
-  }
-
-  requestAnimationFrame(() => syncSnapPositions());
-  window.addEventListener(
-    'load',
-    () => {
-      lenis.resize();
-      syncSnapPositions();
-    },
-    { once: true }
-  );
-  window.addEventListener(
-    'resize',
-    () => {
-      lenis.resize();
-      syncSnapPositions();
-    },
-    { passive: true }
-  );
-
-  /*
-   * До загрузки картинок высота секций (в т.ч. #slide_10) может быть ~1 экран — interior snap не создаётся.
-   * После загрузки контент растёт; без пересчёта mandatory snap тянет сразу к следующему слайду.
-   */
-  let snapResizeDebounce = 0;
-  function scheduleSnapSyncFromResize() {
-    if (snapResizeDebounce) clearTimeout(snapResizeDebounce);
-    snapResizeDebounce = window.setTimeout(() => {
-      snapResizeDebounce = 0;
-      requestAnimationFrame(() => syncSnapPositions());
-    }, 200);
-  }
-  const slideResizeObserver = new ResizeObserver(() => scheduleSnapSyncFromResize());
-  for (const el of slides) {
-    if (el instanceof HTMLElement) slideResizeObserver.observe(el);
-  }
-
-  /* для навигации по точкам: отключать mandatory snap на время программного scrollTo */
-  lenis.__fifaSnap = snap;
-
-  return lenis;
+/** Резерв под Lenis (отключён): всегда null. */
+function initLenisSnap(_slides, _skipLenis) {
+  return null;
 }
 
 /**
@@ -820,8 +700,6 @@ function initSlideRail(slides, reduceMotion, lenis) {
   nav.className = 'slide-rail';
   nav.setAttribute('role', 'navigation');
   nav.setAttribute('aria-label', 'Слайды');
-  /* Не отдавать жесты Lenis (virtual scroll) — иначе тап по точке может уйти в скролл страницы */
-  nav.setAttribute('data-lenis-prevent', '');
   const ul = document.createElement('ul');
   const links = [];
 
@@ -960,7 +838,7 @@ function initSlidesStackAndReveal() {
   if (!slides.length) return;
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const nativeScroll = shouldUseNativeScroll(reduceMotion);
+  const nativeScroll = shouldUseNativeScroll();
 
   if (nativeScroll) {
     document.documentElement.classList.add('use-native-scroll-snap');

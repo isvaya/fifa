@@ -28,16 +28,16 @@ html {
 }
 
 /*
- * Нативный scroll-snap, если Lenis отключён (prefers-reduced-motion).
- * Иначе привязка к слайдам даёт lenis/snap в main.js — как на премиальных лендингах.
+ * Нативный scroll-snap для всех: proximity + normal stop — меньше «залипаний» и недоскролла,
+ * чем у mandatory + scroll-snap-stop: always (особенно на таче и длинных секциях).
  */
 html.use-native-scroll-snap {
-  scroll-snap-type: y mandatory;
+  scroll-snap-type: y proximity;
 }
 
 html.use-native-scroll-snap .snap-section {
   scroll-snap-align: start;
-  scroll-snap-stop: always;
+  scroll-snap-stop: normal;
 }
 
 /*
@@ -51,6 +51,10 @@ html.perf-lite #slide_4 .slide_4-stack {
 @media (prefers-reduced-motion: reduce) {
   html.use-native-scroll-snap {
     scroll-snap-type: y proximity;
+  }
+
+  html.use-native-scroll-snap .snap-section {
+    scroll-snap-stop: normal;
   }
 }
 
