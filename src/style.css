@@ -18,44 +18,19 @@
 }
 
 html {
-  /* hidden — fallback; clip — не создаёт scrollport по X, sticky по секциям работает */
   overflow-x: hidden;
   overflow-x: clip;
-  /* явная вертикаль: на части Windows-браузеров без этого Lenis получает limit=0 до первого reflow */
   overflow-y: auto;
   max-width: 100%;
   scroll-padding-top: max(96px, calc(env(safe-area-inset-top, 0px) + 64px));
 }
 
 /*
- * Нативный scroll-snap для всех: proximity + normal stop — меньше «залипаний» и недоскролла,
- * чем у mandatory + scroll-snap-stop: always (особенно на таче и длинных секциях).
- */
-html.use-native-scroll-snap {
-  scroll-snap-type: y proximity;
-}
-
-html.use-native-scroll-snap .snap-section {
-  scroll-snap-align: start;
-  scroll-snap-stop: normal;
-}
-
-/*
- * Тач / узкий экран (класс вешает main.js): убираем blur на слайде 4 — на мобильных GPU это частый источник фризов.
+ * Тач / без reduced-motion (класс вешает main.js): без blur на слайде 4 для GPU.
  */
 html.perf-lite #slide_4 .slide_4-stack {
   filter: none !important;
   opacity: 1;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html.use-native-scroll-snap {
-    scroll-snap-type: y proximity;
-  }
-
-  html.use-native-scroll-snap .snap-section {
-    scroll-snap-stop: normal;
-  }
 }
 
 body {
@@ -1107,8 +1082,6 @@ body.order-modal-active {
   min-height: 100dvh;
   max-height: 100svh;
   box-sizing: border-box;
-  margin-top: -100vh;
-  margin-top: -100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -5653,13 +5626,11 @@ body.order-modal-active {
 }
 
 /*
- * Стопка слайдов (как колода карт): текущий кадр липнет к top:0, следующий едет снизу и ложится сверху
- * (больший z-index у следующего в разметке). Lenis только сглаживает скролл — геометрия здесь.
- * Важно: не задавать на section#slide_* position: relative — иначе ломается sticky.
+ * Секции слайдов — обычный поток документа (без sticky-«колоды» и scroll-snap): скролл предсказуемый.
+ * Класс нужен для .reveal-child / is-inview (анимации при появлении в кадре).
  */
 .snap-section {
-  position: sticky;
-  top: 0;
+  position: relative;
   min-height: 100vh;
   min-height: 100dvh;
   isolation: isolate;

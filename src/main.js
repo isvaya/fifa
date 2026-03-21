@@ -52,20 +52,6 @@ function bindSlideRevealOnZone(sectionId, className, reduceMotion, lenis) {
 }
 
 /**
- * Везде нативный скролл + CSS scroll-snap (см. html.use-native-scroll-snap в style.css).
- * Раньше: Lenis + Snap на десктопе — на таче/Windows/слабом GPU давало «не доскроллило», обрыв анимаций, фризы.
- * Премиальные лендинги вроде jacobandco.com опираются на нативный скролл ОС, без виртуального скролла.
- */
-function shouldUseNativeScroll() {
-  return true;
-}
-
-/** Резерв под Lenis (отключён): всегда null. */
-function initLenisSnap(_slides, _skipLenis) {
-  return null;
-}
-
-/**
  * Hero → слайд 2: --slide2-intro (линейно, шторка + затемнение 1-го + хедер),
  * --slide2-watches (медленнее, часы справа), --slide2-copy (ещё плавнее, текст/подпись).
  */
@@ -838,23 +824,15 @@ function initSlidesStackAndReveal() {
   if (!slides.length) return;
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const nativeScroll = shouldUseNativeScroll();
 
-  if (nativeScroll) {
-    document.documentElement.classList.add('use-native-scroll-snap');
-    if (!reduceMotion) {
-      document.documentElement.classList.add('perf-lite');
-    }
+  if (!reduceMotion) {
+    document.documentElement.classList.add('perf-lite');
   }
 
-  const lenis = initLenisSnap(slides, nativeScroll);
+  const lenis = null;
 
-  const STACK_BASE_Z = 20;
   slides.forEach((section, index) => {
     section.classList.add('snap-section');
-    /* Каждый следующий слайд выше по z-index — наезжает на предыдущий при скролле */
-    const z = STACK_BASE_Z + index;
-    section.style.zIndex = String(z);
 
     if (reduceMotion) {
       section.classList.add('is-inview');
@@ -921,8 +899,8 @@ function initSlidesStackAndReveal() {
     },
     {
       root: null,
-      threshold: 0.12,
-      rootMargin: '-10% 0px -8% 0px',
+      threshold: 0.06,
+      rootMargin: '-6% 0px -10% 0px',
     }
   );
 
