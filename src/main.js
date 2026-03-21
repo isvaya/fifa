@@ -124,6 +124,23 @@ function initLenisSnap(slides, reduceMotion) {
   window.addEventListener('load', () => syncSnapPositions(), { once: true });
   window.addEventListener('resize', () => syncSnapPositions(), { passive: true });
 
+  /*
+   * До загрузки картинок высота секций (в т.ч. #slide_10) может быть ~1 экран — interior snap не создаётся.
+   * После загрузки контент растёт; без пересчёта mandatory snap тянет сразу к следующему слайду.
+   */
+  let snapSyncRaf = 0;
+  function scheduleSnapSyncFromResize() {
+    if (snapSyncRaf) return;
+    snapSyncRaf = requestAnimationFrame(() => {
+      snapSyncRaf = 0;
+      syncSnapPositions();
+    });
+  }
+  const slideResizeObserver = new ResizeObserver(() => scheduleSnapSyncFromResize());
+  for (const el of slides) {
+    if (el instanceof HTMLElement) slideResizeObserver.observe(el);
+  }
+
   return lenis;
 }
 
@@ -547,8 +564,55 @@ function initSlide9(reduceMotion, lenis) {
   updateZone();
 }
 
+/**
+ * Слайд 10: длинная колонка карточек на мобиле.
+ * Обычный slideRevealInZone снимает класс при прокрутке внутри слайда (r.top уходит в минус) — не используем.
+ * Класс снимаем только когда секция полностью вне вьюпорта, чтобы не мешать скроллу по карточкам.
+ */
 function initSlide10Reveal(reduceMotion, lenis) {
-  bindSlideRevealOnZone('slide_10', 'slide-10-revealed', reduceMotion, lenis);
+  const el = document.getElementById('slide_10');
+  if (!el) return;
+
+  if (reduceMotion) {
+    el.classList.add('slide-10-revealed');
+    return;
+  }
+
+  let revealed = false;
+  let ticking = false;
+
+  function update() {
+    const vh = window.innerHeight || 1;
+    const r = el.getBoundingClientRect();
+    const inFocusZone = slideRevealInZone(r, vh);
+    const intersectsViewport = r.bottom > 0 && r.top < vh;
+    /* мягче узкой зоны: слайд заполняет кадр после snap, чтобы не остаться без reveal */
+    const looseInView =
+      intersectsViewport && r.top <= vh * 0.32 && r.bottom >= vh * 0.42;
+
+    if (!revealed && (inFocusZone || looseInView)) {
+      el.classList.add('slide-10-revealed');
+      revealed = true;
+    } else if (revealed && !intersectsViewport) {
+      el.classList.remove('slide-10-revealed');
+      revealed = false;
+    }
+    ticking = false;
+  }
+
+  function onScrollOrResize() {
+    if (!ticking) {
+      ticking = true;
+      requestAnimationFrame(update);
+    }
+  }
+
+  window.addEventListener('scroll', onScrollOrResize, { passive: true });
+  window.addEventListener('resize', onScrollOrResize, { passive: true });
+  if (lenis) {
+    lenis.on('scroll', onScrollOrResize);
+  }
+  update();
 }
 
 /** Слайд 11: часы увеличиваются; после — печать h2; затем подпись (slide-11-signature-revealed). */

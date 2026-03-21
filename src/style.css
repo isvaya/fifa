@@ -2174,6 +2174,12 @@ section[id^='slide_'] {
   transition: transform 0.3s ease;
 }
 
+/* Резервируем квадрат под PNG до загрузки — иначе offsetHeight слайда 10 мала и Lenis не ставит interior snap */
+#slide_10 .slide_10-grid .card img {
+  aspect-ratio: 1;
+  object-fit: contain;
+}
+
 
 .card:hover img {
   transform: translateY(-10px) scale(1.05);
@@ -2731,6 +2737,11 @@ section[id^='slide_'] {
   transform: translate3d(min(48px, 6vw), 0, 0);
 }
 
+#slide_13:not(.slide-13-revealed) .slide_13-right > .rolls-logo {
+  opacity: 0;
+  transform: translate3d(min(48px, 6vw), 0, 0);
+}
+
 @keyframes slide13_bg_fade {
   from {
     opacity: 0;
@@ -2762,6 +2773,39 @@ section[id^='slide_'] {
   }
 }
 
+@keyframes slide13_watch_from_top {
+  from {
+    opacity: 0;
+    transform: translateY(calc(-1 * min(44px, 7vh)));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide13_copy_mobile {
+  from {
+    opacity: 0;
+    transform: translate3d(0, min(22px, 3.2vh), 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes slide13_logo_mobile {
+  from {
+    opacity: 0;
+    transform: translate3d(0, min(18px, 2.8vh), 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
 #slide_13.slide-13-revealed .slide_13-bg {
   animation: slide13_bg_fade 1.05s cubic-bezier(0.33, 0.86, 0.42, 1) both;
 }
@@ -2771,6 +2815,10 @@ section[id^='slide_'] {
 }
 
 #slide_13.slide-13-revealed .slide_13-copy-stack {
+  animation: slide13_copy_in 0.88s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.52s both;
+}
+
+#slide_13.slide-13-revealed .slide_13-right > .rolls-logo {
   animation: slide13_copy_in 0.88s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.52s both;
 }
 
@@ -2787,6 +2835,12 @@ section[id^='slide_'] {
   }
 
   #slide_13 .slide_13-copy-stack {
+    opacity: 1 !important;
+    animation: none !important;
+    transform: none !important;
+  }
+
+  #slide_13 .slide_13-right > .rolls-logo {
     opacity: 1 !important;
     animation: none !important;
     transform: none !important;
@@ -4717,13 +4771,13 @@ section[id^='slide_'] {
     );
   }
 
-  /* Slide 13 — телефон: без фото машины; тёмный фон + сильная виньетка */
+  /* Slide 13 — телефон: часы сверху → по центру текст и подпись → снизу RR; анимации по очереди */
   #slide_13 {
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    justify-content: center;
+    justify-content: flex-start;
     min-height: 100vh;
     min-height: 100dvh;
     height: auto;
@@ -4748,60 +4802,20 @@ section[id^='slide_'] {
 
   #slide_13 .slide_13-content {
     position: relative;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto auto;
-    justify-items: center;
-    align-content: center;
-    row-gap: clamp(18px, 4vh, 32px);
-    flex: 0 1 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    flex: 1 1 auto;
     width: 100%;
-    height: auto;
     min-height: 0;
+    height: auto;
+    gap: clamp(12px, 2.5vh, 22px);
     padding-top: 0;
     padding-bottom: 0;
   }
 
-  #slide_13 .slide_13-right {
-    position: static;
-    top: auto;
-    right: auto;
-    left: auto;
-    transform: none;
-    display: flex;
-    justify-content: flex-end;
-    width: 100%;
-    max-width: none;
-    grid-row: 1;
-    padding-right: max(0px, env(safe-area-inset-right, 0px));
-    padding-left: max(0px, env(safe-area-inset-left, 0px));
-  }
-
-  #slide_13 .slide_13-copy-stack {
-    width: 100%;
-    max-width: min(36ch, 92vw);
-    align-items: flex-end;
-    text-align: right;
-  }
-
-  #slide_13 .slide_13-right h2 {
-    width: 100%;
-    margin: 0;
-    text-align: right;
-  }
-
-  #slide_13 .slide_13-lead,
-  #slide_13 .slide_13-note {
-    font-size: clamp(17px, 4.2vw, 22px);
-    text-align: right;
-  }
-
-  #slide_13 .slide_13-signature-mark {
-    align-self: flex-end;
-  }
-
   #slide_13 .slide_13-left {
-    grid-row: 2;
+    flex: 0 0 auto;
     display: flex;
     justify-content: center;
     width: 100%;
@@ -4826,24 +4840,101 @@ section[id^='slide_'] {
     display: block;
     width: 100%;
     height: auto;
-    max-height: min(46vh, 400px);
+    max-height: min(38vh, 360px);
     margin: 0 auto;
     object-fit: contain;
     object-position: center;
     filter: drop-shadow(0 14px 40px rgba(0, 0, 0, 0.55));
   }
 
-  #slide_13 .rolls-logo {
-    align-self: flex-end;
-    width: min(130px, 38vw);
-    max-width: 160px;
-    margin-top: clamp(8px, 2vh, 16px);
+  #slide_13 .slide_13-right {
+    position: static;
+    top: auto;
+    right: auto;
+    left: auto;
+    transform: none;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 0;
+    width: 100%;
+    max-width: none;
+    padding-right: max(0px, env(safe-area-inset-right, 0px));
+    padding-left: max(0px, env(safe-area-inset-left, 0px));
+    gap: clamp(10px, 2vh, 18px);
+  }
+
+  #slide_13 .slide_13-copy-stack {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+    max-width: min(36ch, 92vw);
+    margin-inline: auto;
+    gap: clamp(10px, 1.8vh, 18px);
+  }
+
+  #slide_13 .slide_13-right h2 {
+    width: 100%;
+    margin: 0;
+    text-align: center;
+  }
+
+  #slide_13 .slide_13-lead,
+  #slide_13 .slide_13-note {
+    font-size: clamp(17px, 4.2vw, 22px);
+    text-align: center;
   }
 
   #slide_13 .slide_13-signature-mark {
     width: min(110px, 40vw);
     max-width: 140px;
-    align-self: flex-end;
+    align-self: center;
+    margin-top: clamp(2px, 0.6vh, 8px);
+  }
+
+  #slide_13 .rolls-logo {
+    flex: 0 0 auto;
+    align-self: center;
+    position: relative;
+    bottom: auto;
+    right: auto;
+    width: min(130px, 38vw);
+    max-width: 160px;
+    margin-top: 0;
+    margin-bottom: clamp(4px, 1vh, 10px);
+  }
+
+  #slide_13:not(.slide-13-revealed) .slide_13-left .watch {
+    opacity: 0;
+    transform: translateY(calc(-1 * min(44px, 7vh)));
+  }
+
+  #slide_13:not(.slide-13-revealed) .slide_13-copy-stack {
+    opacity: 0;
+    transform: translate3d(0, min(22px, 3.2vh), 0);
+  }
+
+  #slide_13:not(.slide-13-revealed) .slide_13-right > .rolls-logo {
+    opacity: 0;
+    transform: translate3d(0, min(18px, 2.8vh), 0);
+  }
+
+  #slide_13.slide-13-revealed .slide_13-left .watch {
+    animation: slide13_watch_from_top 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0s both;
+  }
+
+  #slide_13.slide-13-revealed .slide_13-copy-stack {
+    animation: slide13_copy_mobile 0.88s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.36s both;
+  }
+
+  #slide_13.slide-13-revealed .slide_13-right > .rolls-logo {
+    animation: slide13_logo_mobile 0.82s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.78s both;
   }
 
   #slide_13::after {
@@ -5305,13 +5396,95 @@ section[id^='slide_'] {
 }
 
 @media (max-width: 520px) {
-  .slide_10-grid {
-    grid-template-columns: 1fr;
-    justify-items: center;
+  #slide_10 .slide_10-text {
+    font-size: clamp(15px, 3.9vw, 17px);
+    margin-bottom: clamp(16px, 3.5vh, 26px);
   }
 
   .card img {
-    max-width: 200px;
+    max-width: min(160px, 44vw);
+  }
+}
+
+/*
+ * Слайд 10 на телефоне: после правил @media (max-width: 1024px) — иначе padding #slide_10 перезаписывается.
+ * Ровно высота экрана: контент колонкой, сетка 2×2 с равными строками — часы растягиваются по доступной высоте.
+ */
+@media (max-width: 767px) {
+  #slide_10 {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    box-sizing: border-box;
+    height: 100vh;
+    height: 100dvh;
+    min-height: 100vh;
+    min-height: 100dvh;
+    max-height: 100vh;
+    max-height: 100dvh;
+    overflow-x: clip;
+    overflow-y: hidden;
+    padding-top: max(88px, calc(env(safe-area-inset-top, 0px) + 48px));
+    padding-bottom: max(28px, env(safe-area-inset-bottom, 0px));
+    padding-left: max(12px, env(safe-area-inset-left, 0px));
+    padding-right: max(12px, env(safe-area-inset-right, 0px));
+  }
+
+  #slide_10 .slide_10-content {
+    width: 100%;
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: max(4px, env(safe-area-inset-bottom, 0px));
+  }
+
+  #slide_10 .slide_10-text {
+    flex: 0 0 auto;
+    margin-bottom: clamp(12px, 2.2vh, 24px);
+    font-size: clamp(15px, 3.6vw, 18px);
+  }
+
+  /* 2×2: две равные строки на оставшуюся высоту */
+  #slide_10 .slide_10-grid {
+    flex: 1 1 auto;
+    min-height: 0;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: 1fr 1fr;
+    gap: clamp(10px, 2.2vw, 16px);
+    justify-items: center;
+    align-items: stretch;
+  }
+
+  #slide_10 .slide_10-grid .card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: none;
+    min-height: 0;
+    height: 100%;
+    margin-inline: 0;
+  }
+
+  #slide_10 .slide_10-grid .card img {
+    flex: 1 1 auto;
+    min-height: 0;
+    width: auto;
+    max-width: 100%;
+    max-height: none;
+    height: auto;
+    aspect-ratio: auto;
+    object-fit: contain;
+    margin-bottom: clamp(6px, 1vh, 10px);
+  }
+
+  #slide_10 .slide_10-grid .card p {
+    flex: 0 0 auto;
+    font-size: clamp(11px, 2.85vw, 13px);
+    line-height: 1.35;
   }
 }
 
