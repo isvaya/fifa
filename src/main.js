@@ -575,7 +575,8 @@ function initSlide11(reduceMotion, lenis) {
 
   const WATCH_ANIM_MS = 960;
   const h2Text = flattenNodeText(h2);
-  const TYPE_DURATION_MS = Math.min(4200, Math.max(1400, h2Text.length * 58));
+  /* Линейная прогресс по tLin (без ease-out на n): иначе последние символы «висят» секундами */
+  const TYPE_DURATION_MS = Math.min(3200, Math.max(720, h2Text.length * 42));
 
   if (reduceMotion) {
     slide11.classList.add('slide-11-revealed', 'slide-11-signature-revealed');
@@ -595,8 +596,7 @@ function initSlide11(reduceMotion, lenis) {
     }
     if (typeStartTime === null) typeStartTime = now;
     const tLin = Math.min(1, (now - typeStartTime) / TYPE_DURATION_MS);
-    const tEff = tLin >= 1 ? 1 : easeOutCubic(tLin);
-    const n = Math.min(h2Text.length, Math.floor(tEff * h2Text.length));
+    const n = Math.min(h2Text.length, Math.floor(tLin * h2Text.length));
     renderPartialText(h2, h2Text, n);
     if (tLin < 1) {
       typeRafId = requestAnimationFrame(typeLoop);
@@ -633,17 +633,33 @@ function initSlide11(reduceMotion, lenis) {
     h2.textContent = '';
   }
 
+  function slide11InZone(r, vh) {
+    /* Чуть шире общей slideRevealInZone — меньше ложных leave при инерции скролла / смене кадра */
+    return r.top < vh * 0.3 && r.bottom > vh * 0.52 && r.top > -vh * 0.48;
+  }
+
+  let outZoneFrames = 0;
+  const LEAVE_AFTER_FRAMES = 4;
+
   function updateZone() {
     const vh = window.innerHeight || 1;
     const r = slide11.getBoundingClientRect();
-    const inZone = slideRevealInZone(r, vh);
+    const inZone = slide11InZone(r, vh);
 
-    if (inZone && !wasInZone) {
-      enterZone();
-    } else if (!inZone && wasInZone) {
-      leaveZone();
+    if (inZone) {
+      outZoneFrames = 0;
+      if (!wasInZone) {
+        enterZone();
+      }
+      wasInZone = true;
+    } else if (wasInZone) {
+      outZoneFrames += 1;
+      if (outZoneFrames >= LEAVE_AFTER_FRAMES) {
+        leaveZone();
+        wasInZone = false;
+        outZoneFrames = 0;
+      }
     }
-    wasInZone = inZone;
     zoneTicking = false;
   }
 
