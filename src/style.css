@@ -8,13 +8,6 @@
 
 :root {
   --page-bg: #080f16;
-  /* 0…1: первый переход hero → слайд 2, задаётся в main.js */
-  --slide2-intro: 0;
-  --slide2-watches: 0;
-  --slide2-copy: 0;
-  /* слайд 2 → 3 */
-  --slide3-intro: 0;
-  --slide3-visual: 0;
 }
 
 html {
@@ -66,9 +59,8 @@ section[id^='slide_'] {
   padding-right: max(12px, env(safe-area-inset-right, 0px));
   box-sizing: border-box;
   z-index: 100;
-  opacity: calc(1 - var(--slide2-intro, 0));
-  transition: none;
-  will-change: opacity;
+  opacity: 1;
+  transition: opacity 0.45s ease;
 }
 
 .logo {
@@ -79,6 +71,7 @@ section[id^='slide_'] {
 }
 
 #slide_1 {
+  position: relative;
   height: 100vh;
   overflow: hidden;
   overflow: clip;
@@ -91,8 +84,8 @@ section[id^='slide_'] {
   z-index: 4;
   pointer-events: none;
   background: #000;
-  opacity: calc(var(--slide2-intro, 0) * 0.72);
-  transition: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
 }
 
 .slide_1--visual {
@@ -165,7 +158,10 @@ section[id^='slide_'] {
 /* BUTTON */
 .btn_order {
   position: relative;
-  width: clamp(260px, 25vw, 420px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(460px, 25vw, 480px);
   height: clamp(50px, 6vw, 70px);
 
   background: transparent;
@@ -196,6 +192,7 @@ section[id^='slide_'] {
   font-size: clamp(16px, 2vw, 38px);
 
   font-weight: 500;
+  white-space: nowrap;
 }
 
 .btn_order:hover polygon {
@@ -286,7 +283,13 @@ section[id^='slide_'] {
   }
 
   .btn_order {
-    width: min(100%, 320px);
+    width: min(100%, min(320px, calc(100vw - 24px)));
+    max-width: 100%;
+  }
+
+  .btn_order span {
+    font-size: clamp(12px, 3.8vw, 18px);
+    letter-spacing: clamp(2px, 0.6vw, 8px);
   }
 
   .text {
@@ -519,7 +522,7 @@ body.order-modal-active {
   overflow: hidden;
   overflow: clip;
   box-sizing: border-box;
-  clip-path: inset(calc((1 - var(--slide2-intro, 0)) * 100%) 0 0 0);
+  clip-path: inset(0 0 0 0);
 
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.22fr);
@@ -548,10 +551,9 @@ body.order-modal-active {
   width: 100%;
   min-width: 0;
   z-index: 2;
-  opacity: calc(var(--slide2-copy, 0) * (1 - var(--slide3-intro, 0) * 0.98));
-  transform: translateY(calc((1 - var(--slide2-copy, 0)) * clamp(18px, 3.2vh, 36px)))
-    translateX(calc(-1 * var(--slide3-intro, 0) * clamp(24px, 16vw, 200px)));
-  transition: none;
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.55s ease, transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .slide_2-text h2 {
@@ -570,10 +572,9 @@ body.order-modal-active {
   height: auto;
   display: block;
   margin-top: clamp(10px, 1.8vh, 20px);
-  opacity: calc(0.92 * var(--slide2-copy, 0) * (1 - var(--slide3-intro, 0) * 0.98));
-  transform: translateY(calc((1 - var(--slide2-copy, 0)) * clamp(20px, 3.4vh, 38px)))
-    translateX(calc(-1 * var(--slide3-intro, 0) * clamp(28px, 17vw, 200px)));
-  transition: none;
+  opacity: 0.92;
+  transform: none;
+  transition: opacity 0.55s ease, transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
   z-index: 2;
 }
 
@@ -586,17 +587,10 @@ body.order-modal-active {
   width: min(1800px, max(60vw, min(700px, 100%)));
   max-width: 100%;
   min-width: 0;
-  transform: translateX(
-      calc(
-        clamp(6%, 10vw, 16%) +
-          (1 - var(--slide2-watches, 0)) * clamp(48px, 11vw, 140px) +
-          var(--slide3-intro, 0) * clamp(72px, 32vw, 440px)
-      )
-    )
-    translateY(calc((1 - var(--slide2-watches, 0)) * clamp(12px, 2.2vh, 32px)));
-  opacity: calc(1 - var(--slide3-intro, 0) * 0.9);
+  transform: translateX(calc(clamp(6%, 10vw, 16%) + 0px)) translateY(0);
+  opacity: 1;
   z-index: 1;
-  transition: none;
+  transition: opacity 0.55s ease, transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* Планшеты: две колонки сохраняем, текст уже по ширине */
@@ -628,15 +622,8 @@ body.order-modal-active {
   }
 
   .slide_2--visual {
-    transform: translateX(
-        calc(
-          clamp(4%, 6vw, 12%) +
-            (1 - var(--slide2-watches, 0)) * clamp(36px, 8vw, 112px) +
-            var(--slide3-intro, 0) * clamp(56px, 28vw, 360px)
-        )
-      )
-      translateY(calc((1 - var(--slide2-watches, 0)) * clamp(10px, 2vh, 28px)));
-    opacity: calc(1 - var(--slide3-intro, 0) * 0.9);
+    transform: translateX(calc(clamp(4%, 6vw, 12%) + 0px)) translateY(0);
+    opacity: 1;
   }
 }
 
@@ -684,26 +671,18 @@ body.order-modal-active {
     margin-right: calc(-1 * max(16px, env(safe-area-inset-right, 0px)));
     min-height: 0;
     max-height: min(52vh, 100vw);
-    transform: translateY(calc((1 - var(--slide2-watches, 0)) * min(44px, 9vh)))
-      translateX(
-        calc(
-          (1 - var(--slide2-watches, 0)) * min(28px, 7vw) +
-            var(--slide3-intro, 0) * min(50vw, 280px)
-        )
-      );
-    opacity: calc(1 - var(--slide3-intro, 0) * 0.9);
+    transform: translateY(0) translateX(0);
+    opacity: 1;
     justify-self: stretch;
     align-self: stretch;
   }
 
   .slide_2-text {
-    transform: translateY(calc((1 - var(--slide2-copy, 0)) * clamp(18px, 3.2vh, 36px)))
-      translateX(calc(-1 * var(--slide3-intro, 0) * min(40vw, 200px)));
+    transform: none;
   }
 
   .slide_2-signature {
-    transform: translateY(calc((1 - var(--slide2-copy, 0)) * clamp(20px, 3.4vh, 38px)))
-      translateX(calc(-1 * var(--slide3-intro, 0) * min(42vw, 200px)));
+    transform: none;
   }
 
   .slide_2-signature {
@@ -851,12 +830,12 @@ body.order-modal-active {
 
 /*             SECTION 3           */
 
-/* Высота 200vh: второй «экран» скролла — pin держит кадр, кроссфейд в слайд 4 */
+/* Один экран; без scroll-pin (полноэкранный deck в JS) */
 #slide_3 {
   box-sizing: border-box;
-  clip-path: inset(calc((1 - var(--slide3-intro, 0)) * 100%) 0 0 0);
-  min-height: 200vh;
-  min-height: 200dvh;
+  clip-path: inset(0 0 0 0);
+  min-height: 100vh;
+  min-height: 100dvh;
   overflow: hidden;
   overflow: clip;
   transition: none;
@@ -901,10 +880,13 @@ body.order-modal-active {
   height: 60vw;
   max-width: 600px;
   max-height: 800px;
-  opacity: var(--slide3-visual, 0);
-  transform: translateX(calc((1 - var(--slide3-visual, 0)) * clamp(16px, 3.2vw, 44px)));
-  filter: brightness(calc(0.86 + 0.14 * var(--slide3-visual, 0)));
-  transition: none;
+  opacity: 1;
+  transform: none;
+  filter: brightness(1);
+  transition:
+    opacity 0.75s ease,
+    transform 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.75s ease;
 }
 
 /*
@@ -5625,39 +5607,6 @@ body.order-modal-active {
   }
 }
 
-/*
- * Секции слайдов — обычный поток документа (без sticky-«колоды» и scroll-snap): скролл предсказуемый.
- * Класс нужен для .reveal-child / is-inview (анимации при появлении в кадре).
- */
-.snap-section {
-  position: relative;
-  min-height: 100vh;
-  min-height: 100dvh;
-  isolation: isolate;
-}
-
-.snap-section > .reveal-child {
-  opacity: 0;
-  transform: translate3d(0, 1.75rem, 0);
-  transition:
-    opacity 0.52s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.52s cubic-bezier(0.22, 1, 0.36, 1);
-  transition-delay: calc(var(--reveal-order, 0) * 0.06s);
-}
-
-.snap-section.is-inview > .reveal-child {
-  opacity: 1;
-  transform: translate3d(0, 0, 0);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .snap-section > .reveal-child {
-    opacity: 1;
-    transform: none;
-    transition: none;
-  }
-}
-
 /* ——— правая вертикальная навигация по слайдам ——— */
 .slide-rail {
   position: fixed;
@@ -5741,5 +5690,205 @@ body.order-modal-active {
   .slide-rail .slide-rail__dot::before {
     width: 8px;
     height: 8px;
+  }
+}
+
+/* ——— full-page slide deck (main.js → initFullPageSlides, class html.js-slide-deck) ——— */
+html.js-slide-deck {
+  overflow: hidden;
+  height: 100%;
+}
+
+html.js-slide-deck body {
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overscroll-behavior: none;
+}
+
+html.js-slide-deck .header {
+  opacity: 0.42;
+  transition: opacity 0.45s ease;
+}
+
+html.js-slide-deck[data-active-slide='slide_1'] .header {
+  opacity: 1;
+}
+
+/*
+ * Паттерн слоя: класс .slide на всех section[id^="slide_"] (вешает controller.js),
+ * .active = текущий кадр (в паре с .slide-deck-panel--active).
+ * Позиция absolute от body — внутренние слои (фон) с inset:0 заполняют кадр.
+ */
+html.js-slide-deck section.slide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  box-sizing: border-box;
+}
+
+html.js-slide-deck section.slide:not(.active):not(.slide-deck-panel--active) {
+  pointer-events: none;
+}
+
+html.js-slide-deck section.slide.active,
+html.js-slide-deck section.slide.slide-deck-panel--active {
+  pointer-events: auto;
+}
+
+html.js-slide-deck section[id^='slide_'] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  max-height: 100dvh;
+  max-height: 100svh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+
+  opacity: 0;
+  transform: translate3d(0, 108%, 0);
+  pointer-events: none;
+  visibility: hidden;
+
+  transition:
+    opacity 0.62s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.72s cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0s linear 0.72s;
+}
+
+html.js-slide-deck section[id^='slide_'].slide-deck-panel--active {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  pointer-events: auto;
+  visibility: visible;
+  transition-delay: 0s, 0s, 0s;
+}
+
+html.js-slide-deck section[id^='slide_'].slide-deck-panel--prep-from-bottom {
+  transition: none !important;
+  visibility: visible;
+  transform: translate3d(0, 108%, 0);
+  opacity: 0;
+}
+
+html.js-slide-deck section[id^='slide_'].slide-deck-panel--prep-from-top {
+  transition: none !important;
+  visibility: visible;
+  transform: translate3d(0, -108%, 0);
+  opacity: 0;
+}
+
+html.js-slide-deck section[id^='slide_'].slide-deck-panel--leave-up {
+  visibility: visible;
+  pointer-events: none;
+  transform: translate3d(0, -18vh, 0);
+  opacity: 0;
+  transition:
+    opacity 0.58s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.72s cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0s linear 0.72s;
+}
+
+html.js-slide-deck section[id^='slide_'].slide-deck-panel--leave-down {
+  visibility: visible;
+  pointer-events: none;
+  transform: translate3d(0, 18vh, 0);
+  opacity: 0;
+  transition:
+    opacity 0.58s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.72s cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0s linear 0.72s;
+}
+
+html.js-slide-deck #slide_3 .slide_3-pin {
+  position: relative;
+  top: auto;
+  min-height: 100%;
+}
+
+html.js-slide-deck #slide_3 .visual-scene {
+  opacity: 0;
+  transform: translateX(clamp(16px, 3.2vw, 44px));
+  filter: brightness(0.86);
+}
+
+html.js-slide-deck #slide_3.slide-3-deck-active .visual-scene {
+  opacity: 1;
+  transform: none;
+  filter: brightness(1);
+}
+
+html.js-slide-deck #slide_10 {
+  overflow-y: auto !important;
+}
+
+html.js-slide-deck #slide_10 .slide_10-content {
+  min-height: 0;
+}
+
+/*
+ * Слайды 13 / 16 / 17 — fullpage deck: явный кадр, фон на весь inset, контент над слоями.
+ * (В моб. вёрстке у 13 .slide_13-bg был display:none — в deck показываем.)
+ */
+html.js-slide-deck #slide_13,
+html.js-slide-deck #slide_16,
+html.js-slide-deck #slide_17 {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100vh !important;
+  height: 100dvh !important;
+  min-height: 100vh !important;
+  min-height: 100dvh !important;
+  max-height: 100vh !important;
+  max-height: 100dvh !important;
+  isolation: isolate;
+}
+
+html.js-slide-deck #slide_13 .slide_13-bg,
+html.js-slide-deck #slide_16 .slide_16-bg,
+html.js-slide-deck #slide_17 .slide_17-photo-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  z-index: 0;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+
+html.js-slide-deck #slide_13 .slide_13-bg {
+  display: block !important;
+}
+
+html.js-slide-deck #slide_13 .slide_13-content,
+html.js-slide-deck #slide_16 .slide_16-content,
+html.js-slide-deck #slide_17 .slide_17-content {
+  position: relative;
+  z-index: 5;
+  min-height: 0;
+  height: 100%;
+  max-height: 100%;
+  flex: 1 1 auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.js-slide-deck section[id^='slide_'] {
+    transition-duration: 0.01ms !important;
+  }
+
+  html.js-slide-deck section[id^='slide_'].slide-deck-panel--leave-up,
+  html.js-slide-deck section[id^='slide_'].slide-deck-panel--leave-down {
+    transition-duration: 0.01ms !important;
   }
 }
