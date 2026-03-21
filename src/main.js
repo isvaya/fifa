@@ -66,16 +66,34 @@ function bindSlideRevealOnZone(sectionId, className, reduceMotion, lenis) {
 }
 
 /**
+ * На слабых GPU и тач-устройствах Lenis + mandatory snap дают заметные подвисания.
+ * Нативный скролл + CSS scroll-snap (как при prefers-reduced-motion) обычно плавнее.
+ */
+function shouldUseNativeScroll(reduceMotion) {
+  if (reduceMotion) return true;
+  try {
+    if (window.matchMedia('(max-width: 900px)').matches) return true;
+    if (window.matchMedia('(pointer: coarse)').matches) return true;
+    if (navigator.connection?.saveData === true) return true;
+    if (typeof navigator.deviceMemory === 'number' && navigator.deviceMemory <= 4) return true;
+  } catch {
+    /* ignore */
+  }
+  return false;
+}
+
+/**
  * Плавный скролл + snap к слайдам.
  * Визуальная «стопка» (предыдущий слайд под следующим) даётся в CSS: .snap-section { position: sticky }
  * и возрастающий z-index по порядку в initSlidesStackAndReveal.
  */
-function initLenisSnap(slides, reduceMotion) {
-  if (reduceMotion) return null;
+function initLenisSnap(slides, skipLenis) {
+  if (skipLenis) return null;
 
   const lenis = new Lenis({
     autoRaf: true,
-    lerp: 0.055,
+    /* выше lerp = быстрее догоняет цель, меньше «тяжёлого» сглаживания при скролле */
+    lerp: 0.1,
     /*
      * Windows (Chrome/Edge): wheel надёжнее ловить на document, не только на window.
      * Слишком малый wheelMultiplier + mandatory snap давал ощущение «колесо не крутит страницу».
@@ -85,7 +103,7 @@ function initLenisSnap(slides, reduceMotion) {
     touchMultiplier: 0.82,
     smoothWheel: true,
     syncTouch: true,
-    syncTouchLerp: 0.042,
+    syncTouchLerp: 0.055,
     /* false: иначе Lenis вешает click на window и перехватывает все <a href="#..."> — ломает .slide-rail */
     anchors: false,
   });
@@ -97,9 +115,10 @@ function initLenisSnap(slides, reduceMotion) {
    */
   const snap = new Snap(lenis, {
     type: 'mandatory',
-    duration: 1.02,
+    duration: 0.68,
     easing: (t) => 1 - Math.pow(1 - t, 3),
-    debounce: 52,
+    /* реже пересчитывать snap во время инерции колеса — меньше микролагов */
+    debounce: 80,
   });
 
   snap.addElements([...slides], { align: 'start', ignoreSticky: true });
@@ -147,13 +166,13 @@ function initLenisSnap(slides, reduceMotion) {
    * До загрузки картинок высота секций (в т.ч. #slide_10) может быть ~1 экран — interior snap не создаётся.
    * После загрузки контент растёт; без пересчёта mandatory snap тянет сразу к следующему слайду.
    */
-  let snapSyncRaf = 0;
+  let snapResizeDebounce = 0;
   function scheduleSnapSyncFromResize() {
-    if (snapSyncRaf) return;
-    snapSyncRaf = requestAnimationFrame(() => {
-      snapSyncRaf = 0;
-      syncSnapPositions();
-    });
+    if (snapResizeDebounce) clearTimeout(snapResizeDebounce);
+    snapResizeDebounce = window.setTimeout(() => {
+      snapResizeDebounce = 0;
+      requestAnimationFrame(() => syncSnapPositions());
+    }, 200);
   }
   const slideResizeObserver = new ResizeObserver(() => scheduleSnapSyncFromResize());
   for (const el of slides) {
@@ -170,7 +189,7 @@ function initLenisSnap(slides, reduceMotion) {
  * Hero → слайд 2: --slide2-intro (линейно, шторка + затемнение 1-го + хедер),
  * --slide2-watches (медленнее, часы справа), --slide2-copy (ещё плавнее, текст/подпись).
  */
-function initSlide2Intro(reduceMotion) {
+function initSlide2Intro(reduceMotion, lenis) {
   const slide2 = document.getElementById('slide_2');
   const header = document.querySelector('.header');
   if (!slide2) return;
@@ -203,6 +222,9 @@ function initSlide2Intro(reduceMotion) {
 
   window.addEventListener('scroll', onScrollOrResize, { passive: true });
   window.addEventListener('resize', onScrollOrResize, { passive: true });
+  if (lenis) {
+    lenis.on('scroll', onScrollOrResize);
+  }
   update();
 }
 
@@ -349,98 +371,6 @@ function initSlide3Transition(reduceMotion) {
   update();
 }
 
-/**
- * Слайд 3 → 4: вторая половина скролла по #slide_3 задаёт --slide4-intro (кроссфейд со слайдом 4, см. margin-top у #slide_4).
- * Важно: #slide_3 — sticky (.snap-section). Пока он «липнет», getBoundingClientRect().top + scrollY ≈ scrollY,
- * тогда raw = 0 и --slide4-intro не растёт — слайд 4 остаётся под вуалью. Нужен потоковый offset (flowOffsetTop).
- */
-function initSlide4Crossfade(reduceMotion, lenis) {
-  const slide3 = document.getElementById('slide_3');
-  if (!slide3) return;
-
-  let ticking = false;
-  function readScroll() {
-    return lenis ? lenis.scroll : window.scrollY ?? document.documentElement.scrollTop ?? 0;
-  }
-
-  const slide4 = document.getElementById('slide_4');
-  const slide4Watch = slide4?.querySelector('.slide_4-watch') ?? null;
-  let slide4WatchPopArmed = true;
-
-  function update() {
-    const vh = window.innerHeight || 1;
-    const r4 = slide4?.getBoundingClientRect();
-    /*
-     * Ниже слайда 4 переменная p из rect часто остаётся 1 — p<0.12 не срабатывал, поп часов не перевооружался.
-     */
-    const offSlide4 =
-      !slide4 ||
-      !r4 ||
-      r4.bottom < -vh * 0.08 ||
-      r4.top > vh + vh * 0.06;
-    if (offSlide4 && slide4Watch) {
-      slide4WatchPopArmed = true;
-      slide4Watch.classList.remove('slide-4-watch-pop');
-    }
-
-    const topDoc = flowOffsetTop(slide3);
-    const H = slide3.offsetHeight;
-    const range = Math.max(1, H - vh);
-    const raw = (readScroll() - topDoc) / range;
-    const clamped = Math.min(1, Math.max(0, raw));
-    const linear = clamped <= 0.5 ? 0 : Math.min(1, (clamped - 0.5) / 0.5);
-    let p =
-      linear <= 0 ? 0 : linear >= 1 ? 1 : 1 - Math.pow(1 - linear, 1.45);
-
-    /*
-     * Дублируем прогресс по положению #slide_4 в вьюпорте: flowOffsetTop иногда расходится со snap/Lenis,
-     * тогда p не растёт — часы остаются с opacity 0 под вуалью.
-     */
-    if (slide4) {
-      const t = slide4.getBoundingClientRect().top;
-      const span = Math.max(vh * 0.95, 1);
-      const pRect = Math.min(1, Math.max(0, 1 - t / span));
-      p = Math.max(p, pRect);
-
-      /* z-index 21 был ниже слайда 3 (22) — после появления 4-й перекрывался «пустым» липким кадром */
-      slide4.style.zIndex = p > 0.82 ? '23' : '21';
-    }
-
-    document.documentElement.style.setProperty('--slide4-intro', p.toFixed(4));
-
-    /* Приход на слайд 4: часы слегка увеличиваются и возвращаются (см. @keyframes slide4_watch_pop). */
-    if (slide4Watch && !reduceMotion && p >= 0.96 && slide4WatchPopArmed) {
-      slide4WatchPopArmed = false;
-      slide4Watch.classList.remove('slide-4-watch-pop');
-      void slide4Watch.offsetWidth;
-      slide4Watch.classList.add('slide-4-watch-pop');
-      const onPopEnd = (e) => {
-        const name = String(e.animationName || '');
-        if (!name.includes('slide4_watch_pop')) return;
-        slide4Watch.removeEventListener('animationend', onPopEnd);
-        slide4Watch.classList.remove('slide-4-watch-pop');
-      };
-      slide4Watch.addEventListener('animationend', onPopEnd);
-    }
-
-    ticking = false;
-  }
-
-  function onScrollOrResize() {
-    if (!ticking) {
-      ticking = true;
-      requestAnimationFrame(update);
-    }
-  }
-
-  window.addEventListener('scroll', onScrollOrResize, { passive: true });
-  window.addEventListener('resize', onScrollOrResize, { passive: true });
-  if (lenis) {
-    lenis.on('scroll', onScrollOrResize);
-  }
-  update();
-}
-
 /** Слайд 5: текст справа; класс снимается при уходе с кадра — повтор при втором проходе. */
 function initSlide5TextReveal(reduceMotion, lenis) {
   bindSlideRevealOnZone('slide_5', 'slide-5-text-revealed', reduceMotion, lenis);
@@ -461,7 +391,7 @@ function initSlide8Reveal(reduceMotion, lenis) {
 }
 
 /**
- * Слайд 9: часы и дуга (.watch-scene) выезжают снизу; h2 и p — посимвольная печать;
+ * Слайд 9: часы (.watch-scene) выезжают снизу; h2 и p — посимвольная печать;
  * подпись — «дорисовка» после текста (класс slide-9-signature-revealed).
  */
 function initSlide9(reduceMotion, lenis) {
@@ -895,7 +825,7 @@ function initSlideRail(slides, reduceMotion, lenis) {
         const nextY = Math.max(0, Math.round(docY - pad));
         if (snapInst && typeof snapInst.stop === 'function') snapInst.stop();
         lenis.scrollTo(nextY, {
-          duration: 1.45,
+          duration: 1.05,
           lock: true,
           force: true,
           onComplete: () => {
@@ -1014,24 +944,22 @@ function initSlidesStackAndReveal() {
   if (!slides.length) return;
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const nativeScroll = shouldUseNativeScroll(reduceMotion);
 
-  if (reduceMotion) {
+  if (nativeScroll) {
     document.documentElement.classList.add('use-native-scroll-snap');
+    if (!reduceMotion) {
+      document.documentElement.classList.add('perf-lite');
+    }
   }
 
-  const lenis = initLenisSnap(slides, reduceMotion);
+  const lenis = initLenisSnap(slides, nativeScroll);
 
   const STACK_BASE_Z = 20;
   slides.forEach((section, index) => {
     section.classList.add('snap-section');
-    /*
-     * Каждый следующий слайд выше по z-index — наезжает на предыдущий при скролле.
-     * Исключение: #slide_4 чуть ниже #slide_3, пока идёт общий кадр 3→4 (overlap + --slide4-intro).
-     */
-    let z = STACK_BASE_Z + index;
-    if (section.id === 'slide_4') {
-      z = STACK_BASE_Z + index - 2;
-    }
+    /* Каждый следующий слайд выше по z-index — наезжает на предыдущий при скролле */
+    const z = STACK_BASE_Z + index;
     section.style.zIndex = String(z);
 
     if (reduceMotion) {
@@ -1069,9 +997,8 @@ function initSlidesStackAndReveal() {
     }
   });
 
-  initSlide2Intro(reduceMotion);
+  initSlide2Intro(reduceMotion, lenis);
   initSlide3Transition(reduceMotion);
-  initSlide4Crossfade(reduceMotion, lenis);
   initSlide5TextReveal(reduceMotion, lenis);
   initSlide6Reveal(reduceMotion, lenis);
   initSlide7Reveal(reduceMotion, lenis);
@@ -1238,8 +1165,13 @@ function initOrderModal() {
 }
 
 function boot() {
-  initSlidesStackAndReveal();
+  /* ORDER не должен зависеть от Lenis/анимаций: при любой ошибке выше модалка всё равно откроется. */
   initOrderModal();
+  try {
+    initSlidesStackAndReveal();
+  } catch (err) {
+    console.error('[FIFA] initSlidesStackAndReveal failed', err);
+  }
 }
 
 if (document.readyState === 'loading') {

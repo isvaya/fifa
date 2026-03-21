@@ -26,8 +26,8 @@ jobs:
       - run: npm ci
       - run: npm run build
         env:
-          VITE_BASE_PATH: /fifa/
-          # Опционально: в Settings → Secrets добавьте VITE_FORMSPREE_FORM_ID (и при необходимости VITE_ORDER_EMAIL)
+          # База по умолчанию ./ (vite.config) — корректно в подпапке GitHub Pages без VITE_BASE_PATH.
+          # Опционально: VITE_BASE_PATH=/fifa/ если нужны абсолютные пути к ассетам.
           VITE_FORMSPREE_FORM_ID: ${{ secrets.VITE_FORMSPREE_FORM_ID }}
           VITE_ORDER_EMAIL: ${{ secrets.VITE_ORDER_EMAIL }}
       - uses: actions/upload-pages-artifact@v3

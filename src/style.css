@@ -15,8 +15,6 @@
   /* слайд 2 → 3 */
   --slide3-intro: 0;
   --slide3-visual: 0;
-  /* слайд 3 → 4 */
-  --slide4-intro: 0;
 }
 
 html {
@@ -40,6 +38,14 @@ html.use-native-scroll-snap {
 html.use-native-scroll-snap .snap-section {
   scroll-snap-align: start;
   scroll-snap-stop: always;
+}
+
+/*
+ * Тач / узкий экран (класс вешает main.js): убираем blur на слайде 4 — на мобильных GPU это частый источник фризов.
+ */
+html.perf-lite #slide_4 .slide_4-stack {
+  filter: none !important;
+  opacity: 1;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -346,9 +352,8 @@ body.order-modal-active {
 .order-modal__backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(2, 6, 10, 0.82);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  /* без backdrop-filter: дешевле для GPU; плотнее фон */
+  background: rgba(2, 6, 10, 0.92);
   cursor: pointer;
   border: none;
   padding: 0;
@@ -892,54 +897,81 @@ body.order-modal-active {
   isolation: isolate;
 }
 
-.slide_3-pin::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 24;
-  pointer-events: none;
-  background: #000;
-  opacity: calc(var(--slide4-intro, 0) * 0.92);
-  transition: none;
-}
+/* Было .slide_3-pin::after (чёрная вуаль при --slide4-intro) — убрано: без анимации ухода со слайда 3 */
 
 .bg-number {
   position: absolute;
-
+  inset: 0;
   left: 0;
   top: 0;
   width: 100%;
   height: auto;
-  max-height: 100vh;
+  max-height: 100%;
+  object-fit: contain;
+  object-position: top center;
+  z-index: 0;
+  pointer-events: none;
 }
 
 .visual-scene {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
   width: 40vw;
   height: 60vw;
   max-width: 600px;
   max-height: 800px;
-  opacity: calc(var(--slide3-visual, 0) * (1 - var(--slide4-intro, 0)));
+  opacity: var(--slide3-visual, 0);
   transform: translateX(calc((1 - var(--slide3-visual, 0)) * clamp(16px, 3.2vw, 44px)));
   filter: brightness(calc(0.86 + 0.14 * var(--slide3-visual, 0)));
   transition: none;
 }
 
+/*
+ * Кубок и «GO / UZBEKISTAN!» в потоке колонки — подпись всегда ниже картинки (раньше bottom: % ломался
+ * при max-height + широком вьюпорте и текст наезжал на кубок).
+ */
 .visual-scene h2 {
-  position: absolute;
-  bottom: 10%;
-  left: 50%;
-  transform: translateX(-50%);
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  align-self: stretch;
+  /* До 1300px — небольшой зазор под кубком (сильный отрицательный margin здесь даёт наезд) */
+  margin: clamp(0px, 0.9vw, 16px) 0 0;
+  padding: 0 4%;
+  box-sizing: border-box;
+  left: auto;
+  transform: none;
   text-align: center;
   font-size: clamp(24px, 2.5vw, 40px);
   font-weight: 600;
+  line-height: 1.08;
+}
+
+/* От 1300px: компенсируем нижний transparent в PNG — подпись ближе к подставке кубка */
+@media (min-width: 1300px) {
+  .visual-scene h2 {
+    margin-top: clamp(-64px, -7vw, -12px);
+  }
+}
+
+/* До 900px: «GO / UZBEKISTAN!» чуть мельче (на телефоне сильнее задаётся правилом #slide_3 ниже) */
+@media (max-width: 900px) {
+  .visual-scene h2 {
+    font-size: clamp(17px, 2.2vw, 24px);
+  }
 }
 
 .fifa-cup {
-  position: absolute;
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
   width: 60%;
-  left: 16%;
-  top: 15%;
+  height: auto;
+  margin-top: 15%;
+  margin-left: 16%;
+  align-self: flex-start;
 }
 
 .slide_3-text-container {
@@ -954,7 +986,7 @@ body.order-modal-active {
   max-width: 600px;
   gap: 24px;
   min-height: 0;
-  opacity: calc(1 - var(--slide4-intro, 0));
+  opacity: 1;
   transition: none;
 }
 
@@ -1018,14 +1050,14 @@ body.order-modal-active {
 
   #slide_3 .visual-scene {
     width: min(78vw, 320px);
-    height: auto;
-    aspect-ratio: 2 / 3;
     max-width: min(320px, 88vw);
-    max-height: min(42dvh, 420px);
+    height: auto;
+    /* Не фиксируем aspect-ratio + max-height + overflow:hidden — на iPhone обрезался низ «UZBEKISTAN!» */
+    max-height: none;
     flex-shrink: 0;
-    /* «26» с max-height: 100vh рисовался ниже блока и заходил на текст */
-    overflow: hidden;
+    overflow: visible;
     margin-bottom: clamp(8px, 2vh, 16px);
+    padding-bottom: clamp(4px, 1.2vw, 12px);
   }
 
   #slide_3 .visual-scene .bg-number {
@@ -1036,6 +1068,11 @@ body.order-modal-active {
 
   #slide_3 .visual-scene h2 {
     font-size: clamp(18px, 5vw, 28px);
+    /* Слабый подъём: без overflow:hidden текст не режется, сильный отрицательный margin не нужен */
+    margin-top: clamp(-12px, -2.5vw, 0px);
+    margin-bottom: 0;
+    line-height: 1.12;
+    padding-bottom: 2px;
   }
 
   #slide_3 .slide_3-text-container {
@@ -1079,19 +1116,7 @@ body.order-modal-active {
   transition: none;
 }
 
-/*
- * Переход 3→4: часы под чёрной вуалью на #slide_4, вуаль уходит → лёгкое размытие → резкость.
- */
-#slide_4::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 6;
-  pointer-events: none;
-  background: #000;
-  opacity: calc(1 - var(--slide4-intro, 0));
-  transition: none;
-}
+/* Было ::after (вуаль) и скролл-анимация стека/blur/градиента через --slide4-intro — убрано */
 
 #slide_4 .slide_4-stack {
   position: relative;
@@ -1100,16 +1125,9 @@ body.order-modal-active {
   width: fit-content;
   max-width: min(1200px, 98vw);
   margin-inline: auto;
-  opacity: clamp(0, calc((var(--slide4-intro, 0) - 0.08) / 0.92), 1);
-  filter: blur(calc((1 - var(--slide4-intro, 0)) * 7px));
+  opacity: 1;
+  filter: none;
   transition: none;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  #slide_4 .slide_4-stack {
-    filter: none;
-    opacity: var(--slide4-intro, 0);
-  }
 }
 
 #slide_4::before {
@@ -1121,7 +1139,7 @@ body.order-modal-active {
   height: min(50%, 420px);
   z-index: 1;
   pointer-events: none;
-  opacity: var(--slide4-intro, 0);
+  opacity: 1;
   background: linear-gradient(
     to top,
     rgba(2, 6, 12, 0.92) 0%,
@@ -1143,36 +1161,11 @@ body.order-modal-active {
   object-position: center center;
 
   filter: drop-shadow(0 24px 88px rgba(0, 0, 0, 0.65));
-  transition: transform 0.5s ease;
-}
-
-/* Один раз плавно увеличить и плавно вернуть — без пружины и без лишних ключей */
-@keyframes slide4_watch_pop {
-  0% {
-    transform: scale(1);
-    animation-timing-function: ease-in-out;
-  }
-  50% {
-    transform: scale(1.06);
-    animation-timing-function: ease-in-out;
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-#slide_4 .slide_4-watch.slide-4-watch-pop {
-  animation: slide4_watch_pop 1s both;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  #slide_4 .slide_4-watch.slide-4-watch-pop {
-    animation: none;
-  }
+  transition: transform 0.35s ease;
 }
 
 @media (hover: hover) {
-  #slide_4:hover .slide_4-watch:not(.slide-4-watch-pop) {
+  #slide_4:hover .slide_4-watch {
     transform: scale(1.02);
   }
 }
@@ -2240,7 +2233,7 @@ body.order-modal-active {
   min-height: 0;
 }
 
-/* Часы + дуга — одна сцена: размер задаёт img, дуга в % от этой же коробки */
+/* Слайд 9: только часы в .watch-scene */
 .slide_9-right .watch {
   position: relative;
   display: block;
@@ -2258,32 +2251,7 @@ body.order-modal-active {
   overflow: visible;
 }
 
-.arc-text {
-  position: absolute;
-  top: 8%;
-  right: 18%;
-  width: 58%;
-  height: 42%;
-  transform: rotate(-20deg);
-  transform-origin: 70% 40%;
-  pointer-events: none;
-  z-index: 2;
-}
-
-.arc-text svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-}
-
-.arc-text text {
-  fill: #e0e6ea;
-  font-size: clamp(11px, 1.85vw, 28px);
-  letter-spacing: clamp(0.5px, 0.12vw, 1.5px);
-}
-
-/* Слайд 9: сцена с часами и дугой — снизу вверх; подпись после печати (классы — main.js) */
+/* Слайд 9: сцена с часами — снизу вверх; подпись после печати (классы — main.js) */
 #slide_9:not(.slide-9-revealed) .watch-scene {
   opacity: 0;
   transform: translateY(min(22vh, 160px));
@@ -4279,17 +4247,6 @@ body.order-modal-active {
     width: min(58vw, 500px);
   }
 
-  .arc-text {
-    top: 7%;
-    right: 16%;
-    width: 56%;
-    height: 44%;
-  }
-
-  .arc-text text {
-    font-size: clamp(10px, 2.4vw, 24px);
-  }
-
   #slide_10 {
     padding: clamp(48px, 10vh, 80px) clamp(12px, 4vw, 32px);
   }
@@ -4703,7 +4660,7 @@ body.order-modal-active {
     z-index: 3;
   }
 
-  /* Slide 9: телефон — текст и подпись сверху; часы + дуга снизу справа (одна watch-scene) */
+  /* Slide 9: телефон — текст и подпись сверху; часы снизу справа */
   #slide_9 {
     flex-direction: column;
     align-items: stretch;
@@ -4799,18 +4756,6 @@ body.order-modal-active {
     max-width: 100%;
     object-fit: contain;
     object-position: right center;
-  }
-
-  #slide_9 .arc-text {
-    top: 6%;
-    right: 12%;
-    width: 60%;
-    height: 48%;
-    transform: rotate(-18deg);
-  }
-
-  #slide_9 .arc-text text {
-    font-size: clamp(8px, 2.5vw, 15px);
   }
 
   /* Slide 11 — телефон: часы у правого края (cover); текст и подпись справа */
@@ -5719,9 +5664,9 @@ body.order-modal-active {
   opacity: 0;
   transform: translate3d(0, 1.75rem, 0);
   transition:
-    opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
-  transition-delay: calc(var(--reveal-order, 0) * 0.1s);
+    opacity 0.52s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.52s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: calc(var(--reveal-order, 0) * 0.06s);
 }
 
 .snap-section.is-inview > .reveal-child {
