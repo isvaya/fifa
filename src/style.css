@@ -6,16 +6,52 @@
   box-sizing: border-box;
 }
 
+:root {
+  --page-bg: #080f16;
+  /* 0…1: первый переход hero → слайд 2, задаётся в main.js */
+  --slide2-intro: 0;
+  --slide2-watches: 0;
+  --slide2-copy: 0;
+  /* слайд 2 → 3 */
+  --slide3-intro: 0;
+  --slide3-visual: 0;
+  /* слайд 3 → 4 */
+  --slide4-intro: 0;
+}
+
 html {
+  /* hidden — fallback; clip — не создаёт scrollport по X, sticky по секциям работает */
   overflow-x: hidden;
+  overflow-x: clip;
   max-width: 100%;
+  scroll-padding-top: max(96px, calc(env(safe-area-inset-top, 0px) + 64px));
+}
+
+/*
+ * Нативный scroll-snap, если Lenis отключён (prefers-reduced-motion).
+ * Иначе привязка к слайдам даёт lenis/snap в main.js — как на премиальных лендингах.
+ */
+html.use-native-scroll-snap {
+  scroll-snap-type: y mandatory;
+}
+
+html.use-native-scroll-snap .snap-section {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.use-native-scroll-snap {
+    scroll-snap-type: y proximity;
+  }
 }
 
 body {
   font-family: 'Montserrat', sans-serif;
-  background: #080f16;
+  background: var(--page-bg);
   color: white;
   overflow-x: hidden;
+  overflow-x: clip;
   max-width: 100%;
   width: 100%;
 }
@@ -25,6 +61,9 @@ section[id^='slide_'] {
   width: 100%;
   max-width: 100%;
   overflow-x: hidden;
+  overflow-x: clip;
+  /* под прозрачные блоки при стопке слайдов; картинки/градиенты поверх не затираются */
+  background-color: var(--page-bg);
 }
 
 .header {
@@ -40,7 +79,9 @@ section[id^='slide_'] {
   padding-right: max(12px, env(safe-area-inset-right, 0px));
   box-sizing: border-box;
   z-index: 100;
-  transition: 0.3s;
+  opacity: calc(1 - var(--slide2-intro, 0));
+  transition: none;
+  will-change: opacity;
 }
 
 .logo {
@@ -51,9 +92,20 @@ section[id^='slide_'] {
 }
 
 #slide_1 {
-  position: relative;
   height: 100vh;
   overflow: hidden;
+  overflow: clip;
+}
+
+#slide_1::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  background: #000;
+  opacity: calc(var(--slide2-intro, 0) * 0.72);
+  transition: none;
 }
 
 .slide_1--visual {
@@ -189,6 +241,7 @@ section[id^='slide_'] {
     height: 100dvh;
     min-height: 100dvh;
     overflow: hidden;
+    overflow: clip;
     box-sizing: border-box;
   }
 
@@ -262,12 +315,13 @@ section[id^='slide_'] {
 /*               SECTION 2              */
 
 #slide_2 {
-  position: relative;
   height: 100vh;
   height: 100dvh;
   max-height: 100svh;
   overflow: hidden;
+  overflow: clip;
   box-sizing: border-box;
+  clip-path: inset(calc((1 - var(--slide2-intro, 0)) * 100%) 0 0 0);
 
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.22fr);
@@ -296,6 +350,10 @@ section[id^='slide_'] {
   width: 100%;
   min-width: 0;
   z-index: 2;
+  opacity: calc(var(--slide2-copy, 0) * (1 - var(--slide3-intro, 0) * 0.98));
+  transform: translateY(calc((1 - var(--slide2-copy, 0)) * clamp(18px, 3.2vh, 36px)))
+    translateX(calc(-1 * var(--slide3-intro, 0) * clamp(24px, 16vw, 200px)));
+  transition: none;
 }
 
 .slide_2-text h2 {
@@ -314,7 +372,10 @@ section[id^='slide_'] {
   height: auto;
   display: block;
   margin-top: clamp(10px, 1.8vh, 20px);
-  opacity: 0.92;
+  opacity: calc(0.92 * var(--slide2-copy, 0) * (1 - var(--slide3-intro, 0) * 0.98));
+  transform: translateY(calc((1 - var(--slide2-copy, 0)) * clamp(20px, 3.4vh, 38px)))
+    translateX(calc(-1 * var(--slide3-intro, 0) * clamp(28px, 17vw, 200px)));
+  transition: none;
   z-index: 2;
 }
 
@@ -327,8 +388,17 @@ section[id^='slide_'] {
   width: min(1800px, max(60vw, min(700px, 100%)));
   max-width: 100%;
   min-width: 0;
-  transform: translateX(clamp(6%, 10vw, 16%));
+  transform: translateX(
+      calc(
+        clamp(6%, 10vw, 16%) +
+          (1 - var(--slide2-watches, 0)) * clamp(48px, 11vw, 140px) +
+          var(--slide3-intro, 0) * clamp(72px, 32vw, 440px)
+      )
+    )
+    translateY(calc((1 - var(--slide2-watches, 0)) * clamp(12px, 2.2vh, 32px)));
+  opacity: calc(1 - var(--slide3-intro, 0) * 0.9);
   z-index: 1;
+  transition: none;
 }
 
 /* Планшеты: две колонки сохраняем, текст уже по ширине */
@@ -360,7 +430,15 @@ section[id^='slide_'] {
   }
 
   .slide_2--visual {
-    transform: translateX(clamp(4%, 6vw, 12%));
+    transform: translateX(
+        calc(
+          clamp(4%, 6vw, 12%) +
+            (1 - var(--slide2-watches, 0)) * clamp(36px, 8vw, 112px) +
+            var(--slide3-intro, 0) * clamp(56px, 28vw, 360px)
+        )
+      )
+      translateY(calc((1 - var(--slide2-watches, 0)) * clamp(10px, 2vh, 28px)));
+    opacity: calc(1 - var(--slide3-intro, 0) * 0.9);
   }
 }
 
@@ -408,9 +486,26 @@ section[id^='slide_'] {
     margin-right: calc(-1 * max(16px, env(safe-area-inset-right, 0px)));
     min-height: 0;
     max-height: min(52vh, 100vw);
-    transform: none;
+    transform: translateY(calc((1 - var(--slide2-watches, 0)) * min(44px, 9vh)))
+      translateX(
+        calc(
+          (1 - var(--slide2-watches, 0)) * min(28px, 7vw) +
+            var(--slide3-intro, 0) * min(50vw, 280px)
+        )
+      );
+    opacity: calc(1 - var(--slide3-intro, 0) * 0.9);
     justify-self: stretch;
     align-self: stretch;
+  }
+
+  .slide_2-text {
+    transform: translateY(calc((1 - var(--slide2-copy, 0)) * clamp(18px, 3.2vh, 36px)))
+      translateX(calc(-1 * var(--slide3-intro, 0) * min(40vw, 200px)));
+  }
+
+  .slide_2-signature {
+    transform: translateY(calc((1 - var(--slide2-copy, 0)) * clamp(20px, 3.4vh, 38px)))
+      translateX(calc(-1 * var(--slide3-intro, 0) * min(42vw, 200px)));
   }
 
   .slide_2-signature {
@@ -492,6 +587,21 @@ section[id^='slide_'] {
   }
 }
 
+/*
+ * Слайд 2: увеличение одних часов под курсором.
+ * Класс .is-watch-hover выставляет main.js (пересечения PNG + ближайший центр).
+ */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  #slide_2 .watch-item {
+    transform-origin: 50% 50%;
+    transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  #slide_2 .watch-item.is-watch-hover {
+    transform: translateY(-50%) scale(1.09);
+    z-index: 6;
+  }
+}
 
 .watches-container::before {
   content: '';
@@ -543,18 +653,40 @@ section[id^='slide_'] {
 
 /*             SECTION 3           */
 
+/* Высота 200vh: второй «экран» скролла — pin держит кадр, кроссфейд в слайд 4 */
 #slide_3 {
-  position: relative;
-  height: 100vh;
+  box-sizing: border-box;
+  clip-path: inset(calc((1 - var(--slide3-intro, 0)) * 100%) 0 0 0);
+  min-height: 200vh;
+  min-height: 200dvh;
+  overflow: hidden;
+  overflow: clip;
+  transition: none;
+}
 
+.slide_3-pin {
+  position: sticky;
+  top: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: space-between;
-
-  /* padding: 0 100px; */
   padding: 0 clamp(120px, 8vw, 220px);
-  overflow: hidden;
+  z-index: 2;
+  isolation: isolate;
+}
 
+.slide_3-pin::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 24;
+  pointer-events: none;
+  background: #000;
+  opacity: calc(var(--slide4-intro, 0) * 0.92);
+  transition: none;
 }
 
 .bg-number {
@@ -573,6 +705,10 @@ section[id^='slide_'] {
   height: 60vw;
   max-width: 600px;
   max-height: 800px;
+  opacity: calc(var(--slide3-visual, 0) * (1 - var(--slide4-intro, 0)));
+  transform: translateX(calc((1 - var(--slide3-visual, 0)) * clamp(16px, 3.2vw, 44px)));
+  filter: brightness(calc(0.86 + 0.14 * var(--slide3-visual, 0)));
+  transition: none;
 }
 
 .visual-scene h2 {
@@ -603,6 +739,9 @@ section[id^='slide_'] {
 
   max-width: 600px;
   gap: 24px;
+  min-height: 0;
+  opacity: calc(1 - var(--slide4-intro, 0));
+  transition: none;
 }
 
 .slide_3-text-container h2 {
@@ -626,7 +765,7 @@ section[id^='slide_'] {
 
 /* Slide 3: планшет — уже левая колонка и текст */
 @media (max-width: 1024px) and (min-width: 768px) {
-  #slide_3 {
+  #slide_3 .slide_3-pin {
     padding-left: max(clamp(16px, 4vw, 56px), env(safe-area-inset-left, 0px));
     padding-right: max(clamp(16px, 4vw, 56px), env(safe-area-inset-right, 0px));
     gap: clamp(16px, 2.5vw, 28px);
@@ -650,11 +789,10 @@ section[id^='slide_'] {
 
 /* Slide 3: телефон — визуал сверху, текст снизу */
 @media (max-width: 767px) {
-  #slide_3 {
+  #slide_3 .slide_3-pin {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: auto;
     min-height: 100vh;
     min-height: 100dvh;
     padding-top: max(92px, calc(env(safe-area-inset-top, 0px) + 56px));
@@ -708,23 +846,39 @@ section[id^='slide_'] {
 /*         SECTION          4 — часы по центру; подпись как на макете: справа снизу, ~4–5 ч. */
 
 #slide_4 {
-  position: relative;
   height: 100vh;
   height: 100dvh;
+  min-height: 100vh;
+  min-height: 100dvh;
   max-height: 100svh;
   box-sizing: border-box;
-
+  margin-top: -100vh;
+  margin-top: -100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
-
   padding: max(12px, env(safe-area-inset-top, 0px)) max(20px, env(safe-area-inset-right, 0px))
     max(16px, env(safe-area-inset-bottom, 0px)) max(20px, env(safe-area-inset-left, 0px));
   overflow: hidden;
+  overflow: clip;
   background: #080f16;
+  transition: none;
 }
 
-/* Ширина = блок часов; подпись absolute внутри — в «ноге» справа у циферблата */
+/*
+ * Переход 3→4: часы под чёрной вуалью на #slide_4, вуаль уходит → лёгкое размытие → резкость.
+ */
+#slide_4::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  background: #000;
+  opacity: calc(1 - var(--slide4-intro, 0));
+  transition: none;
+}
+
 #slide_4 .slide_4-stack {
   position: relative;
   z-index: 2;
@@ -732,9 +886,18 @@ section[id^='slide_'] {
   width: fit-content;
   max-width: min(1200px, 98vw);
   margin-inline: auto;
+  opacity: clamp(0, calc((var(--slide4-intro, 0) - 0.08) / 0.92), 1);
+  filter: blur(calc((1 - var(--slide4-intro, 0)) * 7px));
+  transition: none;
 }
 
-/* Лёгкое затемнение снизу (за часами), как «уход в тень» на макете */
+@media (prefers-reduced-motion: reduce) {
+  #slide_4 .slide_4-stack {
+    filter: none;
+    opacity: var(--slide4-intro, 0);
+  }
+}
+
 #slide_4::before {
   content: '';
   position: absolute;
@@ -744,6 +907,7 @@ section[id^='slide_'] {
   height: min(50%, 420px);
   z-index: 1;
   pointer-events: none;
+  opacity: var(--slide4-intro, 0);
   background: linear-gradient(
     to top,
     rgba(2, 6, 12, 0.92) 0%,
@@ -768,8 +932,33 @@ section[id^='slide_'] {
   transition: transform 0.5s ease;
 }
 
+/* Один раз плавно увеличить и плавно вернуть — без пружины и без лишних ключей */
+@keyframes slide4_watch_pop {
+  0% {
+    transform: scale(1);
+    animation-timing-function: ease-in-out;
+  }
+  50% {
+    transform: scale(1.06);
+    animation-timing-function: ease-in-out;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+#slide_4 .slide_4-watch.slide-4-watch-pop {
+  animation: slide4_watch_pop 1s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #slide_4 .slide_4-watch.slide-4-watch-pop {
+    animation: none;
+  }
+}
+
 @media (hover: hover) {
-  #slide_4:hover .slide_4-watch {
+  #slide_4:hover .slide_4-watch:not(.slide-4-watch-pop) {
     transform: scale(1.02);
   }
 }
@@ -862,7 +1051,6 @@ section[id^='slide_'] {
 
 #slide_5 {
   height: 100vh;
-  position: relative;
 
   background: url('/images/slide5_bg.png') center/cover no-repeat;
 
@@ -955,6 +1143,55 @@ section[id^='slide_'] {
   text-align: center;
   letter-spacing: 0.1em;
   font-weight: 300;
+}
+
+/*
+ * Текст справа: класс .slide-5-text-revealed вешает main.js, когда кадр реально «наш»
+ * (не is-inview — при sticky IO срабатывает раньше, transition уже отыгран до показа слайда).
+ */
+.slide_5-right h2,
+.slide_5-right p {
+  opacity: 0;
+  transform: translate3d(clamp(28px, 6vw, 100px), 0, 0);
+}
+
+@keyframes slide5_text_from_right_h2 {
+  from {
+    opacity: 0;
+    transform: translate3d(clamp(28px, 6vw, 100px), 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes slide5_text_from_right_p {
+  from {
+    opacity: 0;
+    transform: translate3d(clamp(28px, 6vw, 100px), 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+#slide_5.slide-5-text-revealed .slide_5-right h2 {
+  animation: slide5_text_from_right_h2 0.75s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+#slide_5.slide-5-text-revealed .slide_5-right p {
+  animation: slide5_text_from_right_p 0.75s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.14s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slide_5-right h2,
+  .slide_5-right p {
+    opacity: 1;
+    transform: none;
+    animation: none !important;
+  }
 }
 
 .slide_5-left {
@@ -1078,8 +1315,8 @@ section[id^='slide_'] {
   padding-right: clamp(48px, 7vw, 100px);
   /* background: #020a12; */
 
-  position: relative;
   overflow: hidden;
+  overflow: clip;
 }
 
 .slide_6-left {
@@ -1137,9 +1374,135 @@ section[id^='slide_'] {
   text-align: end;
 }
 
+/* В потоке под абзацем, выравнивание как у текста (глобальный .signature — absolute в угол) */
 .slide_6-right .signature {
+  position: relative;
+  right: auto;
+  bottom: auto;
+  left: auto;
+  top: auto;
+  display: block;
   width: 120px;
+  max-width: 100%;
+  height: auto;
   opacity: 0.8;
+  margin-top: 0;
+  margin-left: auto;
+  z-index: auto;
+}
+
+/* Вход на слайд 6: часы слева, текст и подпись справа (.slide-6-revealed — main.js) */
+#slide_6:not(.slide-6-revealed) .slide_6-left .watch {
+  opacity: 0;
+  transform: translateX(calc(-48% - min(120px, 16vw))) translateY(-50%);
+}
+
+#slide_6:not(.slide-6-revealed) .slide_6-right h2,
+#slide_6:not(.slide-6-revealed) .slide_6-right p,
+#slide_6:not(.slide-6-revealed) .slide_6-right .signature {
+  opacity: 0;
+  transform: translate3d(min(88px, 10vw), 0, 0);
+}
+
+@keyframes slide6_watch_in_desktop {
+  from {
+    opacity: 0;
+    transform: translateX(calc(-48% - min(120px, 16vw))) translateY(-50%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-48%) translateY(-50%);
+  }
+}
+
+@keyframes slide6_watch_in_mobile {
+  from {
+    opacity: 0;
+    transform: translateX(calc(-50% - min(96px, 22vw))) translateY(-50%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-50%);
+  }
+}
+
+@keyframes slide6_right_h2 {
+  from {
+    opacity: 0;
+    transform: translate3d(min(88px, 10vw), 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes slide6_right_p {
+  from {
+    opacity: 0;
+    transform: translate3d(min(88px, 10vw), 0, 0);
+  }
+  to {
+    opacity: 0.8;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes slide6_right_sig {
+  from {
+    opacity: 0;
+    transform: translate3d(min(88px, 10vw), 0, 0);
+  }
+  to {
+    opacity: 0.8;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+#slide_6.slide-6-revealed .slide_6-left .watch {
+  animation: slide6_watch_in_desktop 0.92s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+#slide_6.slide-6-revealed .slide_6-right h2 {
+  animation: slide6_right_h2 0.82s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+#slide_6.slide-6-revealed .slide_6-right p {
+  animation: slide6_right_p 0.82s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.12s both;
+}
+
+#slide_6.slide-6-revealed .slide_6-right .signature {
+  animation: slide6_right_sig 0.82s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.24s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #slide_6 .slide_6-left .watch {
+    opacity: 1 !important;
+    animation: none !important;
+    transform: translateX(-48%) translateY(-50%) !important;
+  }
+
+  #slide_6 .slide_6-right h2,
+  #slide_6 .slide_6-right p,
+  #slide_6 .slide_6-right .signature {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  #slide_6 .slide_6-right h2 {
+    opacity: 1 !important;
+  }
+
+  #slide_6 .slide_6-right p,
+  #slide_6 .slide_6-right .signature {
+    opacity: 0.8 !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) and (max-width: 767px) {
+  #slide_6 .slide_6-left .watch {
+    transform: translateX(-50%) translateY(-50%) !important;
+  }
 }
 
 #slide_6::before {
@@ -1203,8 +1566,8 @@ section[id^='slide_'] {
   padding-left: max(0px, env(safe-area-inset-left, 0px));
   padding-right: clamp(48px, 7vw, 100px);
 
-  position: relative;
   overflow: hidden;
+  overflow: clip;
 }
 
 .slide_7-left {
@@ -1277,6 +1640,118 @@ section[id^='slide_'] {
   opacity: 0.8;
 }
 
+/* Вход на слайд 7: как слайд 6 — часы слева, текст и подпись справа (.slide-7-revealed — main.js) */
+#slide_7:not(.slide-7-revealed) .slide_7-left .watch {
+  opacity: 0;
+  transform: translateX(calc(-1 * min(120px, 16vw))) translateY(-50%);
+}
+
+#slide_7:not(.slide-7-revealed) .slide_7-right h2,
+#slide_7:not(.slide-7-revealed) .slide_7-right p,
+#slide_7:not(.slide-7-revealed) .slide_7-right .signature {
+  opacity: 0;
+  transform: translate3d(min(88px, 10vw), 0, 0);
+}
+
+@keyframes slide7_watch_in_desktop {
+  from {
+    opacity: 0;
+    transform: translateX(calc(-1 * min(120px, 16vw))) translateY(-50%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%);
+  }
+}
+
+@keyframes slide7_watch_in_mobile {
+  from {
+    opacity: 0;
+    transform: translateX(calc(-1 * min(96px, 22vw))) translateY(-50%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%);
+  }
+}
+
+@keyframes slide7_right_h2 {
+  from {
+    opacity: 0;
+    transform: translate3d(min(88px, 10vw), 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes slide7_right_p {
+  from {
+    opacity: 0;
+    transform: translate3d(min(88px, 10vw), 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes slide7_right_sig {
+  from {
+    opacity: 0;
+    transform: translate3d(min(88px, 10vw), 0, 0);
+  }
+  to {
+    opacity: 0.8;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+#slide_7.slide-7-revealed .slide_7-left .watch {
+  animation: slide7_watch_in_desktop 0.92s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+#slide_7.slide-7-revealed .slide_7-right h2 {
+  animation: slide7_right_h2 0.82s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+#slide_7.slide-7-revealed .slide_7-right p {
+  animation: slide7_right_p 0.82s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.12s both;
+}
+
+#slide_7.slide-7-revealed .slide_7-right p ~ p {
+  animation-delay: 0.22s;
+}
+
+#slide_7.slide-7-revealed .slide_7-right .signature {
+  animation: slide7_right_sig 0.82s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.32s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #slide_7 .slide_7-left .watch {
+    opacity: 1 !important;
+    animation: none !important;
+    transform: translateY(-50%) !important;
+  }
+
+  #slide_7 .slide_7-right h2,
+  #slide_7 .slide_7-right p,
+  #slide_7 .slide_7-right .signature {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  #slide_7 .slide_7-right h2,
+  #slide_7 .slide_7-right p {
+    opacity: 1 !important;
+  }
+
+  #slide_7 .slide_7-right .signature {
+    opacity: 0.8 !important;
+  }
+}
+
 #slide_7::before {
   content: '';
   position: absolute;
@@ -1298,8 +1773,8 @@ section[id^='slide_'] {
   padding-right: max(0px, env(safe-area-inset-right, 0px));
   /* background: #020a12; */
 
-  position: relative;
   overflow: hidden;
+  overflow: clip;
 }
 
 .slide_8-left {
@@ -1355,9 +1830,10 @@ section[id^='slide_'] {
   max-width: min(78vw, 820px);
 
   position: absolute;
-  right: max(-100px, -8vw);
+  /* чуть левее к центру, чем у края экрана */
+  right: max(-78px, -6vw);
   top: 50%;
-  transform: translateY(-50%);
+  transform: translateX(calc(-1 * min(22px, 2.8vw))) translateY(-50%);
 
   object-fit: contain;
   object-position: right center;
@@ -1381,6 +1857,113 @@ section[id^='slide_'] {
   );
 }
 
+/* Вход на слайд 8: текст слева выезжает слева, часы справа — справа (.slide-8-revealed — main.js) */
+#slide_8:not(.slide-8-revealed) .slide_8-left h2,
+#slide_8:not(.slide-8-revealed) .slide_8-left p,
+#slide_8:not(.slide-8-revealed) .slide_8-left .signature {
+  opacity: 0;
+  transform: translate3d(calc(-1 * min(88px, 10vw)), 0, 0);
+}
+
+#slide_8:not(.slide-8-revealed) .slide_8-right .watch {
+  opacity: 0;
+  transform: translateX(min(100px, 13vw)) translateY(-50%);
+}
+
+@keyframes slide8_watch_in_desktop {
+  from {
+    opacity: 0;
+    transform: translateX(min(100px, 13vw)) translateY(-50%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(calc(-1 * min(22px, 2.8vw))) translateY(-50%);
+  }
+}
+
+@keyframes slide8_watch_in_mobile {
+  from {
+    opacity: 0;
+    transform: translateX(min(72px, 18vw)) translateY(-50%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(calc(-1 * min(14px, 3.5vw))) translateY(-50%);
+  }
+}
+
+@keyframes slide8_left_h2 {
+  from {
+    opacity: 0;
+    transform: translate3d(calc(-1 * min(88px, 10vw)), 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes slide8_left_p {
+  from {
+    opacity: 0;
+    transform: translate3d(calc(-1 * min(88px, 10vw)), 0, 0);
+  }
+  to {
+    opacity: 0.8;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes slide8_left_sig {
+  from {
+    opacity: 0;
+    transform: translate3d(calc(-1 * min(88px, 10vw)), 0, 0);
+  }
+  to {
+    opacity: 0.8;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+#slide_8.slide-8-revealed .slide_8-right .watch {
+  animation: slide8_watch_in_desktop 0.92s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+#slide_8.slide-8-revealed .slide_8-left h2 {
+  animation: slide8_left_h2 0.82s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+#slide_8.slide-8-revealed .slide_8-left p {
+  animation: slide8_left_p 0.82s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.12s both;
+}
+
+#slide_8.slide-8-revealed .slide_8-left .signature {
+  animation: slide8_left_sig 0.82s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.24s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #slide_8 .slide_8-right .watch {
+    opacity: 1 !important;
+    animation: none !important;
+    transform: translateX(calc(-1 * min(22px, 2.8vw))) translateY(-50%) !important;
+  }
+
+  #slide_8 .slide_8-left h2,
+  #slide_8 .slide_8-left p,
+  #slide_8 .slide_8-left .signature {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  #slide_8 .slide_8-left h2,
+  #slide_8 .slide_8-left p {
+    opacity: 1 !important;
+  }
+
+  #slide_8 .slide_8-left .signature {
+    opacity: 0.8 !important;
+  }
+}
 
 /*             SECTION 9       */
 
@@ -1394,8 +1977,8 @@ section[id^='slide_'] {
   padding-right: max(clamp(28px, 4vw, 100px), env(safe-area-inset-right, 0px));
   /* background: #020a12; */
 
-  position: relative;
   overflow: hidden;
+  overflow: clip;
 }
 
 .slide_9-left {
@@ -1486,6 +2069,61 @@ section[id^='slide_'] {
   letter-spacing: clamp(0.5px, 0.12vw, 1.5px);
 }
 
+/* Слайд 9: сцена с часами и дугой — снизу вверх; подпись после печати (классы — main.js) */
+#slide_9:not(.slide-9-revealed) .watch-scene {
+  opacity: 0;
+  transform: translateY(min(22vh, 160px));
+}
+
+#slide_9.slide-9-revealed .watch-scene {
+  animation: slide9_watch_scene_in 1.02s cubic-bezier(0.22, 0.72, 0.28, 1) both;
+}
+
+@keyframes slide9_watch_scene_in {
+  from {
+    opacity: 0;
+    transform: translateY(min(24vh, 180px));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#slide_9:not(.slide-9-signature-revealed) .slide_9-left .signature {
+  opacity: 0;
+  clip-path: inset(0 100% 0 0);
+}
+
+#slide_9.slide-9-signature-revealed .slide_9-left .signature {
+  animation: slide9_signature_print 0.78s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+@keyframes slide9_signature_print {
+  from {
+    opacity: 0;
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    opacity: 0.8;
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #slide_9 .watch-scene {
+    opacity: 1 !important;
+    animation: none !important;
+    transform: none !important;
+  }
+
+  #slide_9 .slide_9-left .signature {
+    opacity: 0.8 !important;
+    animation: none !important;
+    clip-path: none !important;
+  }
+}
+
 /*          SECTION 10           */
 
 #slide_10 {
@@ -1547,17 +2185,86 @@ section[id^='slide_'] {
   text-align: center;
 }
 
+/* Слайд 10: вводный текст сверху; карточки — плавное появление с задержкой (.slide-10-revealed — main.js) */
+#slide_10:not(.slide-10-revealed) .slide_10-text {
+  opacity: 0;
+  transform: translateY(calc(-1 * min(40px, 7vh)));
+}
+
+#slide_10:not(.slide-10-revealed) .slide_10-grid .card {
+  opacity: 0;
+}
+
+@keyframes slide10_text_in {
+  from {
+    opacity: 0;
+    transform: translateY(calc(-1 * min(44px, 8vh)));
+  }
+  to {
+    opacity: 0.85;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide10_card_in {
+  from {
+    opacity: 0;
+    transform: translateY(min(20px, 3.5vh));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#slide_10.slide-10-revealed .slide_10-text {
+  animation: slide10_text_in 0.88s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+#slide_10.slide-10-revealed .slide_10-grid .card {
+  animation: slide10_card_in 0.78s cubic-bezier(0.33, 1, 0.68, 1) both;
+}
+
+#slide_10.slide-10-revealed .slide_10-grid .card:nth-child(1) {
+  animation-delay: 0.2s;
+}
+
+#slide_10.slide-10-revealed .slide_10-grid .card:nth-child(2) {
+  animation-delay: 0.34s;
+}
+
+#slide_10.slide-10-revealed .slide_10-grid .card:nth-child(3) {
+  animation-delay: 0.48s;
+}
+
+#slide_10.slide-10-revealed .slide_10-grid .card:nth-child(4) {
+  animation-delay: 0.62s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #slide_10 .slide_10-text {
+    opacity: 0.85 !important;
+    animation: none !important;
+    transform: none !important;
+  }
+
+  #slide_10 .slide_10-grid .card {
+    opacity: 1 !important;
+    animation: none !important;
+    transform: none !important;
+  }
+}
 
 /* SECTION 11
    >767px: часы по центру на всю ширину контента; текст и подпись — справа (сверху / снизу).
    ≤767px: часы у правого края (cover); заголовок и подпись — справа (сверху / снизу). */
 
 #slide_11 {
-  position: relative;
   padding: 0 clamp(20px, 8vw, 220px);
   height: 100vh;
   min-height: 100dvh;
   overflow: hidden;
+  overflow: clip;
 }
 
 #slide_11 .slide_11-inner {
@@ -1587,6 +2294,7 @@ section[id^='slide_'] {
   object-fit: contain;
   object-position: center;
   margin: 0;
+  transform-origin: center center;
 }
 
 /* Текст сверху справа, подпись снизу справа; поверх градиента */
@@ -1645,12 +2353,65 @@ section[id^='slide_'] {
   z-index: 2;
 }
 
+/* Слайд 11: часы — увеличение; h2 — печать после часов; подпись — после текста (main.js) */
+#slide_11:not(.slide-11-revealed) .slide_11-watch {
+  opacity: 0;
+  transform: scale(0.84);
+}
+
+#slide_11.slide-11-revealed .slide_11-watch {
+  animation: slide11_watch_scale 0.95s cubic-bezier(0.22, 0.72, 0.28, 1) both;
+}
+
+@keyframes slide11_watch_scale {
+  from {
+    opacity: 0;
+    transform: scale(0.84);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+#slide_11:not(.slide-11-signature-revealed) .slide_11-copy .signature {
+  opacity: 0;
+  clip-path: inset(0 100% 0 0);
+}
+
+#slide_11.slide-11-signature-revealed .slide_11-copy .signature {
+  animation: slide11_signature_print 0.72s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+@keyframes slide11_signature_print {
+  from {
+    opacity: 0;
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    opacity: 0.9;
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #slide_11 .slide_11-watch {
+    opacity: 1 !important;
+    animation: none !important;
+    transform: none !important;
+  }
+
+  #slide_11 .slide_11-copy .signature {
+    opacity: 0.9 !important;
+    animation: none !important;
+    clip-path: none !important;
+  }
+}
 
 /*  SECTION 12 */
 
 #slide_12 {
   height: 100vh;
-  position: relative;
 
   background: url('/images/bg-green.png') center/cover no-repeat;
 
@@ -1748,20 +2509,101 @@ section[id^='slide_'] {
   z-index: 1;
 }
 
+/* Слайд 12: часы проявляются; заголовок и абзац — выезд справа (.slide-12-revealed — main.js) */
+#slide_12:not(.slide-12-revealed) .slide_12-left .watch {
+  opacity: 0;
+  transform: scale(0.94);
+}
+
+#slide_12:not(.slide-12-revealed) .slide_12-right h2,
+#slide_12:not(.slide-12-revealed) .slide_12-right p {
+  opacity: 0;
+  transform: translate3d(min(80px, 11vw), 0, 0);
+}
+
+@keyframes slide12_watch_fade {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slide12_right_h2 {
+  from {
+    opacity: 0;
+    transform: translate3d(min(80px, 11vw), 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes slide12_right_p {
+  from {
+    opacity: 0;
+    transform: translate3d(min(80px, 11vw), 0, 0);
+  }
+  to {
+    opacity: 0.9;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+#slide_12.slide-12-revealed .slide_12-left .watch {
+  animation: slide12_watch_fade 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+#slide_12.slide-12-revealed .slide_12-right h2 {
+  animation: slide12_right_h2 0.86s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.22s both;
+}
+
+#slide_12.slide-12-revealed .slide_12-right p {
+  animation: slide12_right_p 0.86s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.38s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #slide_12 .slide_12-left .watch {
+    opacity: 1 !important;
+    animation: none !important;
+    transform: none !important;
+  }
+
+  #slide_12 .slide_12-right h2,
+  #slide_12 .slide_12-right p {
+    opacity: 1 !important;
+    animation: none !important;
+    transform: none !important;
+  }
+
+  #slide_12 .slide_12-right p {
+    opacity: 0.9 !important;
+  }
+}
+
 /* SECTION 13 */
 
 #slide_13 {
   position: relative;
   height: 100vh;
   overflow: hidden;
+  overflow: clip;
+  background: #060708;
+}
 
+/* Слой с машиной (анимация проявления — main.js .slide-13-revealed) */
+#slide_13 .slide_13-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
   background: url('/images/bg-rolls.jpg') no-repeat;
-  background-size: cover;
-
-  /* 👇 ВОТ ЭТО ДВИГАЕТ МАШИНУ */
-  background-position: right -100px center;
   background-size: 70%;
-  /* background: url('/images/bg-rolls.jpg') center right / cover no-repeat; */
+  background-position: right -100px center;
 }
 
 #slide_13::after {
@@ -1769,22 +2611,14 @@ section[id^='slide_'] {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  z-index: 3;
+  z-index: 2;
 
   background:
-    /* СВЕРХ */
     linear-gradient(to bottom, #000 15%, transparent 65%),
-
-    /* СНИЗУ */
     linear-gradient(to top, #000 10%, transparent 25%),
-
-    /* СЛЕВА */
     linear-gradient(to right, #000 38%, transparent 65%),
-
-    /* СПРАВА (легкий, чтобы не убить машину) */
-    linear-gradient(to left, rgba(0,0,0,0.4) 0%, transparent 20%);
+    linear-gradient(to left, rgba(0, 0, 0, 0.4) 0%, transparent 20%);
 }
-
 
 .slide_13-content {
   position: relative;
@@ -1801,42 +2635,162 @@ section[id^='slide_'] {
 .slide_13-left {
   position: relative;
   z-index: 4;
+  flex: 0 1 min(44vw, 520px);
+  min-width: 0;
 }
 
 .slide_13-left .watch {
   width: 100%;
-  filter: drop-shadow(0 50px 120px rgba(0,0,0,0.8));
+  filter: drop-shadow(0 50px 120px rgba(0, 0, 0, 0.8));
   position: relative;
   z-index: 4;
 }
 
+/* Блок копирайта: верхняя правая зона, выравнивание по правому краю */
 .slide_13-right {
-  flex: 1;
+  position: absolute;
+  top: clamp(14%, 18vh, 26%);
+  right: max(clamp(20px, 5vw, 100px), env(safe-area-inset-right, 0px));
+  left: auto;
+  transform: none;
 
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 20px;
+  align-items: stretch;
 
+  width: min(420px, 36vw);
+  max-width: calc(100vw - 48px);
   color: #fff;
-
-  max-width: 800px;
-
-  position: absolute;
-  top: 25%;
-  left: 50%;
-  transform: translateX(-50%);
 }
 
-.slide_13-right p {
-  font-size: clamp(24px, 1.3vw, 28px);
-  opacity: 0.8;
+.slide_13-copy-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+  gap: clamp(14px, 2vh, 22px);
+}
+
+.slide_13-lead,
+.slide_13-note {
+  margin: 0;
+  width: 100%;
+  font-size: clamp(20px, 1.55vw, 30px);
+  font-weight: 300;
+  line-height: 1.45;
+  letter-spacing: 0.03em;
+  opacity: 0.92;
+  text-align: right;
 }
 
 .slide_13-right h2 {
-  font-size: clamp(28px, 2.5vw, 44px);
+  margin: 0;
+  width: 100%;
+  font-size: clamp(22px, 2.2vw, 40px);
   font-weight: 700;
-  letter-spacing: 1.5px;
+  line-height: 1.15;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: right;
+}
+
+.slide_13-signature-mark {
+  display: block;
+  width: min(130px, 36%);
+  max-width: 160px;
+  height: auto;
+  margin: clamp(4px, 1vh, 12px) 0 0;
+  opacity: 0.95;
+  align-self: flex-end;
+}
+
+#slide_13 .rolls-logo {
+  position: relative;
+  bottom: auto;
+  right: auto;
+  width: min(168px, 42%);
+  max-width: 200px;
+  height: auto;
+  margin: clamp(10px, 2vh, 20px) 0 0;
+  align-self: flex-end;
+  object-fit: contain;
+}
+
+/* Слайд 13: фон → часы слева → текст и RR вместе (.slide-13-revealed — main.js) */
+#slide_13:not(.slide-13-revealed) .slide_13-bg {
+  opacity: 0;
+}
+
+#slide_13:not(.slide-13-revealed) .slide_13-left .watch {
+  opacity: 0;
+  transform: translateX(calc(-1 * min(56px, 8vw)));
+}
+
+#slide_13:not(.slide-13-revealed) .slide_13-copy-stack {
+  opacity: 0;
+  transform: translate3d(min(48px, 6vw), 0, 0);
+}
+
+@keyframes slide13_bg_fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide13_watch_from_left {
+  from {
+    opacity: 0;
+    transform: translateX(calc(-1 * min(56px, 8vw)));
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide13_copy_in {
+  from {
+    opacity: 0;
+    transform: translate3d(min(48px, 6vw), 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+#slide_13.slide-13-revealed .slide_13-bg {
+  animation: slide13_bg_fade 1.05s cubic-bezier(0.33, 0.86, 0.42, 1) both;
+}
+
+#slide_13.slide-13-revealed .slide_13-left .watch {
+  animation: slide13_watch_from_left 0.92s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.18s both;
+}
+
+#slide_13.slide-13-revealed .slide_13-copy-stack {
+  animation: slide13_copy_in 0.88s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.52s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #slide_13 .slide_13-bg {
+    opacity: 1 !important;
+    animation: none !important;
+  }
+
+  #slide_13 .slide_13-left .watch {
+    opacity: 1 !important;
+    animation: none !important;
+    transform: none !important;
+  }
+
+  #slide_13 .slide_13-copy-stack {
+    opacity: 1 !important;
+    animation: none !important;
+    transform: none !important;
+  }
 }
 
 .rolls-logo {
@@ -1854,7 +2808,6 @@ section[id^='slide_'] {
 #slide_14,
 #slide_15 {
   height: 100vh;
-  position: relative;
 
   background: url('/images/bg-f1.png') center/cover no-repeat;
 
@@ -1928,6 +2881,78 @@ section[id^='slide_'] {
   text-align: center;
 }
 
+.slide_14-right h2 strong {
+  font-weight: 700;
+}
+
+/* Слайд 14: часы справа въезжают (с положительного X); текст — печать (main.js) */
+#slide_14:not(.slide-14-revealed) .slide_14-left .watch {
+  opacity: 0;
+  transform: translateX(min(72px, 11vw));
+}
+
+@keyframes slide14_watch_from_right {
+  from {
+    opacity: 0;
+    transform: translateX(min(72px, 11vw));
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+#slide_14.slide-14-revealed .slide_14-left .watch {
+  animation: slide14_watch_from_right 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #slide_14 .slide_14-left .watch {
+    opacity: 1 !important;
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
+.slide_15-right h2 strong {
+  font-weight: 700;
+}
+
+/* Слайд 15: часы и заголовок — появление снизу вверх (.slide-15-revealed — main.js) */
+#slide_15:not(.slide-15-revealed) .slide_15-left .watch,
+#slide_15:not(.slide-15-revealed) .slide_15-right h2 {
+  opacity: 0;
+  transform: translateY(min(32px, 5.5vh));
+}
+
+@keyframes slide15_rise_in {
+  from {
+    opacity: 0;
+    transform: translateY(min(36px, 6vh));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#slide_15.slide-15-revealed .slide_15-left .watch {
+  animation: slide15_rise_in 0.94s cubic-bezier(0.33, 1, 0.68, 1) both;
+}
+
+#slide_15.slide-15-revealed .slide_15-right h2 {
+  animation: slide15_rise_in 0.94s cubic-bezier(0.33, 1, 0.68, 1) 0.1s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #slide_15 .slide_15-left .watch,
+  #slide_15 .slide_15-right h2 {
+    opacity: 1 !important;
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
 #slide_14::before,
 #slide_15::before {
   content: '';
@@ -1960,8 +2985,16 @@ section[id^='slide_'] {
   position: relative;
   height: 100vh;
   overflow: hidden;
-
+  overflow: clip;
   background-color: #050a12;
+}
+
+/* Фото Черчилля — отдельный слой: анимация «въезда» справа (.slide-16-revealed — main.js) */
+#slide_16 .slide_16-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
   background-image: url('/images/bg-cherchill.png');
   background-repeat: no-repeat;
   background-position: right 0 center;
@@ -2144,16 +3177,120 @@ section[id^='slide_'] {
   filter: brightness(0) invert(1) drop-shadow(0 2px 18px rgba(0, 0, 0, 0.45));
 }
 
+/* Слайд 16: фон справа → в кадр; часы слева; подпись — «написание» (clip-path). Hover — scale на часах */
+#slide_16:not(.slide-16-revealed) .slide_16-bg {
+  opacity: 0;
+  transform: translateX(min(11vw, 130px));
+}
+
+#slide_16:not(.slide-16-revealed) .slide_16-left {
+  opacity: 0;
+  transform: translateX(calc(-1 * min(52px, 8vw)));
+}
+
+#slide_16:not(.slide-16-revealed) .slide_16-signature {
+  opacity: 0;
+  clip-path: inset(0 100% 0 0);
+}
+
+@keyframes slide16_bg_from_right {
+  from {
+    opacity: 0;
+    transform: translateX(min(12vw, 150px));
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide16_watches_from_left {
+  from {
+    opacity: 0;
+    transform: translateX(calc(-1 * min(56px, 9vw)));
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide16_signature_write {
+  from {
+    opacity: 0;
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+#slide_16.slide-16-revealed .slide_16-bg {
+  animation: slide16_bg_from_right 1.08s cubic-bezier(0.33, 0.86, 0.42, 1) both;
+}
+
+#slide_16.slide-16-revealed .slide_16-left {
+  animation: slide16_watches_from_left 0.96s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.14s both;
+}
+
+#slide_16.slide-16-revealed .slide_16-signature {
+  animation: slide16_signature_write 1.12s cubic-bezier(0.3, 0.55, 0.25, 1) 0.68s forwards;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  #slide_16 .slide_16-left .watch {
+    transition: transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  #slide_16 .slide_16-watch-stack:hover .watch-gold {
+    transform: translate(-50%, -50%) scale(1.065);
+  }
+
+  #slide_16 .slide_16-watch-stack:hover .watch-black {
+    transform: translate(4%, -50%) scale(0.935);
+  }
+}
+
+@media (max-width: 1100px) and (hover: hover) and (pointer: fine) {
+  #slide_16 .slide_16-watch-stack:hover .watch-black {
+    transform: translate(4%, -50%) scale(0.9);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #slide_16 .slide_16-bg {
+    opacity: 1 !important;
+    animation: none !important;
+    transform: none !important;
+  }
+
+  #slide_16 .slide_16-left {
+    opacity: 1 !important;
+    animation: none !important;
+    transform: none !important;
+  }
+
+  #slide_16 .slide_16-signature {
+    opacity: 1 !important;
+    animation: none !important;
+    clip-path: none !important;
+  }
+}
+
 /* До телефона: фон уезжает влево; пара часов по центру строки */
 @media (max-width: 1100px) {
   #slide_16 {
-    background-size: cover;
-    background-position: 34% center;
     min-height: 100vh;
     min-height: 100dvh;
     height: auto;
     overflow-x: hidden;
     overflow-y: visible;
+  }
+
+  #slide_16 .slide_16-bg {
+    background-size: cover;
+    background-position: 34% center;
   }
 
   #slide_16::before {
@@ -2223,13 +3360,13 @@ section[id^='slide_'] {
 }
 
 @media (max-width: 900px) {
-  #slide_16 {
+  #slide_16 .slide_16-bg {
     background-position: 26% center;
   }
 }
 
 @media (max-width: 768px) {
-  #slide_16 {
+  #slide_16 .slide_16-bg {
     background-position: 20% center;
   }
 }
@@ -2266,6 +3403,7 @@ section[id^='slide_'] {
   position: relative;
   height: 100vh;
   overflow: hidden;
+  overflow: clip;
 
   background-color: #0c0b0a;
 }
@@ -2507,6 +3645,166 @@ section[id^='slide_'] {
 
 .slide_17-text strong {
   font-weight: 600;
+}
+
+/* Слайд 17: фон проявляется; часы сверху вниз; копирайт — монограмма → Amir Temur + Legacy → абзац (.slide-17-revealed — main.js) */
+#slide_17:not(.slide-17-revealed) .slide_17-photo-bg {
+  opacity: 0;
+}
+
+#slide_17:not(.slide-17-revealed) .slide_17-left {
+  opacity: 0;
+  transform: translateY(calc(-1 * min(48px, 7vh)));
+}
+
+#slide_17:not(.slide-17-revealed) .slide_17-monogram,
+#slide_17:not(.slide-17-revealed) .slide_17-title,
+#slide_17:not(.slide-17-revealed) .slide_17-subtitle,
+#slide_17:not(.slide-17-revealed) .slide_17-text {
+  opacity: 0;
+  transform: translateY(18px);
+}
+
+@keyframes slide17_bg_fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide17_watches_from_top {
+  from {
+    opacity: 0;
+    transform: translateY(calc(-1 * min(56px, 9vh)));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide17_mono_in {
+  from {
+    opacity: 0;
+    transform: translateY(22px) scale(0.94);
+  }
+  to {
+    opacity: 0.96;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes slide17_line_in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide17_subtitle_in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide17_para_in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#slide_17.slide-17-revealed .slide_17-photo-bg {
+  animation: slide17_bg_fade 1.05s cubic-bezier(0.33, 0.86, 0.42, 1) both;
+}
+
+#slide_17.slide-17-revealed .slide_17-left {
+  animation: slide17_watches_from_top 0.96s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.12s both;
+}
+
+#slide_17.slide-17-revealed .slide_17-monogram {
+  animation: slide17_mono_in 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.46s both;
+}
+
+#slide_17.slide-17-revealed .slide_17-title {
+  animation: slide17_line_in 0.74s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.64s both;
+}
+
+#slide_17.slide-17-revealed .slide_17-subtitle {
+  animation: slide17_subtitle_in 0.74s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.76s both;
+}
+
+#slide_17.slide-17-revealed .slide_17-text {
+  animation: slide17_para_in 0.82s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.92s both;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  #slide_17 .slide_17-left .watch {
+    transition: transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  #slide_17 .slide_17-watch-stack:hover .watch-blue {
+    transform: translate(-50%, -50%) scale(1.065);
+  }
+
+  #slide_17 .slide_17-watch-stack:hover .watch-green {
+    transform: translate(4%, -50%) scale(0.935);
+  }
+}
+
+@media (max-width: 767px) and (hover: hover) and (pointer: fine) {
+  #slide_17 .slide_17-watch-stack:hover .watch-green {
+    transform: translate(4%, -50%) scale(0.9);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #slide_17 .slide_17-photo-bg {
+    opacity: 1 !important;
+    animation: none !important;
+  }
+
+  #slide_17 .slide_17-left {
+    opacity: 1 !important;
+    animation: none !important;
+    transform: none !important;
+  }
+
+  #slide_17 .slide_17-monogram,
+  #slide_17 .slide_17-title,
+  #slide_17 .slide_17-subtitle,
+  #slide_17 .slide_17-text {
+    opacity: 1 !important;
+    animation: none !important;
+    transform: none !important;
+  }
+
+  #slide_17 .slide_17-monogram {
+    opacity: 0.96 !important;
+  }
+
+  #slide_17 .slide_17-subtitle {
+    color: rgba(255, 255, 255, 0.95) !important;
+  }
+
+  #slide_17 .slide_17-text {
+    color: rgba(255, 255, 255, 0.93) !important;
+  }
 }
 
 /* Слайд 17 — только телефон: часы сверху, контекст снизу; планшет и выше — две колонки как на десктопе */
@@ -2791,25 +4089,38 @@ section[id^='slide_'] {
   }
 
   #slide_13 .slide_13-right {
-    top: 18%;
-    max-width: min(420px, 44vw);
-    gap: clamp(12px, 2vw, 20px);
+    top: 16%;
+    width: min(400px, 44vw);
+    max-width: none;
   }
 
   #slide_13 .slide_13-right h2 {
     font-size: clamp(22px, 2.8vw, 36px);
-    text-align: center;
   }
 
-  #slide_13 .slide_13-right p {
-    font-size: clamp(16px, 1.8vw, 24px);
-    text-align: center;
+  #slide_13 .slide_13-copy-stack {
+    align-items: flex-end;
+    text-align: right;
+  }
+
+  #slide_13 .slide_13-lead,
+  #slide_13 .slide_13-note {
+    font-size: clamp(17px, 1.95vw, 26px);
+    text-align: right;
+  }
+
+  #slide_13 .slide_13-right h2 {
+    text-align: right;
+  }
+
+  #slide_13 .slide_13-signature-mark {
+    align-self: flex-end;
   }
 
   #slide_13 .rolls-logo {
-    width: min(160px, 30vw);
-    right: max(12px, env(safe-area-inset-right, 0px));
-    bottom: max(7%, env(safe-area-inset-bottom, 0px));
+    width: min(150px, 34%);
+    max-width: 180px;
+    align-self: flex-end;
   }
 
   .slide_6-right,
@@ -2866,6 +4177,15 @@ section[id^='slide_'] {
     padding: 0;
     object-fit: contain;
     object-position: left center;
+  }
+
+  #slide_6:not(.slide-6-revealed) .slide_6-left .watch {
+    opacity: 0;
+    transform: translateX(calc(-50% - min(88px, 20vw))) translateY(-50%);
+  }
+
+  #slide_6.slide-6-revealed .slide_6-left .watch {
+    animation: slide6_watch_in_mobile 0.92s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
   }
 
   .slide_6-right {
@@ -2978,6 +4298,15 @@ section[id^='slide_'] {
     filter: drop-shadow(0 50px 120px rgba(0, 0, 0, 0.7));
   }
 
+  #slide_7:not(.slide-7-revealed) .slide_7-left .watch {
+    opacity: 0;
+    transform: translateX(calc(-1 * min(88px, 20vw))) translateY(-50%);
+  }
+
+  #slide_7.slide-7-revealed .slide_7-left .watch {
+    animation: slide7_watch_in_mobile 0.92s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  }
+
   #slide_7 .slide_7-right .signature {
     order: 3;
     position: relative;
@@ -3031,13 +4360,41 @@ section[id^='slide_'] {
     right: 0;
     top: 50%;
     left: auto;
-    transform: translateY(-50%);
+    transform: translateX(calc(-1 * min(14px, 3.5vw))) translateY(-50%);
     height: 100%;
     width: auto;
     max-height: 100%;
     max-width: none;
     object-fit: contain;
     object-position: right center;
+  }
+
+  #slide_8:not(.slide-8-revealed) .slide_8-right .watch {
+    opacity: 0;
+    transform: translateX(min(72px, 18vw)) translateY(-50%);
+  }
+
+  #slide_8.slide-8-revealed .slide_8-right .watch {
+    animation: slide8_watch_in_mobile 0.92s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  }
+
+  #slide_8:not(.slide-8-revealed) .slide_8-left h2,
+  #slide_8:not(.slide-8-revealed) .slide_8-left p,
+  #slide_8:not(.slide-8-revealed) .slide_8-left .signature {
+    opacity: 0;
+    transform: translate3d(calc(-1 * min(72px, 14vw)), 0, 0);
+  }
+
+  #slide_8.slide-8-revealed .slide_8-left h2 {
+    animation: slide8_left_h2 0.82s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  }
+
+  #slide_8.slide-8-revealed .slide_8-left p {
+    animation: slide8_left_p 0.82s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.12s both;
+  }
+
+  #slide_8.slide-8-revealed .slide_8-left .signature {
+    animation: slide8_left_sig 0.82s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.24s both;
   }
 
   #slide_8 .slide_8-left h2 {
@@ -3231,6 +4588,7 @@ section[id^='slide_'] {
     max-width: none;
     max-height: none;
     transform: none;
+    transform-origin: 88% 50%;
     object-fit: cover;
     object-position: right center;
   }
@@ -3384,10 +4742,15 @@ section[id^='slide_'] {
     padding-bottom: max(24px, env(safe-area-inset-bottom, 0px));
   }
 
+  #slide_13 .slide_13-bg {
+    display: none;
+  }
+
   #slide_13 .slide_13-content {
     position: relative;
     display: grid;
     grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto;
     justify-items: center;
     align-content: center;
     row-gap: clamp(18px, 4vh, 32px);
@@ -3402,19 +4765,39 @@ section[id^='slide_'] {
   #slide_13 .slide_13-right {
     position: static;
     top: auto;
+    right: auto;
     left: auto;
     transform: none;
-    display: contents;
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
     max-width: none;
-    align-items: center;
+    grid-row: 1;
+    padding-right: max(0px, env(safe-area-inset-right, 0px));
+    padding-left: max(0px, env(safe-area-inset-left, 0px));
+  }
+
+  #slide_13 .slide_13-copy-stack {
+    width: 100%;
+    max-width: min(36ch, 92vw);
+    align-items: flex-end;
+    text-align: right;
   }
 
   #slide_13 .slide_13-right h2 {
-    grid-row: 1;
     width: 100%;
-    max-width: min(22ch, 92vw);
-    text-align: center;
     margin: 0;
+    text-align: right;
+  }
+
+  #slide_13 .slide_13-lead,
+  #slide_13 .slide_13-note {
+    font-size: clamp(17px, 4.2vw, 22px);
+    text-align: right;
+  }
+
+  #slide_13 .slide_13-signature-mark {
+    align-self: flex-end;
   }
 
   #slide_13 .slide_13-left {
@@ -3440,7 +4823,6 @@ section[id^='slide_'] {
     left: auto;
     right: auto;
     bottom: auto;
-    transform: none;
     display: block;
     width: 100%;
     height: auto;
@@ -3451,30 +4833,17 @@ section[id^='slide_'] {
     filter: drop-shadow(0 14px 40px rgba(0, 0, 0, 0.55));
   }
 
-  #slide_13 .slide_13-right > p:first-of-type {
-    grid-row: 3;
-    width: 100%;
-    max-width: min(34ch, 92vw);
-    text-align: center;
-    margin: 0;
+  #slide_13 .rolls-logo {
+    align-self: flex-end;
+    width: min(130px, 38vw);
+    max-width: 160px;
+    margin-top: clamp(8px, 2vh, 16px);
   }
 
-  #slide_13 .slide_13-right > p:last-of-type {
-    grid-row: 4;
-    width: 100%;
-    max-width: min(30ch, 92vw);
-    text-align: center;
-    margin: 0;
-  }
-
-  #slide_13 .slide_13-content > img.rolls-logo {
-    grid-row: 5;
-    position: relative;
-    bottom: auto;
-    right: auto;
-    width: min(140px, 42vw);
-    max-width: 100%;
-    margin: clamp(6px, 2vh, 16px) auto 0;
+  #slide_13 .slide_13-signature-mark {
+    width: min(110px, 40vw);
+    max-width: 140px;
+    align-self: flex-end;
   }
 
   #slide_13::after {
@@ -3591,7 +4960,6 @@ section[id^='slide_'] {
     left: auto;
     right: auto;
     bottom: auto;
-    transform: none;
     display: block;
     width: 100%;
     height: auto;
@@ -3692,7 +5060,6 @@ section[id^='slide_'] {
     left: auto;
     right: auto;
     bottom: auto;
-    transform: none;
     display: block;
     width: 100%;
     height: auto;
@@ -3715,12 +5082,16 @@ section[id^='slide_'] {
     height: auto;
     /* иначе overflow:hidden с десктопа режет стек часов (absolute + translateY) в ландшафте */
     overflow-x: hidden;
+    overflow-x: clip;
     overflow-y: visible;
+    padding-top: max(88px, calc(env(safe-area-inset-top, 0px) + 48px));
+    padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
+  }
+
+  #slide_16 .slide_16-bg {
     background-size: cover;
     background-position: 24% center;
     background-repeat: no-repeat;
-    padding-top: max(88px, calc(env(safe-area-inset-top, 0px) + 48px));
-    padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
   }
 
   #slide_16::before {
@@ -3887,7 +5258,8 @@ section[id^='slide_'] {
 
   #slide_13 .slide_13-right {
     top: 14%;
-    max-width: min(400px, 50vw);
+    width: min(380px, 50vw);
+    max-width: none;
   }
 
   #slide_7 .slide_7-left .watch {
@@ -3940,5 +5312,117 @@ section[id^='slide_'] {
 
   .card img {
     max-width: 200px;
+  }
+}
+
+/*
+ * Стопка слайдов (как колода карт): текущий кадр липнет к top:0, следующий едет снизу и ложится сверху
+ * (больший z-index у следующего в разметке). Lenis только сглаживает скролл — геометрия здесь.
+ * Важно: не задавать на section#slide_* position: relative — иначе ломается sticky.
+ */
+.snap-section {
+  position: sticky;
+  top: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  isolation: isolate;
+}
+
+.snap-section > .reveal-child {
+  opacity: 0;
+  transform: translate3d(0, 1.75rem, 0);
+  transition:
+    opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: calc(var(--reveal-order, 0) * 0.1s);
+}
+
+.snap-section.is-inview > .reveal-child {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .snap-section > .reveal-child {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ——— правая вертикальная навигация по слайдам ——— */
+.slide-rail {
+  position: fixed;
+  z-index: 80;
+  right: max(10px, env(safe-area-inset-right, 0px));
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.slide-rail ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  pointer-events: auto;
+}
+
+.slide-rail a.slide-rail__dot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  text-decoration: none;
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+
+.slide-rail a.slide-rail__dot::before {
+  content: '';
+  display: block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  background-color: transparent;
+  box-sizing: border-box;
+  transition:
+    background-color 0.22s ease,
+    border-color 0.22s ease,
+    transform 0.22s ease;
+}
+
+.slide-rail a.slide-rail__dot:hover::before {
+  border-color: rgba(255, 255, 255, 0.85);
+}
+
+.slide-rail a.slide-rail__dot.is-active::before {
+  background-color: rgba(255, 255, 255, 0.92);
+  border-color: rgba(255, 255, 255, 0.92);
+}
+
+@media (max-width: 520px) {
+  .slide-rail {
+    right: max(6px, env(safe-area-inset-right, 0px));
+  }
+
+  .slide-rail ul {
+    gap: 4px;
+  }
+
+  .slide-rail a.slide-rail__dot::before {
+    width: 8px;
+    height: 8px;
   }
 }
