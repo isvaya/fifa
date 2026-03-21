@@ -5526,7 +5526,8 @@ section[id^='slide_'] {
 /* ——— правая вертикальная навигация по слайдам ——— */
 .slide-rail {
   position: fixed;
-  z-index: 80;
+  /* выше секций (20–36) и шапки (100), чтобы тап по точкам не перехватывался чужим слоем */
+  z-index: 110;
   right: max(10px, env(safe-area-inset-right, 0px));
   top: 50%;
   transform: translateY(-50%);
@@ -5549,19 +5550,27 @@ section[id^='slide_'] {
   pointer-events: auto;
 }
 
-.slide-rail a.slide-rail__dot {
+.slide-rail .slide-rail__dot {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 26px;
   height: 26px;
   padding: 0;
+  margin: 0;
   text-decoration: none;
+  border: none;
+  background: transparent;
   border-radius: 50%;
   box-sizing: border-box;
+  cursor: pointer;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+  appearance: none;
+  -webkit-appearance: none;
 }
 
-.slide-rail a.slide-rail__dot::before {
+.slide-rail .slide-rail__dot::before {
   content: '';
   display: block;
   width: 9px;
@@ -5576,11 +5585,11 @@ section[id^='slide_'] {
     transform 0.22s ease;
 }
 
-.slide-rail a.slide-rail__dot:hover::before {
+.slide-rail .slide-rail__dot:hover::before {
   border-color: rgba(255, 255, 255, 0.85);
 }
 
-.slide-rail a.slide-rail__dot.is-active::before {
+.slide-rail .slide-rail__dot.is-active::before {
   background-color: rgba(255, 255, 255, 0.92);
   border-color: rgba(255, 255, 255, 0.92);
 }
@@ -5594,7 +5603,7 @@ section[id^='slide_'] {
     gap: 4px;
   }
 
-  .slide-rail a.slide-rail__dot::before {
+  .slide-rail .slide-rail__dot::before {
     width: 8px;
     height: 8px;
   }

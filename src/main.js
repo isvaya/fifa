@@ -82,7 +82,8 @@ function initLenisSnap(slides, reduceMotion) {
     smoothWheel: true,
     syncTouch: true,
     syncTouchLerp: 0.042,
-    anchors: true,
+    /* false: иначе Lenis вешает click на window и перехватывает все <a href="#..."> — ломает .slide-rail */
+    anchors: false,
   });
 
   /*
@@ -140,6 +141,9 @@ function initLenisSnap(slides, reduceMotion) {
   for (const el of slides) {
     if (el instanceof HTMLElement) slideResizeObserver.observe(el);
   }
+
+  /* для навигации по точкам: отключать mandatory snap на время программного scrollTo */
+  lenis.__fifaSnap = snap;
 
   return lenis;
 }
@@ -836,34 +840,69 @@ function scrollPaddingTopPx() {
   return Number.isFinite(n) ? n : 96;
 }
 
+/** Документная Y начала слайда по индексу (сумма высот предыдущих секций в потоке — стабильно для sticky-стопки). */
+function scrollDocumentYForSlideIndex(slides, slideIndex) {
+  let y = 0;
+  for (let j = 0; j < slideIndex; j += 1) {
+    const el = slides[j];
+    if (el instanceof HTMLElement) y += el.offsetHeight;
+  }
+  return y;
+}
+
 function initSlideRail(slides, reduceMotion, lenis) {
   const header = document.querySelector('.header');
   const nav = document.createElement('nav');
   nav.className = 'slide-rail';
   nav.setAttribute('role', 'navigation');
   nav.setAttribute('aria-label', 'Слайды');
+  /* Не отдавать жесты Lenis (virtual scroll) — иначе тап по точке может уйти в скролл страницы */
+  nav.setAttribute('data-lenis-prevent', '');
   const ul = document.createElement('ul');
   const links = [];
 
   slides.forEach((section, i) => {
     const li = document.createElement('li');
-    const a = document.createElement('a');
-    a.href = `#${section.id}`;
-    a.className = 'slide-rail__dot';
-    a.setAttribute('aria-label', `Слайд ${i + 1}`);
-    a.addEventListener('click', (e) => {
-      e.preventDefault();
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'slide-rail__dot';
+    btn.setAttribute('aria-label', `Слайд ${i + 1}`);
+    btn.setAttribute('aria-controls', section.id);
+
+    function navigateToSlide() {
+      const pad = scrollPaddingTopPx();
+      const snapInst = lenis && lenis.__fifaSnap;
       if (lenis) {
-        lenis.scrollTo(section, { offset: -scrollPaddingTopPx(), duration: 1.45 });
+        const docY = scrollDocumentYForSlideIndex(slides, i);
+        const nextY = Math.max(0, Math.round(docY - pad));
+        if (snapInst && typeof snapInst.stop === 'function') snapInst.stop();
+        lenis.scrollTo(nextY, {
+          duration: 1.45,
+          lock: true,
+          force: true,
+          onComplete: () => {
+            if (snapInst && typeof snapInst.start === 'function') snapInst.start();
+          },
+        });
       } else {
         section.scrollIntoView({
           behavior: reduceMotion ? 'auto' : 'smooth',
           block: 'start',
         });
       }
-    });
-    links.push(a);
-    li.appendChild(a);
+    }
+
+    btn.addEventListener(
+      'click',
+      (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        navigateToSlide();
+      },
+      true
+    );
+    links.push(btn);
+    li.appendChild(btn);
     ul.appendChild(li);
   });
 
