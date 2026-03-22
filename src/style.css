@@ -72,7 +72,12 @@ section[id^='slide_'] {
 
 #slide_1 {
   position: relative;
-  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  min-height: 100svh;
+  height: auto;
   overflow: hidden;
   overflow: clip;
 }
@@ -111,7 +116,7 @@ section[id^='slide_'] {
   max-height: clamp(
     min(36vh, 58vw),
     22vh + 34vw + 14vmin,
-    100vh
+    min(100vh, 100dvh, 100svh)
   );
 
   object-fit: contain;
@@ -137,10 +142,11 @@ section[id^='slide_'] {
   position: relative;
   z-index: 2;
 
-  height: 100%;
+  flex: 1 1 auto;
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  min-height: 0;
 
   padding-right: clamp(20px, 8vw, 160px);
 }
@@ -155,14 +161,20 @@ section[id^='slide_'] {
   gap: 20px;
 }
 
-/* BUTTON */
+/* BUTTON — ширина под текст «PLACE AN ORDER», SVG тянется с кнопкой */
 .btn_order {
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: clamp(460px, 25vw, 480px);
-  height: clamp(50px, 6vw, 70px);
+  box-sizing: border-box;
+  width: auto;
+  max-width: 100%;
+  min-width: 12rem;
+  min-height: clamp(48px, 5.5vw, 68px);
+  height: auto;
+  padding: 0 clamp(12px, 4vw, 40px);
+  overflow: hidden;
 
   background: transparent;
   border: none;
@@ -174,6 +186,7 @@ section[id^='slide_'] {
   inset: 0;
   width: 100%;
   height: 100%;
+  display: block;
 }
 
 .btn_order polygon {
@@ -187,10 +200,10 @@ section[id^='slide_'] {
   position: relative;
   z-index: 2;
   color: white;
+  max-width: 100%;
 
-  letter-spacing: clamp(4px, 1vw, 12px);
-  font-size: clamp(16px, 2vw, 38px);
-
+  font-size: clamp(18px, 2.1vw, 28px);
+  letter-spacing: clamp(0.03em, 0.28vw, 0.1em);
   font-weight: 500;
   white-space: nowrap;
 }
@@ -283,13 +296,15 @@ section[id^='slide_'] {
   }
 
   .btn_order {
-    width: min(100%, min(320px, calc(100vw - 24px)));
-    max-width: 100%;
+    width: auto;
+    max-width: min(100%, calc(100vw - 28px));
+    min-width: 0;
+    padding: 0 clamp(14px, 5vw, 28px);
   }
 
   .btn_order span {
-    font-size: clamp(12px, 3.8vw, 18px);
-    letter-spacing: clamp(2px, 0.6vw, 8px);
+    font-size: clamp(9px, 3.2vw, 16px);
+    letter-spacing: clamp(0.02em, 0.5vw, 0.08em);
   }
 
   .text {
@@ -5697,6 +5712,10 @@ body.order-modal-active {
 html.js-slide-deck {
   overflow: hidden;
   height: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  min-height: 100svh;
+  min-height: -webkit-fill-available;
 }
 
 html.js-slide-deck body {
@@ -5705,6 +5724,8 @@ html.js-slide-deck body {
   height: 100%;
   min-height: 100vh;
   min-height: 100dvh;
+  min-height: 100svh;
+  min-height: -webkit-fill-available;
   overscroll-behavior: none;
 }
 
@@ -5726,8 +5747,11 @@ html.js-slide-deck section.slide {
   position: absolute;
   inset: 0;
   width: 100%;
-  height: 100vh;
-  height: 100dvh;
+  min-height: 100dvh;
+  min-height: 100svh;
+  min-height: -webkit-fill-available;
+  height: 100%;
+  max-width: 100%;
   box-sizing: border-box;
 }
 
@@ -5744,14 +5768,22 @@ html.js-slide-deck section[id^='slide_'] {
   position: absolute;
   inset: 0;
   width: 100%;
+  max-width: 100%;
   height: 100%;
-  min-height: 0;
+  min-height: 100dvh;
+  min-height: 100svh;
+  min-height: -webkit-fill-available;
   max-height: 100dvh;
   max-height: 100svh;
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  box-sizing: border-box;
 
   opacity: 0;
   transform: translate3d(0, 108%, 0);
@@ -5844,12 +5876,12 @@ html.js-slide-deck #slide_17 {
   position: absolute;
   inset: 0;
   width: 100%;
-  height: 100vh !important;
-  height: 100dvh !important;
-  min-height: 100vh !important;
+  max-width: 100%;
   min-height: 100dvh !important;
-  max-height: 100vh !important;
-  max-height: 100dvh !important;
+  min-height: 100svh !important;
+  min-height: -webkit-fill-available !important;
+  height: auto !important;
+  max-height: none !important;
   isolation: isolate;
 }
 
@@ -5880,6 +5912,40 @@ html.js-slide-deck #slide_17 .slide_17-content {
   height: 100%;
   max-height: 100%;
   flex: 1 1 auto;
+}
+
+/*
+ * Реальные телефоны: убрать жёсткий max-height, дать слайду по высоте контента + прокрутку.
+ */
+@media (max-width: 767px) {
+  html.js-slide-deck section[id^='slide_'],
+  html.js-slide-deck section.slide {
+    max-height: none !important;
+    min-height: 100dvh !important;
+    min-height: 100svh !important;
+    min-height: -webkit-fill-available !important;
+    height: auto !important;
+    overflow-x: clip;
+    overflow-y: auto;
+  }
+
+  html.js-slide-deck #slide_13,
+  html.js-slide-deck #slide_16,
+  html.js-slide-deck #slide_17 {
+    min-height: 100dvh !important;
+    min-height: 100svh !important;
+    min-height: -webkit-fill-available !important;
+    max-height: none !important;
+    height: auto !important;
+  }
+
+  html.js-slide-deck #slide_13 .slide_13-content,
+  html.js-slide-deck #slide_16 .slide_16-content,
+  html.js-slide-deck #slide_17 .slide_17-content {
+    max-width: 100%;
+    height: auto;
+    max-height: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
