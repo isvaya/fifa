@@ -696,16 +696,17 @@ body.order-modal-active {
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    gap: clamp(4px, 1.2vh, 12px);
+    gap: clamp(2px, 0.8vh, 8px);
     padding-top: max(
-      clamp(100px, 15svh, 124px),
+      clamp(88px, 13svh, 112px),
       calc(
-        max(28px, 10px + env(safe-area-inset-top, 0px)) + clamp(44px, 14vw, 60px) +
-          16px
+        max(28px, 10px + env(safe-area-inset-top, 0px)) + clamp(40px, 12vw, 56px) +
+          12px
       )
     );
     padding-left: max(16px, env(safe-area-inset-left, 0px));
-    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-right: max(16px, calc(env(safe-area-inset-right, 0px) + 24px));
+    padding-bottom: max(12px, calc(env(safe-area-inset-bottom, 0px) + 32px));
     min-height: 0;
   }
 
@@ -732,7 +733,7 @@ body.order-modal-active {
     margin-left: calc(-1 * max(16px, env(safe-area-inset-left, 0px)));
     margin-right: calc(-1 * max(16px, env(safe-area-inset-right, 0px)));
     min-height: 0;
-    max-height: min(52vh, 100vw);
+    max-height: min(44vh, 44dvh, 92vw);
     transform: translateY(0) translateX(0);
     opacity: 1;
     justify-self: stretch;
@@ -808,13 +809,13 @@ body.order-modal-active {
 
 @media (max-width: 767px) {
   #slide_2 .watches-container {
-    height: min(52vh, 100vw);
+    height: min(44vh, 44dvh, 88vw);
     max-height: 100%;
   }
 
   /* Крупнее и привязка к ширине вьюпорта */
   #slide_2 .watch {
-    height: min(520px, 56vh, 92vw, 88vmin);
+    height: min(400px, 48vh, 48dvh, 88vw, 82vmin);
     filter: drop-shadow(0 22px 52px rgba(0, 0, 0, 0.55));
   }
 
@@ -1060,27 +1061,26 @@ body.order-modal-active {
 @media (max-width: 767px) {
   #slide_3 .slide_3-pin {
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     min-height: 100vh;
     min-height: 100dvh;
-    padding-top: max(92px, calc(env(safe-area-inset-top, 0px) + 56px));
-    padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
+    padding-top: max(76px, calc(env(safe-area-inset-top, 0px) + 44px));
+    padding-bottom: max(28px, calc(env(safe-area-inset-bottom, 0px) + 40px));
     padding-left: max(16px, env(safe-area-inset-left, 0px));
-    padding-right: max(16px, env(safe-area-inset-right, 0px));
-    gap: clamp(32px, 8vh, 56px);
+    padding-right: max(16px, calc(env(safe-area-inset-right, 0px) + 24px));
+    gap: clamp(10px, 2.5vh, 22px);
   }
 
   #slide_3 .visual-scene {
-    width: min(78vw, 320px);
-    max-width: min(320px, 88vw);
+    width: min(78vw, 300px);
+    max-width: min(300px, 86vw);
     height: auto;
-    /* Не фиксируем aspect-ratio + max-height + overflow:hidden — на iPhone обрезался низ «UZBEKISTAN!» */
-    max-height: none;
+    max-height: min(46vh, 46dvh, 340px);
     flex-shrink: 0;
     overflow: visible;
-    margin-bottom: clamp(8px, 2vh, 16px);
-    padding-bottom: clamp(4px, 1.2vw, 12px);
+    margin-bottom: clamp(4px, 1vh, 10px);
+    padding-bottom: clamp(2px, 0.8vw, 8px);
   }
 
   #slide_3 .visual-scene .bg-number {
@@ -1100,14 +1100,27 @@ body.order-modal-active {
 
   #slide_3 .slide_3-text-container {
     align-items: center;
-    max-width: min(400px, 92vw);
+    max-width: min(400px, calc(92vw - 28px));
     width: 100%;
     flex: 0 1 auto;
-    gap: clamp(14px, 3vh, 22px);
-    margin-top: clamp(4px, 1.5vh, 12px);
-    padding-top: clamp(16px, 4vh, 28px);
+    gap: clamp(6px, 1.4vh, 14px);
+    margin-top: 0;
+    padding-top: clamp(4px, 1vh, 12px);
     position: relative;
     z-index: 1;
+  }
+
+  #slide_3 .slide_3-text-container h2 {
+    font-size: clamp(17px, 4.6vw, 24px);
+  }
+
+  #slide_3 .slide_3-text-container h3 {
+    font-size: clamp(13px, 3.4vw, 17px);
+  }
+
+  #slide_3 .slide_3-text-container p {
+    font-size: clamp(12px, 3.2vw, 15px);
+    line-height: 1.35;
   }
 
   #slide_3 .slide_3-text-container h2,
@@ -1250,27 +1263,29 @@ body.order-modal-active {
 
 @media (max-width: 767px) {
   #slide_4 {
-    padding-top: max(80px, calc(env(safe-area-inset-top, 0px) + 40px));
-    padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
+    padding-top: max(72px, calc(env(safe-area-inset-top, 0px) + 36px));
+    padding-bottom: max(28px, calc(env(safe-area-inset-bottom, 0px) + 44px));
+    padding-right: max(20px, calc(env(safe-area-inset-right, 0px) + 28px));
   }
 
   #slide_4 .slide_4-stack {
-    max-width: min(98vw, 680px);
+    max-width: min(calc(98vw - 32px), 640px);
   }
 
   #slide_4 .slide_4-watch {
     max-height: min(
-      78vh,
-      78dvh,
-      calc(100dvh - max(92px, calc(env(safe-area-inset-top, 0px) + 64px)) - 40px),
-      min(160vw, 720px)
+      62vh,
+      62dvh,
+      62svh,
+      calc(100svh - max(100px, calc(env(safe-area-inset-top, 0px) + 72px)) - 120px),
+      min(130vw, 560px)
     );
   }
 
   #slide_4 .signature {
-    width: min(90px, 26vw);
+    width: min(82px, 24vw);
     right: clamp(0px, 2vw, 8px);
-    bottom: clamp(1.5%, 1.5dvh, 5.5%);
+    bottom: clamp(8px, 2dvh, 20px);
     transform: translateX(6px);
   }
 }
@@ -1468,7 +1483,8 @@ body.order-modal-active {
     min-height: 100vh;
     min-height: 100dvh;
     align-items: flex-start;
-    padding-top: max(88px, calc(env(safe-area-inset-top, 0px) + 44px));
+    padding-top: max(76px, calc(env(safe-area-inset-top, 0px) + 40px));
+    padding-bottom: max(20px, calc(env(safe-area-inset-bottom, 0px) + 36px));
   }
 
   .slide_5-content {
@@ -1476,9 +1492,9 @@ body.order-modal-active {
     justify-content: flex-start;
     align-items: center;
     padding-left: max(16px, env(safe-area-inset-left, 0px));
-    padding-right: max(16px, env(safe-area-inset-right, 0px));
-    padding-bottom: max(24px, env(safe-area-inset-bottom, 0px));
-    gap: clamp(48px, 14vh, 88px);
+    padding-right: max(16px, calc(env(safe-area-inset-right, 0px) + 24px));
+    padding-bottom: max(16px, env(safe-area-inset-bottom, 0px));
+    gap: clamp(12px, 3.5vh, 28px);
     isolation: isolate;
   }
 
@@ -1489,9 +1505,8 @@ body.order-modal-active {
     justify-content: center;
     position: relative;
     z-index: 1;
-    /* место под размытие drop-shadow, иначе тень «лежит» на тексте */
-    margin-bottom: clamp(36px, 10vh, 72px);
-    padding-bottom: clamp(24px, 7vh, 48px);
+    margin-bottom: clamp(8px, 2vh, 20px);
+    padding-bottom: clamp(8px, 2vh, 18px);
   }
 
   .slide_5-left img {
@@ -1501,12 +1516,12 @@ body.order-modal-active {
   .slide_5-right {
     flex: 0 1 auto;
     width: 100%;
-    max-width: min(440px, 94vw);
+    max-width: min(440px, calc(94vw - 28px));
     padding-left: 0;
     align-items: center;
     position: relative;
     z-index: 2;
-    margin-top: clamp(20px, 6vh, 40px);
+    margin-top: 0;
   }
 
   .slide_5-right h2,
@@ -1516,17 +1531,19 @@ body.order-modal-active {
 
   .slide_5-left .watch-wrapper,
   .slide_5-left img {
-    width: min(92vw, 420px);
-    max-width: min(92vw, 420px);
+    width: min(88vw, 360px);
+    max-width: min(88vw, 360px);
   }
 
   .slide_5-right h2 {
-    font-size: clamp(26px, 7vw, 36px);
-    margin-bottom: clamp(12px, 2.4vh, 20px);
+    font-size: clamp(22px, 6.2vw, 32px);
+    margin-bottom: clamp(8px, 1.6vh, 14px);
+    line-height: 1.15;
   }
 
   .slide_5-right p {
-    font-size: clamp(18px, 5vw, 24px);
+    font-size: clamp(16px, 4.4vw, 21px);
+    line-height: 1.35;
   }
 }
 
@@ -4383,14 +4400,14 @@ body.order-modal-active {
   #slide_6 {
     flex-direction: column;
     align-items: stretch;
-    justify-content: space-between;
+    justify-content: flex-start;
     min-height: 100vh;
     min-height: 100dvh;
     height: auto;
-    padding-top: max(88px, calc(env(safe-area-inset-top, 0px) + 48px));
-    padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
+    padding-top: max(76px, calc(env(safe-area-inset-top, 0px) + 40px));
+    padding-bottom: max(28px, calc(env(safe-area-inset-bottom, 0px) + 44px));
     padding-left: max(0px, env(safe-area-inset-left, 0px));
-    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-right: max(16px, calc(env(safe-area-inset-right, 0px) + 26px));
     gap: 0;
   }
 
@@ -4405,8 +4422,8 @@ body.order-modal-active {
     max-width: none;
     margin-left: calc(50% - 50vw);
     margin-right: 0;
-    height: min(65vh, 560px);
-    min-height: min(65vh, 560px);
+    height: min(50vh, 50dvh, 440px);
+    min-height: min(50vh, 50dvh, 440px);
   }
 
   /* Высота задаёт масштаб; width:auto — бокс = реальная ширина картинки, иначе % translateX «ломает» кроп */
@@ -4438,14 +4455,14 @@ body.order-modal-active {
   .slide_6-right {
     flex: 0 0 auto;
     align-self: flex-end;
-    margin-top: auto;
+    margin-top: 0;
     width: 100%;
-    max-width: min(380px, 94vw);
+    max-width: min(380px, calc(94vw - 28px));
     min-width: 0;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    padding-top: clamp(20px, 5vh, 36px);
+    padding-top: clamp(8px, 2vh, 18px);
   }
 
   .slide_6-right h2,
@@ -4455,13 +4472,15 @@ body.order-modal-active {
   }
 
   .slide_6-right h2 {
-    font-size: clamp(22px, 5.5vw, 30px);
-    margin-bottom: clamp(10px, 2vh, 16px);
+    font-size: clamp(19px, 5vw, 28px);
+    margin-bottom: clamp(6px, 1.2vh, 12px);
+    line-height: 1.2;
   }
 
   .slide_6-right p {
-    font-size: clamp(15px, 3.8vw, 19px);
-    margin-bottom: clamp(12px, 2.5vh, 20px);
+    font-size: clamp(14px, 3.5vw, 18px);
+    line-height: 1.4;
+    margin-bottom: clamp(8px, 1.5vh, 14px);
   }
 
   #slide_6 .slide_6-right .signature {
@@ -4481,10 +4500,10 @@ body.order-modal-active {
     min-height: 100vh;
     min-height: 100dvh;
     height: auto;
-    padding-top: max(88px, calc(env(safe-area-inset-top, 0px) + 48px));
-    padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
+    padding-top: max(76px, calc(env(safe-area-inset-top, 0px) + 40px));
+    padding-bottom: max(28px, calc(env(safe-area-inset-bottom, 0px) + 44px));
     padding-left: max(0px, env(safe-area-inset-left, 0px));
-    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-right: max(16px, calc(env(safe-area-inset-right, 0px) + 26px));
     gap: 0;
   }
 
@@ -4498,20 +4517,22 @@ body.order-modal-active {
     align-self: flex-end;
     text-align: end;
     width: 100%;
-    max-width: min(320px, 82vw);
+    max-width: min(320px, calc(82vw - 28px));
     position: relative;
     z-index: 2;
   }
 
   #slide_7 .slide_7-right h2 {
-    font-size: clamp(20px, 5.2vw, 28px);
-    margin-bottom: clamp(10px, 2vh, 18px);
+    font-size: clamp(18px, 4.8vw, 26px);
+    margin-bottom: clamp(6px, 1.4vh, 12px);
     margin-top: 0;
+    line-height: 1.2;
   }
 
   #slide_7 .slide_7-right p {
-    font-size: clamp(14px, 3.5vw, 18px);
-    margin-bottom: clamp(10px, 2vh, 14px);
+    font-size: clamp(13px, 3.2vw, 16px);
+    line-height: 1.38;
+    margin-bottom: clamp(6px, 1.2vh, 10px);
   }
 
   .slide_7-left {
@@ -4523,11 +4544,9 @@ body.order-modal-active {
     width: 100vw;
     max-width: none;
     margin-left: calc(50% - 50vw);
-    /* заходят на текст сверху (отрицательный отступ в пределах безопасного диапазона) */
-    margin-top: calc(-1 * min(88px, max(36px, 7vh)));
-    /* ~60–70% высоты экрана */
-    height: min(68vh, 68dvh, 640px);
-    min-height: min(68vh, 68dvh, 640px);
+    margin-top: calc(-1 * min(48px, max(20px, 4vh)));
+    height: min(52vh, 52dvh, 500px);
+    min-height: min(52vh, 52dvh, 500px);
     overflow: visible;
   }
 
@@ -4576,10 +4595,10 @@ body.order-modal-active {
     min-height: 100vh;
     min-height: 100dvh;
     height: auto;
-    padding-top: max(88px, calc(env(safe-area-inset-top, 0px) + 48px));
-    padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
+    padding-top: max(76px, calc(env(safe-area-inset-top, 0px) + 40px));
+    padding-bottom: max(28px, calc(env(safe-area-inset-bottom, 0px) + 44px));
     padding-left: max(16px, env(safe-area-inset-left, 0px));
-    padding-right: max(0px, env(safe-area-inset-right, 0px));
+    padding-right: max(0px, calc(env(safe-area-inset-right, 0px) + 8px));
     gap: 0;
   }
 
@@ -4596,9 +4615,8 @@ body.order-modal-active {
     max-width: none;
     margin-right: calc(50% - 50vw);
     margin-left: auto;
-    /* ~60–70% высоты экрана */
-    height: min(66vh, 66dvh, 640px);
-    min-height: min(66vh, 66dvh, 640px);
+    height: min(52vh, 52dvh, 520px);
+    min-height: min(52vh, 52dvh, 520px);
     overflow: hidden;
   }
 
@@ -4647,11 +4665,12 @@ body.order-modal-active {
   #slide_8 .slide_8-left h2 {
     order: 2;
     align-self: flex-start;
-    margin-top: auto;
+    margin-top: clamp(6px, 1.5vh, 14px);
     width: 100%;
-    max-width: min(300px, 88vw);
-    font-size: clamp(20px, 5.2vw, 28px);
-    margin-bottom: clamp(10px, 2vh, 16px);
+    max-width: min(300px, calc(88vw - 32px));
+    font-size: clamp(18px, 4.8vw, 26px);
+    margin-bottom: clamp(6px, 1.2vh, 12px);
+    line-height: 1.2;
     position: relative;
     z-index: 3;
   }
@@ -4660,9 +4679,9 @@ body.order-modal-active {
     order: 2;
     align-self: flex-start;
     width: 100%;
-    max-width: min(300px, 88vw);
-    font-size: clamp(14px, 3.5vw, 17px);
-    line-height: 1.55;
+    max-width: min(300px, calc(88vw - 32px));
+    font-size: clamp(13px, 3.3vw, 16px);
+    line-height: 1.42;
     margin-bottom: 0;
     opacity: 0.85;
     position: relative;
@@ -4676,8 +4695,8 @@ body.order-modal-active {
     left: auto;
     right: auto;
     bottom: auto;
-    width: min(100px, 28vw);
-    margin-top: clamp(14px, 2.5vh, 22px);
+    width: min(92px, 26vw);
+    margin-top: clamp(8px, 1.6vh, 16px);
     transform: none;
     z-index: 3;
   }
@@ -4690,10 +4709,10 @@ body.order-modal-active {
     min-height: 100vh;
     min-height: 100dvh;
     height: auto;
-    padding-top: max(88px, calc(env(safe-area-inset-top, 0px) + 48px));
-    padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
+    padding-top: max(76px, calc(env(safe-area-inset-top, 0px) + 40px));
+    padding-bottom: max(28px, calc(env(safe-area-inset-bottom, 0px) + 44px));
     padding-left: max(16px, env(safe-area-inset-left, 0px));
-    padding-right: max(0px, env(safe-area-inset-right, 0px));
+    padding-right: max(0px, calc(env(safe-area-inset-right, 0px) + 8px));
     gap: 0;
   }
 
@@ -4704,11 +4723,12 @@ body.order-modal-active {
   #slide_9 .slide_9-left h2 {
     order: 1;
     align-self: flex-start;
-    margin-top: clamp(35px, 4.5vh, 70px);
+    margin-top: clamp(6px, 1.5vh, 18px);
     width: 100%;
-    max-width: min(300px, 88vw);
-    font-size: clamp(20px, 5.2vw, 28px);
-    margin-bottom: clamp(10px, 2vh, 16px);
+    max-width: min(300px, calc(88vw - 32px));
+    font-size: clamp(18px, 4.8vw, 26px);
+    margin-bottom: clamp(6px, 1.2vh, 12px);
+    line-height: 1.2;
     position: relative;
     z-index: 2;
   }
@@ -4717,9 +4737,9 @@ body.order-modal-active {
     order: 1;
     align-self: flex-start;
     width: 100%;
-    max-width: min(300px, 88vw);
-    font-size: clamp(14px, 3.5vw, 17px);
-    line-height: 1.55;
+    max-width: min(300px, calc(88vw - 32px));
+    font-size: clamp(13px, 3.3vw, 16px);
+    line-height: 1.42;
     margin-bottom: 0;
     opacity: 0.85;
     position: relative;
@@ -4733,8 +4753,8 @@ body.order-modal-active {
     left: auto;
     right: auto;
     bottom: auto;
-    width: min(100px, 28vw);
-    margin-top: clamp(14px, 2.5vh, 22px);
+    width: min(92px, 26vw);
+    margin-top: clamp(8px, 1.6vh, 16px);
     transform: none;
     z-index: 2;
   }
@@ -4743,12 +4763,12 @@ body.order-modal-active {
     order: 2;
     flex: 0 0 auto;
     align-self: flex-end;
-    margin-top: auto;
+    margin-top: clamp(4px, 1vh, 12px);
     width: 100vw;
     max-width: none;
     margin-right: calc(50% - 50vw);
     margin-left: auto;
-    padding-top: clamp(20px, 4vh, 32px);
+    padding-top: clamp(8px, 2vh, 18px);
     overflow: visible;
     display: flex;
     justify-content: flex-end;
@@ -4760,8 +4780,8 @@ body.order-modal-active {
   #slide_9 .watch-scene {
     position: relative;
     left: auto;
-    width: min(88vw, 400px);
-    max-width: 92vw;
+    width: min(82vw, 360px);
+    max-width: 88vw;
     flex-shrink: 0;
     overflow: visible;
   }
@@ -5606,10 +5626,10 @@ body.order-modal-active {
     max-height: none;
     overflow-x: clip;
     overflow-y: auto;
-    padding-top: max(88px, calc(env(safe-area-inset-top, 0px) + 48px));
-    padding-bottom: max(28px, calc(env(safe-area-inset-bottom, 0px) + 16px));
+    padding-top: max(80px, calc(env(safe-area-inset-top, 0px) + 44px));
+    padding-bottom: max(32px, calc(env(safe-area-inset-bottom, 0px) + 48px));
     padding-left: max(12px, env(safe-area-inset-left, 0px));
-    padding-right: max(12px, env(safe-area-inset-right, 0px));
+    padding-right: max(12px, calc(env(safe-area-inset-right, 0px) + 28px));
   }
 
   #slide_10 .slide_10-content {
@@ -5623,8 +5643,8 @@ body.order-modal-active {
 
   #slide_10 .slide_10-text {
     flex: 0 0 auto;
-    margin-bottom: clamp(12px, 2.2vh, 24px);
-    font-size: clamp(15px, 3.6vw, 18px);
+    margin-bottom: clamp(8px, 1.5vh, 18px);
+    font-size: clamp(14px, 3.4vw, 17px);
   }
 
   /* 2×2: две равные строки на оставшуюся высоту */
@@ -5985,7 +6005,9 @@ html.js-slide-deck #slide_17 .slide_17-content {
     overflow-x: clip !important;
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch;
-    padding-bottom: max(20px, calc(env(safe-area-inset-bottom, 0px) + 12px)) !important;
+    /* Safari: нижняя панель часто больше env(safe-area) — запас под URL-bar / toolbar */
+    padding-bottom: max(36px, calc(env(safe-area-inset-bottom, 0px) + 52px)) !important;
+    padding-right: max(12px, calc(env(safe-area-inset-right, 0px) + 30px)) !important;
   }
 
   html.js-slide-deck #slide_10 {
