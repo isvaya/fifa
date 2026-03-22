@@ -1494,7 +1494,8 @@ body.order-modal-active {
     min-height: 100vh;
     min-height: 100dvh;
     align-items: flex-start;
-    padding-top: max(76px, calc(env(safe-area-inset-top, 0px) + 40px));
+    /* Минимальный зазор под статус-бар / вырез; часы максимально вверх */
+    padding-top: max(10px, calc(env(safe-area-inset-top, 0px) + 8px));
     padding-bottom: max(20px, calc(env(safe-area-inset-bottom, 0px) + 36px));
   }
 
@@ -1505,7 +1506,8 @@ body.order-modal-active {
     padding-left: max(16px, env(safe-area-inset-left, 0px));
     padding-right: max(16px, calc(env(safe-area-inset-right, 0px) + 24px));
     padding-bottom: max(16px, env(safe-area-inset-bottom, 0px));
-    gap: clamp(12px, 3.5vh, 28px);
+    padding-top: 0;
+    gap: clamp(10px, 2.8vh, 22px);
     isolation: isolate;
   }
 
@@ -1516,10 +1518,10 @@ body.order-modal-active {
     justify-content: center;
     position: relative;
     z-index: 1;
-    margin-bottom: clamp(8px, 2vh, 20px);
-    padding-bottom: clamp(8px, 2vh, 18px);
-    margin-top: clamp(-44px, -9vh, -16px);
-    transform: translateY(clamp(-36px, -8vh, -14px));
+    margin-bottom: clamp(6px, 1.6vh, 16px);
+    padding-bottom: clamp(4px, 1vh, 12px);
+    margin-top: 0;
+    transform: none;
   }
 
   .slide_5-left img {
@@ -3676,7 +3678,7 @@ body.order-modal-active {
     margin-left: auto;
     margin-right: auto;
     overflow: visible;
-    transform: translate(-3.75%, clamp(18px, 4.5vh, 44px));
+    transform: translate(-3.75%, clamp(46px, calc(4.5vh + 28px), 72px));
   }
 
   .slide_16-left .watch {
@@ -3701,6 +3703,7 @@ body.order-modal-active {
     max-width: none;
     margin-right: 0;
     margin-left: auto;
+    margin-top: clamp(28px, 4vh, 40px);
   }
 
   .slide_16-right {
@@ -5192,10 +5195,10 @@ body.order-modal-active {
   #slide_13 .slide_13-left .watch-wrapper::after {
     content: '';
     position: absolute;
-    right: clamp(4%, 6vw, 12%);
-    bottom: clamp(6%, 8%, 14%);
-    width: clamp(88px, 24vw, 140px);
-    height: clamp(44px, 12vw, 70px);
+    right: clamp(1%, 3vw, 8%);
+    bottom: clamp(3%, 5%, 10%);
+    width: clamp(220px, 78vw, 300px);
+    height: clamp(110px, 39vw, 150px);
     background: url('/images/rolls-royce-logo.png') center / contain no-repeat;
     pointer-events: none;
     z-index: 5;
@@ -5560,7 +5563,7 @@ body.order-modal-active {
     justify-self: center;
     width: min(88vw, 300px);
     max-width: 100%;
-    margin: clamp(20px, 6vh, 56px) auto 0;
+    margin: clamp(48px, calc(6vh + 28px), 84px) auto 0;
   }
 
   #slide_16 .slide_16-watch-stack {
@@ -5569,10 +5572,10 @@ body.order-modal-active {
     margin-left: auto;
     margin-right: auto;
     overflow: visible;
-    /* Ниже по экрану — открывает лицо Черчилля на фоне */
+    /* Ниже по экрану — открывает лицо Черчилля на фоне (+ ~1 см) */
     transform: translate(
       calc(-3.75% - clamp(10px, 4.5vw, 36px)),
-      clamp(52px, 13vh, 96px)
+      clamp(80px, calc(13vh + 28px), 124px)
     );
   }
 
@@ -5618,7 +5621,7 @@ body.order-modal-active {
     width: min(96vw, min(520px, 96vmin));
     transform: translate(
       calc(-3.75% - clamp(6px, 3vw, 20px)),
-      clamp(14px, 3.5vh, 32px)
+      clamp(42px, calc(3.5vh + 28px), 60px)
     );
   }
 
@@ -5640,7 +5643,7 @@ body.order-modal-active {
   }
 
   #slide_16 .slide_16-signature {
-    margin: clamp(6px, 2vh, 16px) auto 0;
+    margin: clamp(34px, calc(2vh + 28px), 48px) auto 0;
     width: min(72vw, 260px);
   }
 }
