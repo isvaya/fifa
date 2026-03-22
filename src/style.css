@@ -1493,21 +1493,25 @@ body.order-modal-active {
     height: auto;
     min-height: 100vh;
     min-height: 100dvh;
-    align-items: flex-start;
+    flex-direction: column;
+    align-items: stretch;
     /* Минимальный зазор под статус-бар / вырез; часы максимально вверх */
     padding-top: max(10px, calc(env(safe-area-inset-top, 0px) + 8px));
     padding-bottom: max(20px, calc(env(safe-area-inset-bottom, 0px) + 36px));
   }
 
   .slide_5-content {
+    flex: 1 1 auto;
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
+    min-height: 0;
+    width: 100%;
     padding-left: max(16px, env(safe-area-inset-left, 0px));
     padding-right: max(16px, calc(env(safe-area-inset-right, 0px) + 24px));
-    padding-bottom: max(16px, env(safe-area-inset-bottom, 0px));
+    padding-bottom: max(8px, env(safe-area-inset-bottom, 0px));
     padding-top: 0;
-    gap: clamp(28px, 7vh, 56px);
+    gap: 0;
     isolation: isolate;
   }
 
@@ -1521,7 +1525,7 @@ body.order-modal-active {
     margin-bottom: 0;
     padding-bottom: 0;
     margin-top: 0;
-    transform: translateY(clamp(-10px, -2vh, -2px));
+    transform: translateY(clamp(-12px, -2.2vh, -4px));
   }
 
   .slide_5-left img {
@@ -1529,15 +1533,16 @@ body.order-modal-active {
   }
 
   .slide_5-right {
-    flex: 0 1 auto;
+    flex: 0 0 auto;
     width: 100%;
     max-width: min(440px, calc(94vw - 28px));
     padding-left: 0;
     align-items: center;
     position: relative;
     z-index: 1;
-    margin-top: clamp(8px, 2vh, 20px);
-    padding-top: clamp(4px, 1vh, 12px);
+    margin-top: auto;
+    padding-top: clamp(20px, 5vh, 40px);
+    padding-bottom: clamp(4px, 1.2vh, 16px);
   }
 
   .slide_5-right h2,
@@ -2972,15 +2977,13 @@ body.order-modal-active {
 }
 
 #slide_13 .rolls-logo {
-  position: relative;
-  bottom: auto;
-  right: auto;
-  width: min(168px, 42%);
-  max-width: 200px;
-  height: auto;
-  margin: clamp(10px, 2vh, 20px) 0 0;
-  align-self: flex-end;
-  object-fit: contain;
+  display: none !important;
+}
+
+/* Отдельный бейдж RR (::after) отключён — логотип на слайде не показываем */
+#slide_13 .slide_13-left .watch-wrapper::after {
+  content: none !important;
+  display: none !important;
 }
 
 /* Слайд 13: фон → часы слева → текст и RR вместе (.slide-13-revealed — main.js) */
@@ -3067,17 +3070,6 @@ body.order-modal-active {
   }
 }
 
-@keyframes slide13_rr_corner_badge {
-  from {
-    opacity: 0;
-    transform: translateY(-50%) scale(0.92);
-  }
-  to {
-    opacity: 0.95;
-    transform: translateY(-50%) scale(1);
-  }
-}
-
 #slide_13.slide-13-revealed .slide_13-bg {
   animation: slide13_bg_fade 1.05s cubic-bezier(0.33, 0.86, 0.42, 1) both;
 }
@@ -3116,14 +3108,6 @@ body.order-modal-active {
     opacity: 1 !important;
     animation: none !important;
     transform: none !important;
-  }
-}
-
-@media (max-width: 767px) and (prefers-reduced-motion: reduce) {
-  #slide_13.slide-13-revealed .slide_13-left .watch-wrapper::after {
-    animation: none !important;
-    opacity: 0.95 !important;
-    transform: translateY(-50%) !important;
   }
 }
 
@@ -3679,7 +3663,7 @@ body.order-modal-active {
     margin-left: auto;
     margin-right: auto;
     overflow: visible;
-    transform: translate(-3.75%, clamp(74px, calc(4.5vh + 56px), 100px));
+    transform: translate(-3.75%, clamp(110px, calc(4.5vh + 92px), 136px));
   }
 
   .slide_16-left .watch {
@@ -3704,7 +3688,7 @@ body.order-modal-active {
     max-width: none;
     margin-right: 0;
     margin-left: auto;
-    margin-top: clamp(56px, calc(4vh + 28px), 68px);
+    margin-top: clamp(56px, calc(4vh + 36px), 76px);
   }
 
   .slide_16-right {
@@ -4463,11 +4447,6 @@ body.order-modal-active {
     align-self: flex-end;
   }
 
-  #slide_13 .rolls-logo {
-    width: min(150px, 34%);
-    max-width: 180px;
-    align-self: flex-end;
-  }
 
   .slide_6-right,
   .slide_7-right,
@@ -5058,7 +5037,7 @@ body.order-modal-active {
     );
   }
 
-  /* Slide 13 — телефон: часы сверху → по центру текст и подпись → снизу RR; анимации по очереди */
+  /* Slide 13 — телефон: часы сверху → текст и подпись; анимации по очереди */
   #slide_13 {
     box-sizing: border-box;
     display: flex;
@@ -5068,8 +5047,6 @@ body.order-modal-active {
     min-height: 100vh;
     min-height: 100dvh;
     height: auto;
-    overflow-x: visible;
-    overflow-y: visible;
     background-color: #030304;
     background-image: radial-gradient(
       ellipse 120% 95% at 50% 36%,
@@ -5112,7 +5089,7 @@ body.order-modal-active {
   }
 
   #slide_13 .slide_13-left .watch-wrapper {
-    width: min(68vw, 320px);
+    width: min(88vw, 400px);
     max-width: 100%;
     margin: 0 auto;
     flex-shrink: 0;
@@ -5187,33 +5164,8 @@ body.order-modal-active {
     margin-top: clamp(2px, 0.6vh, 8px);
   }
 
-  #slide_13 .rolls-logo {
-    display: none !important;
-  }
-
   #slide_13 .slide_13-left .watch-wrapper {
     position: relative;
-  }
-
-  #slide_13 .slide_13-left .watch-wrapper::after {
-    content: '';
-    position: absolute;
-    left: 100%;
-    right: auto;
-    top: 42%;
-    bottom: auto;
-    margin-left: clamp(4px, 1.8vw, 12px);
-    width: clamp(72px, 20vw, 120px);
-    height: clamp(36px, 10vw, 60px);
-    background: url('/images/rolls-royce-logo.png') center / contain no-repeat;
-    pointer-events: none;
-    z-index: 5;
-    opacity: 0;
-    transform: translateY(-50%) scale(0.92);
-  }
-
-  #slide_13.slide-13-revealed .slide_13-left .watch-wrapper::after {
-    animation: slide13_rr_corner_badge 0.68s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.7s both;
   }
 
   #slide_13:not(.slide-13-revealed) .slide_13-left .watch {
@@ -5569,7 +5521,7 @@ body.order-modal-active {
     justify-self: center;
     width: min(88vw, 300px);
     max-width: 100%;
-    margin: clamp(76px, calc(6vh + 56px), 112px) auto 0;
+    margin: clamp(88px, calc(6vh + 68px), 124px) auto 0;
   }
 
   #slide_16 .slide_16-watch-stack {
@@ -5578,10 +5530,10 @@ body.order-modal-active {
     margin-left: auto;
     margin-right: auto;
     overflow: visible;
-    /* Ниже по экрану — открывает лицо Черчилля на фоне (+ ещё ~1 см) */
+    /* Ниже по экрану — лицо на фоне; доп. сдвиг вниз */
     transform: translate(
       calc(-3.75% - clamp(10px, 4.5vw, 36px)),
-      clamp(108px, calc(13vh + 56px), 152px)
+      clamp(144px, calc(13vh + 92px), 188px)
     );
   }
 
@@ -5627,7 +5579,7 @@ body.order-modal-active {
     width: min(96vw, min(520px, 96vmin));
     transform: translate(
       calc(-3.75% - clamp(6px, 3vw, 20px)),
-      clamp(70px, calc(3.5vh + 56px), 88px)
+      clamp(106px, calc(3.5vh + 92px), 124px)
     );
   }
 
@@ -5649,7 +5601,7 @@ body.order-modal-active {
   }
 
   #slide_16 .slide_16-signature {
-    margin: clamp(62px, calc(2vh + 56px), 76px) auto 0;
+    margin: clamp(74px, calc(2vh + 68px), 88px) auto 0;
     width: min(72vw, 260px);
   }
 }
@@ -6142,11 +6094,6 @@ html.js-slide-deck #slide_17 .slide_17-content {
     min-height: -webkit-fill-available !important;
     max-height: none !important;
     height: auto !important;
-  }
-
-  /* Логотип RR справа от часов — не обрезать по горизонтали */
-  html.js-slide-deck #slide_13 {
-    overflow-x: visible !important;
   }
 
   html.js-slide-deck #slide_13 .slide_13-content,
