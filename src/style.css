@@ -1073,10 +1073,10 @@ body.order-modal-active {
   }
 
   #slide_3 .visual-scene {
-    width: min(78vw, 300px);
-    max-width: min(300px, 86vw);
+    width: min(72vw, 280px);
+    max-width: min(280px, 84vw);
     height: auto;
-    max-height: min(46vh, 46dvh, 340px);
+    max-height: min(44vh, 44dvh, 300px);
     flex-shrink: 0;
     overflow: visible;
     margin-bottom: clamp(4px, 1vh, 10px);
@@ -1089,13 +1089,21 @@ body.order-modal-active {
     object-position: top center;
   }
 
+  /* Кубок и GO UZBEKISTAN — меньше, чтобы уместились внутри «26» */
+  #slide_3 .visual-scene .fifa-cup {
+    width: 44%;
+    max-width: 118px;
+    margin-top: 6%;
+    margin-left: 10%;
+  }
+
   #slide_3 .visual-scene h2 {
-    font-size: clamp(18px, 5vw, 28px);
-    /* Слабый подъём: без overflow:hidden текст не режется, сильный отрицательный margin не нужен */
-    margin-top: clamp(-12px, -2.5vw, 0px);
+    font-size: clamp(13px, 3.6vw, 20px);
+    margin-top: clamp(-6px, -1.2vw, 2px);
     margin-bottom: 0;
-    line-height: 1.12;
-    padding-bottom: 2px;
+    line-height: 1.08;
+    padding: 0 5%;
+    letter-spacing: 0.02em;
   }
 
   #slide_3 .slide_3-text-container {
@@ -1507,6 +1515,8 @@ body.order-modal-active {
     z-index: 1;
     margin-bottom: clamp(8px, 2vh, 20px);
     padding-bottom: clamp(8px, 2vh, 18px);
+    margin-top: clamp(-28px, -5vh, -8px);
+    transform: translateY(clamp(-16px, -3.5vh, -4px));
   }
 
   .slide_5-left img {
@@ -2289,25 +2299,43 @@ body.order-modal-active {
   overflow: visible;
 }
 
-/* Слайд 9: сцена с часами — снизу вверх; подпись после печати (классы — main.js) */
+/* Слайд 9: часы — только fade (без сдвига по Y), иначе при появлении текста «прыгают» */
 #slide_9:not(.slide-9-revealed) .watch-scene {
   opacity: 0;
-  transform: translateY(min(22vh, 160px));
+  transform: none;
 }
 
 #slide_9.slide-9-revealed .watch-scene {
-  animation: slide9_watch_scene_in 1.02s cubic-bezier(0.22, 0.72, 0.28, 1) both;
+  animation: slide9_watch_scene_fade 0.75s cubic-bezier(0.22, 0.72, 0.28, 1) both;
 }
 
-@keyframes slide9_watch_scene_in {
+@keyframes slide9_watch_scene_fade {
   from {
     opacity: 0;
-    transform: translateY(min(24vh, 180px));
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
+}
+
+/* Текст: сразу полный (JS), вход слева — класс .slide-9-text-in */
+#slide_9.slide-9-revealed:not(.slide-9-text-in) .slide_9-left h2,
+#slide_9.slide-9-revealed:not(.slide-9-text-in) .slide_9-left p {
+  opacity: 0;
+  transform: translateX(clamp(-18px, -3vw, -8px));
+}
+
+#slide_9.slide-9-text-in .slide_9-left h2,
+#slide_9.slide-9-text-in .slide_9-left p {
+  opacity: 1;
+  transform: translateX(0);
+  transition:
+    opacity 0.52s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.52s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+#slide_9.slide-9-text-in .slide_9-left p {
+  transition-delay: 0.1s;
 }
 
 #slide_9:not(.slide-9-signature-revealed) .slide_9-left .signature {
@@ -2335,6 +2363,13 @@ body.order-modal-active {
     opacity: 1 !important;
     animation: none !important;
     transform: none !important;
+  }
+
+  #slide_9 .slide_9-left h2,
+  #slide_9 .slide_9-left p {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
   }
 
   #slide_9 .slide_9-left .signature {
@@ -3026,6 +3061,17 @@ body.order-modal-active {
   }
 }
 
+@keyframes slide13_rr_corner_badge {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 0.95;
+    transform: scale(1);
+  }
+}
+
 #slide_13.slide-13-revealed .slide_13-bg {
   animation: slide13_bg_fade 1.05s cubic-bezier(0.33, 0.86, 0.42, 1) both;
 }
@@ -3063,6 +3109,14 @@ body.order-modal-active {
   #slide_13 .slide_13-right > .rolls-logo {
     opacity: 1 !important;
     animation: none !important;
+    transform: none !important;
+  }
+}
+
+@media (max-width: 767px) and (prefers-reduced-motion: reduce) {
+  #slide_13.slide-13-revealed .slide_13-left .watch-wrapper::after {
+    animation: none !important;
+    opacity: 0.95 !important;
     transform: none !important;
   }
 }
@@ -3180,11 +3234,31 @@ body.order-modal-active {
   animation: slide14_watch_from_right 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
 }
 
+/* Текст: полный HTML сразу (JS), появление сверху — .slide-14-text-in */
+#slide_14.slide-14-revealed:not(.slide-14-text-in) .slide_14-right h2 {
+  opacity: 0;
+  transform: translateY(clamp(-14px, -2vh, -6px));
+}
+
+#slide_14.slide-14-text-in .slide_14-right h2 {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 @media (prefers-reduced-motion: reduce) {
   #slide_14 .slide_14-left .watch {
     opacity: 1 !important;
     animation: none !important;
     transform: none !important;
+  }
+
+  #slide_14 .slide_14-right h2 {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
   }
 }
 
@@ -4109,11 +4183,11 @@ body.order-modal-active {
     /* center по вертикали поднимал часы под шапку и сжимал зазор до текста */
     justify-content: flex-start;
     isolation: isolate;
-    gap: clamp(28px, 8vh, 48px);
+    gap: clamp(14px, 4vh, 28px);
     height: auto;
     min-height: 0;
-    padding-top: max(96px, calc(env(safe-area-inset-top, 0px) + 56px));
-    padding-bottom: max(24px, env(safe-area-inset-bottom, 0px));
+    padding-top: max(88px, calc(env(safe-area-inset-top, 0px) + 48px));
+    padding-bottom: max(32px, calc(env(safe-area-inset-bottom, 0px) + 40px));
     padding-left: max(16px, env(safe-area-inset-left, 0px));
     padding-right: max(16px, env(safe-area-inset-right, 0px));
   }
@@ -4131,10 +4205,10 @@ body.order-modal-active {
 
   .slide_17-watch-stack {
     box-sizing: border-box;
-    width: min(96vw, 520px);
+    width: min(92vw, 480px);
     /* absolute-часы не задают высоту ряду — min-height + padding = место под весь PNG */
-    min-height: clamp(300px, 58vmin, 480px);
-    padding: clamp(22px, 5.5vmin, 40px) 0 clamp(48px, 12vmin, 80px);
+    min-height: clamp(252px, 48vmin, 400px);
+    padding: clamp(16px, 4vmin, 28px) 0 clamp(32px, 8vmin, 56px);
     margin-left: auto;
     margin-right: auto;
     overflow: visible;
@@ -4142,7 +4216,7 @@ body.order-modal-active {
   }
 
   .slide_17-left .watch {
-    max-height: min(70dvh, 100vmin, 580px);
+    max-height: min(56dvh, 86vmin, 480px);
     width: auto;
     max-width: 96%;
     object-fit: contain;
@@ -4172,20 +4246,21 @@ body.order-modal-active {
   }
 
   .slide_17-monogram {
-    width: min(100px, 24vw);
+    width: min(78px, 19vw);
   }
 
   .slide_17-title {
-    font-size: clamp(22px, 6vw, 30px);
+    font-size: clamp(19px, 5.2vw, 26px);
   }
 
   .slide_17-subtitle {
-    font-size: clamp(11px, 3vw, 15px);
-    letter-spacing: 0.38em;
+    font-size: clamp(9px, 2.6vw, 13px);
+    letter-spacing: 0.32em;
   }
 
   .slide_17-text {
-    font-size: clamp(14px, 3.8vw, 16px);
+    font-size: clamp(12px, 3.2vw, 15px);
+    line-height: 1.45;
   }
 }
 
@@ -4891,7 +4966,7 @@ body.order-modal-active {
     grid-template-rows: auto auto auto;
     justify-items: center;
     align-content: center;
-    row-gap: clamp(28px, 7vw, 52px);
+    row-gap: clamp(18px, 4.5vw, 36px);
     column-gap: clamp(16px, 4vw, 32px);
     flex: 0 1 auto;
     width: 100%;
@@ -4908,6 +4983,8 @@ body.order-modal-active {
     text-align: center;
     position: relative;
     z-index: 1;
+    font-size: clamp(20px, 5vw, 30px) !important;
+    line-height: 1.18;
   }
 
   #slide_12 .slide_12-left {
@@ -4942,7 +5019,7 @@ body.order-modal-active {
     display: block;
     width: 100%;
     height: auto;
-    max-height: min(52vh, 420px);
+    max-height: min(46vh, 380px);
     margin: 0 auto;
     object-fit: contain;
     object-position: center;
@@ -4960,6 +5037,8 @@ body.order-modal-active {
     margin-top: clamp(4px, 1.5vw, 12px);
     padding-top: clamp(4px, 1.2vw, 10px);
     padding-bottom: 4px;
+    font-size: clamp(15px, 3.8vw, 22px) !important;
+    line-height: 1.4;
   }
 
   #slide_12::after {
@@ -5100,15 +5179,29 @@ body.order-modal-active {
   }
 
   #slide_13 .rolls-logo {
-    flex: 0 0 auto;
-    align-self: center;
+    display: none !important;
+  }
+
+  #slide_13 .slide_13-left .watch-wrapper {
     position: relative;
-    bottom: auto;
-    right: auto;
-    width: min(130px, 38vw);
-    max-width: 160px;
-    margin-top: 0;
-    margin-bottom: clamp(4px, 1vh, 10px);
+  }
+
+  #slide_13 .slide_13-left .watch-wrapper::after {
+    content: '';
+    position: absolute;
+    right: clamp(7%, 9vw, 16%);
+    bottom: clamp(9%, 11%, 18%);
+    width: clamp(48px, 12vw, 72px);
+    height: clamp(24px, 6vw, 36px);
+    background: url('/images/rolls-royce-logo.png') center / contain no-repeat;
+    pointer-events: none;
+    z-index: 5;
+    opacity: 0;
+    transform: scale(0.92);
+  }
+
+  #slide_13.slide-13-revealed .slide_13-left .watch-wrapper::after {
+    animation: slide13_rr_corner_badge 0.68s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.7s both;
   }
 
   #slide_13:not(.slide-13-revealed) .slide_13-left .watch {
@@ -5430,7 +5523,7 @@ body.order-modal-active {
     grid-template-columns: minmax(0, 1fr);
     justify-items: center;
     align-content: center;
-    row-gap: clamp(32px, 10vh, 72px);
+    row-gap: clamp(20px, 6vh, 48px);
     flex: 0 1 auto;
     width: 100%;
     height: auto;
@@ -5469,17 +5562,21 @@ body.order-modal-active {
 
   #slide_16 .slide_16-watch-stack {
     width: min(98vw, 600px);
-    min-height: clamp(300px, 54vh, min(72dvh, 680px));
+    min-height: clamp(280px, 50vh, min(68dvh, 640px));
     margin-left: auto;
     margin-right: auto;
     overflow: visible;
-    transform: translateX(calc(-3.75% - clamp(10px, 4.5vw, 36px)));
+    /* Ниже по экрану — открывает лицо Черчилля на фоне */
+    transform: translate(
+      calc(-3.75% - clamp(10px, 4.5vw, 36px)),
+      clamp(24px, 6vh, 56px)
+    );
   }
 
   #slide_16 .slide_16-left .watch {
     width: auto;
     max-width: 96%;
-    max-height: min(66dvh, 100vmin, 620px);
+    max-height: min(58dvh, 92vmin, 540px);
     height: auto;
     object-fit: contain;
   }

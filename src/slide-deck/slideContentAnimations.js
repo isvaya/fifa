@@ -136,89 +136,54 @@ function initSlide9Deck(reduceMotion) {
   const p = left?.querySelector('p');
   if (!slide9 || !h2 || !p) return { enter() {}, leave() {} };
 
-  if (reduceMotion) {
-    slide9.classList.add('slide-9-revealed', 'slide-9-signature-revealed');
-    return { enter() {}, leave() {} };
-  }
-
   const h2Text = flattenNodeText(h2);
   const pText = flattenNodeText(p);
-  const interBlockPause = 12;
-  const blocks = [
-    { el: h2, text: h2Text },
-    { el: p, text: pText },
-  ];
-  const totalUnits =
-    blocks.reduce((sum, b) => sum + b.text.length + interBlockPause, 0) - interBlockPause;
-  const TYPE_DURATION_MS = Math.min(6000, Math.max(2800, totalUnits * 38));
 
-  let typeRafId = 0;
-  let typeStartTime = null;
-
-  function applyTypewriterProgress(pType) {
-    const u = Math.min(1, Math.max(0, pType)) * totalUnits;
-    let rem = u;
-    for (let i = 0; i < blocks.length; i += 1) {
-      const b = blocks[i];
-      if (rem >= b.text.length) {
-        renderPartialText(b.el, b.text, b.text.length);
-        rem -= b.text.length;
-        if (i < blocks.length - 1) {
-          rem -= interBlockPause;
-          if (rem < 0) rem = 0;
-        }
-      } else {
-        renderPartialText(b.el, b.text, Math.max(0, Math.floor(rem)));
-        for (let k = i + 1; k < blocks.length; k += 1) {
-          blocks[k].el.textContent = '';
-        }
-        return;
-      }
-    }
+  function showFullText() {
+    renderPartialText(h2, h2Text, h2Text.length);
+    renderPartialText(p, pText, pText.length);
   }
 
-  function typeLoop(now) {
-    if (!slide9.classList.contains('slide-9-revealed')) {
-      typeRafId = 0;
-      return;
-    }
-    if (typeStartTime === null) typeStartTime = now;
-    const tLin = Math.min(1, (now - typeStartTime) / TYPE_DURATION_MS);
-    applyTypewriterProgress(tLin >= 1 ? 1 : easeOutCubic(tLin));
-    if (tLin < 1) {
-      typeRafId = requestAnimationFrame(typeLoop);
-    } else {
-      applyTypewriterProgress(1);
-      slide9.classList.add('slide-9-signature-revealed');
-      typeRafId = 0;
-    }
-  }
+  let sigTimer = 0;
 
   function enter() {
-    if (typeRafId) cancelAnimationFrame(typeRafId);
-    typeRafId = 0;
-    typeStartTime = null;
-    slide9.classList.remove('slide-9-signature-revealed');
-    blocks.forEach((b) => {
-      b.el.textContent = '';
-    });
+    if (sigTimer) clearTimeout(sigTimer);
+    sigTimer = 0;
+    slide9.classList.remove('slide-9-signature-revealed', 'slide-9-text-in');
+    showFullText();
     slide9.classList.add('slide-9-revealed');
-    typeRafId = requestAnimationFrame(typeLoop);
+    if (reduceMotion) {
+      slide9.classList.add('slide-9-text-in', 'slide-9-signature-revealed');
+      return;
+    }
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => slide9.classList.add('slide-9-text-in'));
+    });
+    sigTimer = window.setTimeout(() => {
+      sigTimer = 0;
+      if (slide9.classList.contains('slide-9-revealed')) {
+        slide9.classList.add('slide-9-signature-revealed');
+      }
+    }, 420);
   }
 
   function leave() {
-    if (typeRafId) cancelAnimationFrame(typeRafId);
-    typeRafId = 0;
-    typeStartTime = null;
-    slide9.classList.remove('slide-9-revealed', 'slide-9-signature-revealed');
-    blocks.forEach((b) => {
-      b.el.textContent = '';
-    });
+    if (sigTimer) clearTimeout(sigTimer);
+    sigTimer = 0;
+    slide9.classList.remove('slide-9-revealed', 'slide-9-signature-revealed', 'slide-9-text-in');
+    h2.textContent = '';
+    p.textContent = '';
+  }
+
+  if (reduceMotion) {
+    showFullText();
+    slide9.classList.add('slide-9-revealed', 'slide-9-text-in', 'slide-9-signature-revealed');
+    return { enter() {}, leave() {} };
   }
 
   h2.textContent = '';
   p.textContent = '';
-  slide9.classList.remove('slide-9-revealed', 'slide-9-signature-revealed');
+  slide9.classList.remove('slide-9-revealed', 'slide-9-signature-revealed', 'slide-9-text-in');
 
   return { enter, leave };
 }
@@ -297,64 +262,33 @@ function initSlide14Deck(reduceMotion) {
   if (!slide14 || !h2) return { enter() {}, leave() {} };
 
   const h2FullHTML = h2.innerHTML;
-  const h2Text = flattenNodeText(h2);
-  const TYPE_START_MS = 340;
-  const TYPE_DURATION_MS = Math.min(5200, Math.max(1600, h2Text.length * 38));
-
-  if (reduceMotion) {
-    slide14.classList.add('slide-14-revealed');
-    return { enter() {}, leave() {} };
-  }
-
-  let typeRafId = 0;
-  let typeStartTime = null;
-  let typeDelayTimer = null;
-
-  function typeLoop(now) {
-    if (!slide14.classList.contains('slide-14-revealed')) {
-      typeRafId = 0;
-      return;
-    }
-    if (typeStartTime === null) typeStartTime = now;
-    const tLin = Math.min(1, (now - typeStartTime) / TYPE_DURATION_MS);
-    const tEff = tLin >= 1 ? 1 : easeOutCubic(tLin);
-    const n = Math.min(h2Text.length, Math.floor(tEff * h2Text.length));
-    renderPartialText(h2, h2Text, n);
-    if (tLin < 1) {
-      typeRafId = requestAnimationFrame(typeLoop);
-    } else {
-      h2.innerHTML = h2FullHTML;
-      typeRafId = 0;
-    }
-  }
 
   function enter() {
-    if (typeDelayTimer) clearTimeout(typeDelayTimer);
-    typeDelayTimer = null;
-    if (typeRafId) cancelAnimationFrame(typeRafId);
-    typeRafId = 0;
-    typeStartTime = null;
-    h2.textContent = '';
+    slide14.classList.remove('slide-14-text-in');
+    h2.innerHTML = h2FullHTML;
     slide14.classList.add('slide-14-revealed');
-    typeDelayTimer = setTimeout(() => {
-      typeDelayTimer = null;
-      if (!slide14.classList.contains('slide-14-revealed')) return;
-      typeStartTime = null;
-      typeRafId = requestAnimationFrame(typeLoop);
-    }, TYPE_START_MS);
+    if (reduceMotion) {
+      slide14.classList.add('slide-14-text-in');
+      return;
+    }
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => slide14.classList.add('slide-14-text-in'));
+    });
   }
 
   function leave() {
-    if (typeDelayTimer) clearTimeout(typeDelayTimer);
-    typeDelayTimer = null;
-    if (typeRafId) cancelAnimationFrame(typeRafId);
-    typeRafId = 0;
-    slide14.classList.remove('slide-14-revealed');
+    slide14.classList.remove('slide-14-revealed', 'slide-14-text-in');
     h2.innerHTML = h2FullHTML;
   }
 
+  if (reduceMotion) {
+    h2.innerHTML = h2FullHTML;
+    slide14.classList.add('slide-14-revealed', 'slide-14-text-in');
+    return { enter() {}, leave() {} };
+  }
+
   h2.textContent = '';
-  slide14.classList.remove('slide-14-revealed');
+  slide14.classList.remove('slide-14-revealed', 'slide-14-text-in');
 
   return { enter, leave };
 }
