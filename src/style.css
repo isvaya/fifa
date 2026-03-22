@@ -5598,16 +5598,16 @@ body.order-modal-active {
     align-items: stretch;
     justify-content: flex-start;
     box-sizing: border-box;
-    height: 100vh;
-    height: 100dvh;
     min-height: 100vh;
     min-height: 100dvh;
-    max-height: 100vh;
-    max-height: 100dvh;
+    min-height: 100svh;
+    min-height: -webkit-fill-available;
+    height: auto;
+    max-height: none;
     overflow-x: clip;
-    overflow-y: hidden;
+    overflow-y: auto;
     padding-top: max(88px, calc(env(safe-area-inset-top, 0px) + 48px));
-    padding-bottom: max(28px, env(safe-area-inset-bottom, 0px));
+    padding-bottom: max(28px, calc(env(safe-area-inset-bottom, 0px) + 16px));
     padding-left: max(12px, env(safe-area-inset-left, 0px));
     padding-right: max(12px, env(safe-area-inset-right, 0px));
   }
@@ -5970,23 +5970,39 @@ html.js-slide-deck #slide_17 .slide_17-content {
 }
 
 /*
- * Реальные телефоны: убрать жёсткий max-height, дать слайду по высоте контента + прокрутку.
+ * Реальные телефоны: #slide_N с высокой специфичностью перебивают overflow/height без !important —
+ * здесь всё с !important, чтобы слайд-контент не резался снизу (Safari/Chrome UI, safe-area).
  */
 @media (max-width: 767px) {
   html.js-slide-deck section[id^='slide_'],
   html.js-slide-deck section.slide {
     max-height: none !important;
+    min-height: 100vh !important;
     min-height: 100dvh !important;
     min-height: 100svh !important;
     min-height: -webkit-fill-available !important;
     height: auto !important;
-    overflow-x: clip;
-    overflow-y: auto;
+    overflow-x: clip !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: max(20px, calc(env(safe-area-inset-bottom, 0px) + 12px)) !important;
+  }
+
+  html.js-slide-deck #slide_10 {
+    max-height: none !important;
+    min-height: 100vh !important;
+    min-height: 100dvh !important;
+    min-height: 100svh !important;
+    min-height: -webkit-fill-available !important;
+    height: auto !important;
+    overflow-x: clip !important;
+    overflow-y: auto !important;
   }
 
   html.js-slide-deck #slide_13,
   html.js-slide-deck #slide_16,
   html.js-slide-deck #slide_17 {
+    min-height: 100vh !important;
     min-height: 100dvh !important;
     min-height: 100svh !important;
     min-height: -webkit-fill-available !important;
