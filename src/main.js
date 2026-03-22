@@ -1,5 +1,6 @@
 import './style.css';
 import { initFullPageSlides } from './slide-deck/index.js';
+import { initMobileHeaderHide } from './mobile-header-hide.js';
 
 const FORMSPREE_FORM_ID = import.meta.env.VITE_FORMSPREE_FORM_ID || '';
 const ORDER_MAILTO = import.meta.env.VITE_ORDER_EMAIL || '';
@@ -130,11 +131,13 @@ function initOrderModal() {
 
 function boot() {
   initOrderModal();
+  let deck = null;
   try {
-    initFullPageSlides();
+    deck = initFullPageSlides();
   } catch (err) {
     console.error('[FIFA] initFullPageSlides failed', err);
   }
+  initMobileHeaderHide(deck);
 }
 
 if (document.readyState === 'loading') {

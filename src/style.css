@@ -61,6 +61,29 @@ section[id^='slide_'] {
   z-index: 100;
   opacity: 1;
   transition: opacity 0.45s ease;
+  transform: translateY(0);
+}
+
+/* Телефон: после первого свайда/скролла — body.header-hidden (см. mobile-header-hide.js) */
+@media (max-width: 767px) {
+  .header {
+    transition:
+      transform 0.4s ease,
+      opacity 0.4s ease;
+  }
+
+  body.header-hidden .header {
+    transform: translateY(-100%);
+    opacity: 0 !important;
+    pointer-events: none;
+  }
+}
+
+@media (max-width: 767px) and (prefers-reduced-motion: reduce) {
+  .header,
+  html.js-slide-deck .header {
+    transition-duration: 0.01ms !important;
+  }
 }
 
 .logo {
@@ -233,10 +256,10 @@ section[id^='slide_'] {
 /* Телефоны: часы снизу слева на высоту экрана; кнопка + текст по центру экрана */
 @media (max-width: 767px) {
   #slide_1 {
-    height: 100svh;
     min-height: 100svh;
-    height: 100dvh;
     min-height: 100dvh;
+    min-height: -webkit-fill-available;
+    height: auto;
     overflow: hidden;
     overflow: clip;
     box-sizing: border-box;
@@ -278,12 +301,36 @@ section[id^='slide_'] {
     justify-content: center;
     height: auto;
     min-height: 0;
-    padding: max(88px, calc(env(safe-area-inset-top, 0px) + 56px))
-      max(16px, env(safe-area-inset-right, 0px))
-      max(16px, env(safe-area-inset-bottom, 0px))
-      max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
     box-sizing: border-box;
     pointer-events: none;
+  }
+
+  /*
+   * Пока шапка видна — отступ под fixed .header; после body.header-hidden — почти весь экран (safe-area даёт section).
+   * В deck у #slide_1 уже есть padding-top: env(safe-area-inset-top) на section — не дублируем safe-area.
+   */
+  body:not(.header-hidden) #slide_1 .slide_1--content-wrapper {
+    padding-top: calc(
+      max(28px, calc(10px + env(safe-area-inset-top, 0px))) + clamp(48px, 14vw, 72px) + 16px
+    );
+  }
+
+  html.js-slide-deck body:not(.header-hidden) #slide_1 .slide_1--content-wrapper {
+    padding-top: calc(
+      max(0px, max(28px, calc(10px + env(safe-area-inset-top, 0px))) - env(safe-area-inset-top, 0px)) +
+        clamp(48px, 14vw, 72px) + 16px
+    );
+  }
+
+  body.header-hidden #slide_1 .slide_1--content-wrapper {
+    padding-top: max(12px, calc(env(safe-area-inset-top, 0px) + 8px));
+  }
+
+  html.js-slide-deck body.header-hidden #slide_1 .slide_1--content-wrapper {
+    padding-top: 10px;
   }
 
   .slide_1--content {
@@ -5732,6 +5779,14 @@ html.js-slide-deck body {
 html.js-slide-deck .header {
   opacity: 0.42;
   transition: opacity 0.45s ease;
+}
+
+@media (max-width: 767px) {
+  html.js-slide-deck .header {
+    transition:
+      transform 0.4s ease,
+      opacity 0.4s ease;
+  }
 }
 
 html.js-slide-deck[data-active-slide='slide_1'] .header {
