@@ -235,7 +235,7 @@ section[id^='slide_'] {
 
   font-size: clamp(18px, 2.1vw, 28px);
   letter-spacing: clamp(0.03em, 0.28vw, 0.1em);
-  font-weight: 500;
+  font-weight: 600;
   white-space: nowrap;
   transition: color 0.3s ease;
 }
@@ -967,29 +967,15 @@ body.order-modal-active {
 
 /* Было .slide_3-pin::after (чёрная вуаль при --slide4-intro) — убрано: без анимации ухода со слайда 3 */
 
-.bg-number {
-  position: absolute;
-  inset: 0;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: auto;
-  max-height: 100%;
-  object-fit: contain;
-  object-position: top center;
-  z-index: 0;
-  pointer-events: none;
-}
-
+/* Слайд 3: один ассет slide3-26.webp (цифра 26, кубок, GO UZBEKISTAN) */
 .visual-scene {
   position: relative;
   display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  width: 40vw;
-  height: 60vw;
-  max-width: 600px;
-  max-height: 800px;
+  align-items: center;
+  justify-content: center;
+  width: min(40vw, 560px);
+  max-width: 560px;
+  flex-shrink: 0;
   opacity: 1;
   transform: none;
   filter: brightness(1);
@@ -999,51 +985,14 @@ body.order-modal-active {
     filter 0.75s ease;
 }
 
-/*
- * Кубок и «GO / UZBEKISTAN!» в потоке колонки — подпись всегда ниже картинки (раньше bottom: % ломался
- * при max-height + широком вьюпорте и текст наезжал на кубок).
- */
-.visual-scene h2 {
-  position: relative;
-  z-index: 1;
-  flex-shrink: 0;
-  align-self: stretch;
-  /* До 1300px — небольшой зазор под кубком (сильный отрицательный margin здесь даёт наезд) */
-  margin: clamp(0px, 0.9vw, 16px) 0 0;
-  padding: 0 4%;
-  box-sizing: border-box;
-  left: auto;
-  transform: none;
-  text-align: center;
-  font-size: clamp(24px, 2.5vw, 40px);
-  font-weight: 600;
-  line-height: 1.08;
-}
-
-/* От 1300px: компенсируем нижний transparent в PNG — подпись ближе к подставке кубка */
-@media (min-width: 1300px) {
-  .visual-scene h2 {
-    margin-top: clamp(-64px, -7vw, -12px);
-  }
-}
-
-/* До 900px: «GO / UZBEKISTAN!» чуть мельче (на телефоне сильнее задаётся правилом #slide_3 ниже) */
-@media (max-width: 900px) {
-  .visual-scene h2 {
-    font-size: clamp(15px, 1.95vw, 21px);
-  }
-}
-
-.fifa-cup {
-  position: relative;
-  z-index: 1;
-  flex-shrink: 0;
-  width: 60%;
+.visual-scene .slide_3-hero {
+  width: 100%;
   height: auto;
-  margin-top: 15%;
-  margin-left: auto;
-  margin-right: auto;
-  align-self: center;
+  max-height: min(72vh, 720px);
+  object-fit: contain;
+  object-position: center;
+  display: block;
+  pointer-events: none;
 }
 
 .slide_3-text-container {
@@ -1090,12 +1039,13 @@ body.order-modal-active {
   }
 
   #slide_3 .visual-scene {
-    width: min(32vw, 34%);
-    height: auto;
-    aspect-ratio: 2 / 3;
-    max-width: min(320px, 36vw);
-    max-height: min(44dvh, 440px);
+    width: min(36vw, 380px);
+    max-width: min(380px, 42vw);
     flex-shrink: 0;
+  }
+
+  #slide_3 .visual-scene .slide_3-hero {
+    max-height: min(50dvh, 520px);
   }
 
   #slide_3 .slide_3-text-container {
@@ -1121,39 +1071,17 @@ body.order-modal-active {
   }
 
   #slide_3 .visual-scene {
-    width: min(72vw, 280px);
-    max-width: min(280px, 84vw);
-    height: auto;
-    max-height: min(44vh, 44dvh, 300px);
+    width: min(88vw, 360px);
+    max-width: 100%;
     flex-shrink: 0;
     overflow: visible;
     margin-bottom: clamp(4px, 1vh, 10px);
     padding-bottom: clamp(2px, 0.8vw, 8px);
   }
 
-  #slide_3 .visual-scene .bg-number {
-    max-height: 100%;
-    object-fit: contain;
-    object-position: top center;
-  }
-
-  /* Кубок по центру «26», подпись чуть мельче */
-  #slide_3 .visual-scene .fifa-cup {
-    width: 44%;
-    max-width: 118px;
-    margin-top: clamp(4%, 5vw, 8%);
-    margin-left: auto;
-    margin-right: auto;
-    align-self: center;
-  }
-
-  #slide_3 .visual-scene h2 {
-    font-size: clamp(11px, 3.05vw, 17px);
-    margin-top: clamp(-6px, -1.2vw, 2px);
-    margin-bottom: 0;
-    line-height: 1.08;
-    padding: 0 5%;
-    letter-spacing: 0.02em;
+  #slide_3 .visual-scene .slide_3-hero {
+    max-height: min(46vh, 46dvh, 380px);
+    width: 100%;
   }
 
   #slide_3 .slide_3-text-container {
