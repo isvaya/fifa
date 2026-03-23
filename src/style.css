@@ -1569,7 +1569,8 @@ body.order-modal-active {
     justify-content: center;
     position: relative;
     z-index: 3;
-    margin-bottom: 0;
+    /* Минимум ~0,5 см между низом часов и текстом (flex + margin-top: auto у текста) */
+    margin-bottom: max(12px, 0.5cm);
     padding-bottom: 0;
     margin-top: 0;
     transform: translateY(clamp(-12px, -2.2vh, -4px));
@@ -1612,6 +1613,28 @@ body.order-modal-active {
   .slide_5-right p {
     font-size: clamp(16px, 4.4vw, 21px);
     line-height: 1.35;
+  }
+}
+
+/* Slide 5 — низкий экран: часы чуть меньше, без сдвига вверх, запас под 0,5 см+ */
+@media (max-width: 767px) and (max-height: 720px) {
+  .slide_5-left {
+    margin-bottom: max(16px, 0.55cm);
+    transform: none;
+    padding-bottom: max(4px, 0.15cm);
+  }
+
+  .slide_5-left .watch-wrapper,
+  .slide_5-left img {
+    max-height: min(32vh, 228px);
+    width: auto;
+    max-width: min(75vw, 300px);
+    object-fit: contain;
+    object-position: center bottom;
+  }
+
+  .slide_5-right {
+    padding-top: max(12px, 0.35cm);
   }
 }
 
