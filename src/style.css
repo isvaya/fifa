@@ -5983,16 +5983,27 @@ html.js-slide-deck #slide_3 .slide_3-pin {
   min-height: 100%;
 }
 
-html.js-slide-deck #slide_3 .visual-scene {
+/*
+ * Слайд 3: не трогаем opacity всего .visual-scene — она умножалась с opacity кадра deck и давала резкий показ.
+ * Плавное появление только у изображения + задержка после старта перехода кадра.
+ */
+html.js-slide-deck #slide_3 .visual-scene .slide_3-hero {
   opacity: 0;
-  transform: translateX(clamp(16px, 3.2vw, 44px));
-  filter: brightness(0.86);
+  transform: translate3d(0, 14px, 0) scale(0.97);
 }
 
-html.js-slide-deck #slide_3.slide-3-deck-active .visual-scene {
+html.js-slide-deck #slide_3:not(.slide-3-deck-active) .visual-scene .slide_3-hero {
+  transition:
+    opacity 0.45s cubic-bezier(0.33, 0, 0.65, 1),
+    transform 0.45s cubic-bezier(0.33, 0, 0.65, 1);
+}
+
+html.js-slide-deck #slide_3.slide-3-deck-active .visual-scene .slide_3-hero {
   opacity: 1;
   transform: none;
-  filter: brightness(1);
+  transition:
+    opacity 0.92s cubic-bezier(0.22, 1, 0.36, 1) 0.32s,
+    transform 0.95s cubic-bezier(0.33, 0.86, 0.42, 1) 0.28s;
 }
 
 html.js-slide-deck #slide_10 {
@@ -6111,5 +6122,11 @@ html.js-slide-deck #slide_17 .slide_17-content {
   html.js-slide-deck section[id^='slide_'].slide-deck-panel--leave-up,
   html.js-slide-deck section[id^='slide_'].slide-deck-panel--leave-down {
     transition-duration: 0.01ms !important;
+  }
+
+  html.js-slide-deck #slide_3 .visual-scene .slide_3-hero {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
   }
 }

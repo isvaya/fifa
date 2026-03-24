@@ -14,6 +14,7 @@ function initOrderModal() {
 
   const closeEls = modal.querySelectorAll('[data-order-close]');
   let lastFocus = null;
+  let hideAfterCloseTimer = 0;
 
   function setStatus(msg, isError) {
     if (!statusEl) return;
@@ -22,7 +23,13 @@ function initOrderModal() {
   }
 
   function openModal() {
+    if (hideAfterCloseTimer) {
+      clearTimeout(hideAfterCloseTimer);
+      hideAfterCloseTimer = 0;
+    }
     lastFocus = document.activeElement;
+    modal.removeAttribute('hidden');
+    void modal.offsetWidth;
     modal.classList.add('order-modal--open');
     modal.setAttribute('aria-hidden', 'false');
     document.body.classList.add('order-modal-active');
@@ -39,6 +46,11 @@ function initOrderModal() {
     document.body.classList.remove('order-modal-active');
     setStatus('');
     if (lastFocus instanceof HTMLElement) lastFocus.focus();
+    const delayMs = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 380;
+    hideAfterCloseTimer = window.setTimeout(() => {
+      modal.setAttribute('hidden', '');
+      hideAfterCloseTimer = 0;
+    }, delayMs);
   }
 
   openBtn.addEventListener('click', (e) => {
