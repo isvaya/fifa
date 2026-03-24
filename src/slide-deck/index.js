@@ -4,6 +4,7 @@ import {
   initSlideContentAnimations,
   initSlide2WatchPointerHover,
 } from './slideContentAnimations.js';
+import { initGSAPAnimations } from '../animations.js';
 
 /** Все полноэкранные слайды — только <section id="slide_N"> в порядке номера. */
 const SLIDE_SELECTOR = 'section[id^="slide_"]';
@@ -40,11 +41,16 @@ export function initFullPageSlides() {
     document.documentElement.classList.add('perf-lite');
   }
 
-  const deck = createSlideDeck(slides, { reduceMotion });
-  deck.bind();
+  const gsapPanelTransition = !reduceMotion;
+  const deck = createSlideDeck(slides, { reduceMotion, gsapPanelTransition });
+  if (gsapPanelTransition) {
+    document.documentElement.classList.add('deck-gsap-panels');
+  }
   initSlidePagination(deck);
   initSlideContentAnimations(deck, reduceMotion);
   initSlide2WatchPointerHover(reduceMotion);
+  initGSAPAnimations(deck);
+  deck.bind();
 
   return deck;
 }

@@ -28,102 +28,17 @@ function renderPartialText(el, full, n) {
   el.appendChild(frag);
 }
 
-function easeOutCubic(t) {
-  const x = Math.min(1, Math.max(0, t));
-  return 1 - (1 - x) ** 3;
-}
-
-function initSlide3Typewriter(reduceMotion) {
+/** Слайд 3: без typewriter — текст всегда в DOM, плавное появление через CSS (см. style.css). */
+function initSlide3DeckReveal() {
   const slide3 = document.getElementById('slide_3');
-  const container = document.querySelector('#slide_3 .slide_3-text-container');
-  if (!slide3 || !container) return { enter() {}, leave() {} };
-
-  const blocks = [...container.children].map((el) => ({
-    el,
-    text: flattenNodeText(el),
-  }));
-  const interBlockPause = 3;
-  const totalUnits =
-    blocks.reduce((sum, b) => sum + b.text.length + interBlockPause, 0) - interBlockPause;
-
-  const TYPE_DURATION_MS = 4500;
-  let typeStartTime = null;
-  let typeRaf = 0;
-
-  function applyTypewriter(pType) {
-    const u = Math.min(1, Math.max(0, pType)) * totalUnits;
-    let rem = u;
-    for (let i = 0; i < blocks.length; i += 1) {
-      const b = blocks[i];
-      if (rem >= b.text.length) {
-        renderPartialText(b.el, b.text, b.text.length);
-        rem -= b.text.length;
-        if (i < blocks.length - 1) {
-          rem -= interBlockPause;
-          if (rem < 0) rem = 0;
-        }
-      } else {
-        renderPartialText(b.el, b.text, Math.max(0, Math.floor(rem)));
-        for (let k = i + 1; k < blocks.length; k += 1) {
-          blocks[k].el.textContent = '';
-        }
-        return;
-      }
-    }
-  }
-
-  function stop() {
-    if (typeRaf) cancelAnimationFrame(typeRaf);
-    typeRaf = 0;
-    typeStartTime = null;
-  }
-
-  function loop(now) {
-    if (!slide3.classList.contains('slide-3-deck-active')) {
-      typeRaf = 0;
-      return;
-    }
-    if (typeStartTime === null) typeStartTime = now;
-    const tLin = Math.min(1, (now - typeStartTime) / TYPE_DURATION_MS);
-    applyTypewriter(tLin >= 1 ? 1 : easeOutCubic(tLin));
-    if (tLin < 1) {
-      typeRaf = requestAnimationFrame(loop);
-    } else {
-      typeRaf = 0;
-    }
-  }
+  if (!slide3) return { enter() {}, leave() {} };
 
   function enter() {
     slide3.classList.add('slide-3-deck-active');
-    if (reduceMotion) {
-      blocks.forEach((b) => renderPartialText(b.el, b.text, b.text.length));
-      return;
-    }
-    stop();
-    blocks.forEach((b) => {
-      b.el.textContent = '';
-    });
-    typeStartTime = null;
-    requestAnimationFrame(() => {
-      typeRaf = requestAnimationFrame(loop);
-    });
   }
 
   function leave() {
     slide3.classList.remove('slide-3-deck-active');
-    stop();
-    if (reduceMotion) return;
-    blocks.forEach((b) => {
-      b.el.textContent = '';
-    });
-  }
-
-  if (reduceMotion) {
-    blocks.forEach((b) => renderPartialText(b.el, b.text, b.text.length));
-  } else {
-    blocks.forEach((b) => {
-      b.el.textContent = '';
-    });
   }
 
   return { enter, leave };
@@ -297,7 +212,7 @@ function initSlide14Deck(reduceMotion) {
  * @param {ReturnType<import('./controller.js').createSlideDeck>} deck
  */
 export function initSlideContentAnimations(deck, reduceMotion) {
-  const s3 = initSlide3Typewriter(reduceMotion);
+  const s3 = initSlide3DeckReveal();
   const s9 = initSlide9Deck(reduceMotion);
   const s11 = initSlide11Deck(reduceMotion);
   const s14 = initSlide14Deck(reduceMotion);

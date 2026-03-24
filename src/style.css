@@ -1030,6 +1030,48 @@ body.order-modal-active {
   line-height: 1.6;
 }
 
+/* Слайд 3 (deck): текст без typewriter — медленное появление по строкам */
+html.js-slide-deck #slide_3:not(.slide-3-deck-active) .slide_3-text-container > * {
+  opacity: 0;
+  transform: translate3d(0, 14px, 0);
+  transition: none;
+}
+
+html.js-slide-deck #slide_3.slide-3-deck-active .slide_3-text-container > * {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition:
+    opacity 2.1s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html.js-slide-deck #slide_3.slide-3-deck-active .slide_3-text-container > *:nth-child(1) {
+  transition-delay: 0.2s;
+}
+
+html.js-slide-deck #slide_3.slide-3-deck-active .slide_3-text-container > *:nth-child(2) {
+  transition-delay: 0.55s;
+}
+
+html.js-slide-deck #slide_3.slide-3-deck-active .slide_3-text-container > *:nth-child(3) {
+  transition-delay: 0.9s;
+}
+
+html.js-slide-deck #slide_3.slide-3-deck-active .slide_3-text-container > *:nth-child(4) {
+  transition-delay: 1.2s;
+}
+
+html.js-slide-deck #slide_3.slide-3-deck-active .slide_3-text-container > *:nth-child(n + 5) {
+  transition-delay: 1.45s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.js-slide-deck #slide_3.slide-3-deck-active .slide_3-text-container > * {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
 /* Slide 3: планшет — уже левая колонка и текст */
 @media (max-width: 1024px) and (min-width: 768px) {
   #slide_3 .slide_3-pin {
@@ -5931,6 +5973,21 @@ html.js-slide-deck section[id^='slide_'] {
     opacity 0.62s cubic-bezier(0.22, 1, 0.36, 1),
     transform 0.72s cubic-bezier(0.22, 1, 0.36, 1),
     visibility 0s linear 0.72s;
+}
+
+/*
+ * GSAP-driven panel transitions (animations.js + controller gsapPanelTransition):
+ * disable CSS transitions on sections; exiting panel stays visible via .slide-deck-panel--gsap-preserve until GSAP ends.
+ */
+html.deck-gsap-panels.js-slide-deck section[id^='slide_'] {
+  transition: none !important;
+}
+
+html.deck-gsap-panels.js-slide-deck section.slide.slide-deck-panel--gsap-preserve {
+  opacity: 1;
+  visibility: visible;
+  transform: translate3d(0, 0, 0);
+  pointer-events: none;
 }
 
 html.js-slide-deck section[id^='slide_'].slide-deck-panel--active {

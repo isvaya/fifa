@@ -5,6 +5,8 @@
 const WHEEL_THRESHOLD = 48;
 const TOUCH_MIN = 56;
 const UNLOCK_FALLBACK_MS = 900;
+/** When GSAP drives panel motion, unlock via deck.releaseGsapTransitionLock(prevSection). */
+const GSAP_UNLOCK_FALLBACK_MS = 2000;
 
 function prefersReducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -46,10 +48,13 @@ function canConsumeInnerScroll(scroller, deltaY) {
 export function createSlideDeck(slideEls, options = {}) {
   const slides = [...slideEls];
   const reduceMotion = options.reduceMotion ?? prefersReducedMotion();
+  const gsapPanelTransition = Boolean(options.gsapPanelTransition) && !reduceMotion;
 
   let current = 0;
   let locked = false;
   let unlockTimer = 0;
+  /** @type {HTMLElement | null} */
+  let pendingGsapPrevEl = null;
   const listeners = new Set();
 
   function on(fn) {
@@ -103,7 +108,21 @@ export function createSlideDeck(slideEls, options = {}) {
     });
   }
 
-  function armUnlock(prevEl) {
+  function finishUnlock(prevEl, mode) {
+    if (unlockTimer) {
+      clearTimeout(unlockTimer);
+      unlockTimer = 0;
+    }
+    if (mode === 'css') {
+      prevEl.classList.remove('slide-deck-panel--leave-up', 'slide-deck-panel--leave-down');
+    } else {
+      prevEl.classList.remove('slide-deck-panel--gsap-preserve');
+    }
+    pendingGsapPrevEl = null;
+    locked = false;
+  }
+
+  function armUnlock(prevEl, mode = 'css') {
     locked = true;
     if (unlockTimer) clearTimeout(unlockTimer);
 
@@ -111,13 +130,8 @@ export function createSlideDeck(slideEls, options = {}) {
     const done = () => {
       if (finished) return;
       finished = true;
-      if (unlockTimer) {
-        clearTimeout(unlockTimer);
-        unlockTimer = 0;
-      }
-      prevEl.classList.remove('slide-deck-panel--leave-up', 'slide-deck-panel--leave-down');
       prevEl.removeEventListener('transitionend', onTe);
-      locked = false;
+      finishUnlock(prevEl, mode);
     };
 
     function onTe(e) {
@@ -126,8 +140,30 @@ export function createSlideDeck(slideEls, options = {}) {
       done();
     }
 
+    if (mode === 'gsap') {
+      pendingGsapPrevEl = prevEl;
+      unlockTimer = window.setTimeout(() => {
+        if (!finished) {
+          finished = true;
+          finishUnlock(prevEl, 'gsap');
+        }
+      }, GSAP_UNLOCK_FALLBACK_MS);
+      return;
+    }
+
+    pendingGsapPrevEl = null;
     prevEl.addEventListener('transitionend', onTe);
     unlockTimer = window.setTimeout(done, UNLOCK_FALLBACK_MS);
+  }
+
+  function releaseGsapTransitionLock(prevEl) {
+    if (!gsapPanelTransition) return;
+    if (pendingGsapPrevEl !== prevEl) return;
+    if (unlockTimer) {
+      clearTimeout(unlockTimer);
+      unlockTimer = 0;
+    }
+    finishUnlock(prevEl, 'gsap');
   }
 
   /**
@@ -149,7 +185,8 @@ export function createSlideDeck(slideEls, options = {}) {
           'slide-deck-panel--prep-from-bottom',
           'slide-deck-panel--prep-from-top',
           'slide-deck-panel--leave-up',
-          'slide-deck-panel--leave-down'
+          'slide-deck-panel--leave-down',
+          'slide-deck-panel--gsap-preserve'
         );
       });
       current = nextIndex;
@@ -169,7 +206,41 @@ export function createSlideDeck(slideEls, options = {}) {
       return;
     }
 
-    armUnlock(prevEl);
+    if (gsapPanelTransition) {
+      armUnlock(prevEl, 'gsap');
+
+      if (dir === 'next') {
+        nextEl.classList.add('slide-deck-panel--prep-from-bottom');
+      } else {
+        nextEl.classList.add('slide-deck-panel--prep-from-top');
+      }
+      void nextEl.offsetWidth;
+
+      prevEl.classList.remove('slide-deck-panel--active', 'active');
+      prevEl.classList.add('slide-deck-panel--gsap-preserve');
+
+      nextEl.classList.remove('slide-deck-panel--prep-from-bottom', 'slide-deck-panel--prep-from-top');
+
+      current = nextIndex;
+      updateActivePanelClasses();
+
+      slides.forEach((s, i) => s.toggleAttribute('aria-hidden', i !== current));
+      setHtmlState();
+      applyIdleStacking();
+      logDeckState('change (gsap panels)');
+      emit({
+        type: 'change',
+        index: current,
+        id: slides[current].id,
+        prevIndex: prev,
+        prevId: prevEl.id,
+        direction: dir,
+        gsapPanels: true,
+      });
+      return;
+    }
+
+    armUnlock(prevEl, 'css');
 
     if (dir === 'next') {
       nextEl.classList.add('slide-deck-panel--prep-from-bottom');
@@ -320,7 +391,8 @@ export function createSlideDeck(slideEls, options = {}) {
         'slide-deck-panel--prep-from-bottom',
         'slide-deck-panel--prep-from-top',
         'slide-deck-panel--leave-up',
-        'slide-deck-panel--leave-down'
+        'slide-deck-panel--leave-down',
+        'slide-deck-panel--gsap-preserve'
       );
       section.toggleAttribute('aria-hidden', i !== 0);
     });
@@ -349,7 +421,7 @@ export function createSlideDeck(slideEls, options = {}) {
     window.removeEventListener('touchend', onTouchEnd);
     window.removeEventListener('keydown', onKeyDown);
     if (unlockTimer) clearTimeout(unlockTimer);
-    document.documentElement.classList.remove('js-slide-deck');
+    document.documentElement.classList.remove('js-slide-deck', 'deck-gsap-panels');
     delete document.documentElement.dataset.activeSlide;
     delete document.documentElement.dataset.slideIndex;
     slides.forEach((section) => {
@@ -361,7 +433,8 @@ export function createSlideDeck(slideEls, options = {}) {
         'slide-deck-panel--prep-from-bottom',
         'slide-deck-panel--prep-from-top',
         'slide-deck-panel--leave-up',
-        'slide-deck-panel--leave-down'
+        'slide-deck-panel--leave-down',
+        'slide-deck-panel--gsap-preserve'
       );
       section.removeAttribute('aria-hidden');
       section.style.zIndex = '';
@@ -379,5 +452,8 @@ export function createSlideDeck(slideEls, options = {}) {
     getSlideId: () => slides[current]?.id,
     getSlides: () => slides,
     isLocked: () => locked,
+    releaseGsapTransitionLock,
+    /** @readonly */
+    gsapPanelTransition,
   };
 }
