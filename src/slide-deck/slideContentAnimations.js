@@ -103,70 +103,35 @@ function initSlide9Deck(reduceMotion) {
   return { enter, leave };
 }
 
-function initSlide11Deck(reduceMotion) {
+/** Слайд 11: без typewriter — h2 и подпись из HTML, плавное появление (см. style.css). */
+function initSlide11DeckReveal(reduceMotion) {
   const slide11 = document.getElementById('slide_11');
-  const h2 = slide11?.querySelector('.slide_11-copy h2');
-  if (!slide11 || !h2) return { enter() {}, leave() {} };
+  if (!slide11) return { enter() {}, leave() {} };
 
-  const WATCH_ANIM_MS = 960;
-  const h2Text = flattenNodeText(h2);
-  const TYPE_DURATION_MS = Math.min(3200, Math.max(720, h2Text.length * 42));
-
-  if (reduceMotion) {
-    slide11.classList.add('slide-11-revealed', 'slide-11-signature-revealed');
-    return { enter() {}, leave() {} };
-  }
-
-  let typeRafId = 0;
-  let typeStartTime = null;
-  let watchDoneTimer = null;
-
-  function typeLoop(now) {
-    if (!slide11.classList.contains('slide-11-revealed')) {
-      typeRafId = 0;
-      return;
-    }
-    if (typeStartTime === null) typeStartTime = now;
-    const tLin = Math.min(1, (now - typeStartTime) / TYPE_DURATION_MS);
-    const n = Math.min(h2Text.length, Math.floor(tLin * h2Text.length));
-    renderPartialText(h2, h2Text, n);
-    if (tLin < 1) {
-      typeRafId = requestAnimationFrame(typeLoop);
-    } else {
-      renderPartialText(h2, h2Text, h2Text.length);
-      slide11.classList.add('slide-11-signature-revealed');
-      typeRafId = 0;
-    }
-  }
+  let textRevealTimer = 0;
 
   function enter() {
-    if (watchDoneTimer) clearTimeout(watchDoneTimer);
-    watchDoneTimer = null;
-    if (typeRafId) cancelAnimationFrame(typeRafId);
-    typeRafId = 0;
-    typeStartTime = null;
-    h2.textContent = '';
-    slide11.classList.remove('slide-11-signature-revealed');
+    if (textRevealTimer) clearTimeout(textRevealTimer);
+    textRevealTimer = 0;
+    slide11.classList.remove('slide-11-text-visible');
     slide11.classList.add('slide-11-revealed');
-    watchDoneTimer = setTimeout(() => {
-      watchDoneTimer = null;
-      if (!slide11.classList.contains('slide-11-revealed')) return;
-      typeStartTime = null;
-      typeRafId = requestAnimationFrame(typeLoop);
-    }, WATCH_ANIM_MS);
+    if (reduceMotion) {
+      slide11.classList.add('slide-11-text-visible');
+      return;
+    }
+    textRevealTimer = window.setTimeout(() => {
+      textRevealTimer = 0;
+      slide11.classList.add('slide-11-text-visible');
+    }, 280);
   }
 
   function leave() {
-    if (watchDoneTimer) clearTimeout(watchDoneTimer);
-    watchDoneTimer = null;
-    if (typeRafId) cancelAnimationFrame(typeRafId);
-    typeRafId = 0;
-    slide11.classList.remove('slide-11-revealed', 'slide-11-signature-revealed');
-    h2.textContent = '';
+    if (textRevealTimer) clearTimeout(textRevealTimer);
+    textRevealTimer = 0;
+    slide11.classList.remove('slide-11-revealed', 'slide-11-text-visible');
   }
 
-  h2.textContent = '';
-  slide11.classList.remove('slide-11-revealed', 'slide-11-signature-revealed');
+  slide11.classList.remove('slide-11-revealed', 'slide-11-text-visible', 'slide-11-signature-revealed');
 
   return { enter, leave };
 }
@@ -214,7 +179,7 @@ function initSlide14Deck(reduceMotion) {
 export function initSlideContentAnimations(deck, reduceMotion) {
   const s3 = initSlide3DeckReveal();
   const s9 = initSlide9Deck(reduceMotion);
-  const s11 = initSlide11Deck(reduceMotion);
+  const s11 = initSlide11DeckReveal(reduceMotion);
   const s14 = initSlide14Deck(reduceMotion);
 
   const classSlides = [

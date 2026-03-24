@@ -2665,7 +2665,7 @@ html.js-slide-deck #slide_3.slide-3-deck-active .slide_3-text-container > *:nth-
   z-index: 2;
 }
 
-/* Слайд 11: часы — увеличение; h2 — печать после часов; подпись — после текста (main.js) */
+/* Слайд 11: часы — увеличение; копирайт — плавное появление (без typewriter) */
 #slide_11:not(.slide-11-revealed) .slide_11-watch {
   opacity: 0;
   transform: scale(0.84);
@@ -2686,24 +2686,29 @@ html.js-slide-deck #slide_3.slide-3-deck-active .slide_3-text-container > *:nth-
   }
 }
 
-#slide_11:not(.slide-11-signature-revealed) .slide_11-copy .signature {
+html.js-slide-deck #slide_11:not(.slide-11-text-visible) .slide_11-copy h2,
+html.js-slide-deck #slide_11:not(.slide-11-text-visible) .slide_11-copy .signature {
   opacity: 0;
-  clip-path: inset(0 100% 0 0);
+  transform: translate3d(0, 14px, 0);
+  transition: none;
 }
 
-#slide_11.slide-11-signature-revealed .slide_11-copy .signature {
-  animation: slide11_signature_print 0.72s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+html.js-slide-deck #slide_11.slide-11-text-visible .slide_11-copy h2 {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition:
+    opacity 1.85s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 1.75s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: 0.12s;
 }
 
-@keyframes slide11_signature_print {
-  from {
-    opacity: 0;
-    clip-path: inset(0 100% 0 0);
-  }
-  to {
-    opacity: 0.9;
-    clip-path: inset(0 0 0 0);
-  }
+html.js-slide-deck #slide_11.slide-11-text-visible .slide_11-copy .signature {
+  opacity: 0.9;
+  transform: translate3d(0, 0, 0);
+  transition:
+    opacity 1.65s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 1.6s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: 0.42s;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2713,10 +2718,16 @@ html.js-slide-deck #slide_3.slide-3-deck-active .slide_3-text-container > *:nth-
     transform: none !important;
   }
 
+  html.js-slide-deck #slide_11 .slide_11-copy h2,
+  html.js-slide-deck #slide_11 .slide_11-copy .signature {
+    opacity: 1 !important;
+    transform: none !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+
   #slide_11 .slide_11-copy .signature {
     opacity: 0.9 !important;
-    animation: none !important;
-    clip-path: none !important;
   }
 }
 
