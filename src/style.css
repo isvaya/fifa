@@ -1724,11 +1724,11 @@ html.js-slide-deck #slide_3.slide-3-deck-active .slide_3-text-container > *:nth-
 @keyframes slide6_watch_in_mobile {
   from {
     opacity: 0;
-    transform: translateX(calc(-50% - min(96px, 22vw))) translateY(-50%);
+    transform: translateX(calc(-50% + clamp(10vw, 15vw, 20vw) - min(96px, 22vw))) translateY(-50%);
   }
   to {
     opacity: 1;
-    transform: translateX(-50%) translateY(-50%);
+    transform: translateX(calc(-50% + clamp(10vw, 15vw, 20vw))) translateY(-50%);
   }
 }
 
@@ -1807,7 +1807,7 @@ html.js-slide-deck #slide_3.slide-3-deck-active .slide_3-text-container > *:nth-
 
 @media (prefers-reduced-motion: reduce) and (max-width: 767px) {
   #slide_6 .slide_6-left .watch {
-    transform: translateX(-50%) translateY(-50%) !important;
+    transform: translateX(calc(-50% + clamp(10vw, 15vw, 20vw))) translateY(-50%) !important;
   }
 }
 
@@ -4543,7 +4543,7 @@ html.js-slide-deck #slide_11.slide-11-text-visible .slide_11-copy .signature {
     position: absolute;
     left: 0;
     top: 50%;
-    transform: translateX(-50%) translateY(-50%);
+    transform: translateX(calc(-50% + clamp(10vw, 15vw, 20vw))) translateY(-50%);
     height: 100%;
     width: auto;
     max-height: 100%;
@@ -4557,7 +4557,7 @@ html.js-slide-deck #slide_11.slide-11-text-visible .slide_11-copy .signature {
 
   #slide_6:not(.slide-6-revealed) .slide_6-left .watch {
     opacity: 0;
-    transform: translateX(calc(-50% - min(88px, 20vw))) translateY(-50%);
+    transform: translateX(calc(-50% + clamp(10vw, 15vw, 20vw) - min(88px, 20vw))) translateY(-50%);
   }
 
   #slide_6.slide-6-revealed .slide_6-left .watch {
@@ -5704,8 +5704,8 @@ html.js-slide-deck #slide_11.slide-11-text-visible .slide_11-copy .signature {
   }
 }
 
-/* До 800px: центр img на левом краю контейнера = ровно 50% часов в кадре (и 768–800 в двух колонках) */
-@media (max-width: 800px) {
+/* 768–800px в двух колонках: центр img у левого края контейнера. Не (max-width:800px) без min — иначе затирает сдвиг на телефоне. */
+@media (max-width: 800px) and (min-width: 768px) {
   #slide_6 .slide_6-left .watch {
     transform: translateX(-50%) translateY(-50%);
   }

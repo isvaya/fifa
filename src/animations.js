@@ -68,9 +68,14 @@ export function initGSAPAnimations(deck) {
       },
     });
 
+    /*
+     * Входящая панель остаётся opacity:1 на всём переходе: иначе полупрозрачный «верх»
+     * смешивается с уходящим кадром и сквозь участки с opacity:0 у детей (CSS :not(.slide-N-revealed))
+     * проступает чужая картинка — заметно между 6→7 (часы слева в одном месте).
+     */
     panelTimeline.fromTo(
       nextEl,
-      { y: yIn, opacity: 0, scale: 0.96 },
+      { y: yIn, opacity: 1, scale: 0.985 },
       { y: 0, opacity: 1, scale: 1, duration: 0.92, ease: 'power3.out' },
       0
     );
@@ -241,7 +246,7 @@ export function initGSAPAnimations(deck) {
     if (detail.type === 'change') {
       runPanelTransition(detail);
       contentTimeline?.kill();
-      contentTimeline = gsap.timeline({ delay: 0.06 });
+      contentTimeline = gsap.timeline();
       const intro = runContentForSlideId(detail.id);
       if (intro) contentTimeline.add(intro, 0);
     }
