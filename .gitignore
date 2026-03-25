@@ -12,6 +12,11 @@ dist
 dist-ssr
 *.local
 
+# Секреты и локальные переменные (Formspree id, почта для mailto)
+.env
+.env.*
+!.env.example
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
