@@ -3386,7 +3386,8 @@ html.js-slide-deck #slide_11.slide-11-text-visible .slide_11-copy .signature {
   pointer-events: none;
   background-image: url('/images/webp-images/bg-cherchill.webp');
   background-repeat: no-repeat;
-  background-position: right 0 center;
+  /* Лицо в кадре: левее, чем right 0 (иначе виден только край силуэта) */
+  background-position: 38% center;
   background-size: auto min(108%, 100vh);
 }
 
@@ -3456,6 +3457,11 @@ html.js-slide-deck #slide_11.slide-11-text-visible .slide_11-copy .signature {
       transparent 88%
     );
   }
+
+  /* Тот же сдвиг, если слайд без deck (cover тут не задаётся — только позиция) */
+  #slide_16 .slide_16-bg {
+    background-position: right min(-25vw, -320px) center;
+  }
 }
 
 @media (min-width: 1920px) {
@@ -3511,6 +3517,9 @@ html.js-slide-deck #slide_11.slide-11-text-visible .slide_11-copy .signature {
 }
 
 .slide_16-watch-stack {
+  /* Смещение «задних» часов относительно центра стека (одинаковая логика на всех ширинах). */
+  /* сдвиг вторых часов: --watch-pair-shift + фикс. +50px в transform (все ширины) */
+  --watch-pair-shift: clamp(30px, 5.2vw, 91px);
   position: relative;
   width: min(100%, clamp(260px, min(30vw, 26vh + 100px), 480px));
   min-height: clamp(280px, 52vh, 640px);
@@ -3531,7 +3540,7 @@ html.js-slide-deck #slide_11.slide-11-text-visible .slide_11-copy .signature {
   filter: drop-shadow(0 28px 72px rgba(0, 0, 0, 0.72));
 }
 
-/* пара по центру стека; золото по центру, чёрные чуть вправо (~половина справа) */
+/* пара по центру стека: передние по центру, задние сдвинуты вправо — частичное перекрытие */
 .slide_16-left .watch-gold {
   left: 50%;
   transform: translate(-50%, -50%);
@@ -3540,7 +3549,7 @@ html.js-slide-deck #slide_11.slide-11-text-visible .slide_11-copy .signature {
 
 .slide_16-left .watch-black {
   left: 50%;
-  transform: translate(4%, -50%) scale(0.87);
+  transform: translate(calc(-50% + var(--watch-pair-shift, clamp(30px, 5.2vw, 91px)) + 50px), -50%) scale(0.87);
   z-index: 1;
 }
 
@@ -3638,13 +3647,13 @@ html.js-slide-deck #slide_11.slide-11-text-visible .slide_11-copy .signature {
   }
 
   #slide_16 .slide_16-watch-stack:hover .watch-black {
-    transform: translate(4%, -50%) scale(0.935);
+    transform: translate(calc(-50% + var(--watch-pair-shift, clamp(30px, 5.2vw, 91px)) + 50px), -50%) scale(0.935);
   }
 }
 
 @media (max-width: 1100px) and (hover: hover) and (pointer: fine) {
   #slide_16 .slide_16-watch-stack:hover .watch-black {
-    transform: translate(4%, -50%) scale(0.9);
+    transform: translate(calc(-50% + var(--watch-pair-shift, clamp(30px, 5.2vw, 91px)) + 50px), -50%) scale(0.9);
   }
 }
 
@@ -3727,7 +3736,7 @@ html.js-slide-deck #slide_11.slide-11-text-visible .slide_11-copy .signature {
 
   .slide_16-left .watch-black {
     left: 50%;
-    transform: translate(4%, -50%) scale(0.84);
+    transform: translate(calc(-50% + var(--watch-pair-shift, clamp(30px, 5.2vw, 91px)) + 50px), -50%) scale(0.84);
   }
 
   .slide_16-signature {
@@ -3942,6 +3951,7 @@ html.js-slide-deck #slide_11.slide-11-text-visible .slide_11-copy .signature {
 }
 
 .slide_17-watch-stack {
+  --watch-pair-shift: clamp(30px, 5.2vw, 91px);
   position: relative;
   width: min(100%, clamp(240px, 27vw, 440px));
   min-height: clamp(240px, 42vh, 560px);
@@ -3951,7 +3961,8 @@ html.js-slide-deck #slide_11.slide-11-text-visible .slide_11-copy .signature {
 
 .slide_17-left .watch {
   position: absolute;
-  width: 88%;
+  width: auto;
+  max-width: 88%;
   height: auto;
   top: 50%;
   left: 0;
@@ -3967,7 +3978,7 @@ html.js-slide-deck #slide_11.slide-11-text-visible .slide_11-copy .signature {
 
 .slide_17-left .watch-green {
   left: 50%;
-  transform: translate(4%, -50%) scale(0.87);
+  transform: translate(calc(-50% + var(--watch-pair-shift, clamp(30px, 5.2vw, 91px)) + 50px), -50%) scale(0.87);
   z-index: 1;
 }
 
@@ -4036,6 +4047,58 @@ html.js-slide-deck #slide_11.slide-11-text-visible .slide_11-copy .signature {
 
 .slide_17-text strong {
   font-weight: 600;
+}
+
+/* Большие мониторы: больше места под пару часов рядом; вторые часы сильнее вынесены вправо (--watch-pair-shift) */
+@media (min-width: 1400px) {
+  /*
+   * Не использовать flex: 0 1 auto: у колонки только absolute-часы, при basis auto min-content ≈ 0,
+   * min(100%, clamp(...)) на стеке даёт ширину 0 — часы пропадают. Сохраняем долю ряда как ≤1100px.
+   */
+  .slide_16-left,
+  .slide_17-left {
+    flex: 0 1 42%;
+    max-width: min(600px, 44vw);
+  }
+
+  .slide_16-watch-stack {
+    width: clamp(300px, 32vw, 560px);
+    max-width: 100%;
+    min-height: clamp(300px, 52vh, 720px);
+    --watch-pair-shift: clamp(39px, 5.7vw, 117px);
+    transform: translateX(-2%);
+  }
+
+  .slide_17-watch-stack {
+    width: clamp(300px, 32vw, 560px);
+    max-width: 100%;
+    min-height: clamp(300px, 52vh, 720px);
+    --watch-pair-shift: clamp(39px, 5.7vw, 117px);
+    transform: translateX(-2%);
+  }
+
+  .slide_16-left .watch {
+    max-height: min(74vh, 800px);
+  }
+
+  .slide_17-left .watch {
+    max-height: min(74vh, 800px);
+  }
+}
+
+@media (min-width: 1920px) {
+  .slide_16-left,
+  .slide_17-left {
+    max-width: min(680px, 42vw);
+  }
+
+  .slide_16-watch-stack,
+  .slide_17-watch-stack {
+    width: clamp(340px, 30vw, 640px);
+    max-width: 100%;
+    min-height: clamp(320px, 54vh, 760px);
+    --watch-pair-shift: clamp(46px, 4.9vw, 137px);
+  }
 }
 
 /* Слайд 17: фон проявляется; часы сверху вниз; копирайт — монограмма → Amir Temur + Legacy → абзац (.slide-17-revealed — main.js) */
@@ -4154,13 +4217,13 @@ html.js-slide-deck #slide_11.slide-11-text-visible .slide_11-copy .signature {
   }
 
   #slide_17 .slide_17-watch-stack:hover .watch-green {
-    transform: translate(4%, -50%) scale(0.935);
+    transform: translate(calc(-50% + var(--watch-pair-shift, clamp(30px, 5.2vw, 91px)) + 50px), -50%) scale(0.935);
   }
 }
 
 @media (max-width: 767px) and (hover: hover) and (pointer: fine) {
   #slide_17 .slide_17-watch-stack:hover .watch-green {
-    transform: translate(4%, -50%) scale(0.9);
+    transform: translate(calc(-50% + var(--watch-pair-shift, clamp(30px, 5.2vw, 91px)) + 50px), -50%) scale(0.9);
   }
 }
 
@@ -4271,7 +4334,7 @@ html.js-slide-deck #slide_11.slide-11-text-visible .slide_11-copy .signature {
 
   .slide_17-left .watch-green {
     left: 50%;
-    transform: translate(4%, -50%) scale(0.84);
+    transform: translate(calc(-50% + var(--watch-pair-shift, clamp(30px, 5.2vw, 91px)) + 50px), -50%) scale(0.84);
   }
 
   .slide_17-right {
@@ -5604,7 +5667,7 @@ html.js-slide-deck #slide_11.slide-11-text-visible .slide_11-copy .signature {
 
   #slide_16 .slide_16-left .watch-black {
     left: 50%;
-    transform: translate(4%, -50%) scale(0.84);
+    transform: translate(calc(-50% + var(--watch-pair-shift, clamp(30px, 5.2vw, 91px)) + 50px), -50%) scale(0.84);
   }
 }
 
@@ -5648,7 +5711,7 @@ html.js-slide-deck #slide_11.slide-11-text-visible .slide_11-copy .signature {
 
   .slide_16-left .watch-black {
     left: 50%;
-    transform: translate(4%, -50%) scale(0.82);
+    transform: translate(calc(-50% + var(--watch-pair-shift, clamp(30px, 5.2vw, 91px)) + 50px), -50%) scale(0.82);
   }
 
   #slide_16 .slide_16-signature {
@@ -6001,6 +6064,20 @@ html.deck-gsap-panels.js-slide-deck section.slide.slide-deck-panel--gsap-preserv
   pointer-events: none;
 }
 
+/*
+ * Слайды 16/17 + GSAP: класс .slide-N-revealed дергается с задержкой (rAF); без transform в «hidden»-правиле
+ * не конкурируем с твином opacity/y на .slide_N-left. Анимацию колонки с часами ведёт GSAP, не keyframes.
+ */
+html.deck-gsap-panels.js-slide-deck #slide_16:not(.slide-16-revealed) .slide_16-left,
+html.deck-gsap-panels.js-slide-deck #slide_17:not(.slide-17-revealed) .slide_17-left {
+  transform: none;
+}
+
+html.deck-gsap-panels.js-slide-deck #slide_16.slide-16-revealed .slide_16-left,
+html.deck-gsap-panels.js-slide-deck #slide_17.slide-17-revealed .slide_17-left {
+  animation: none !important;
+}
+
 html.js-slide-deck section[id^='slide_'].slide-deck-panel--active {
   opacity: 1;
   transform: translate3d(0, 0, 0);
@@ -6102,7 +6179,6 @@ html.js-slide-deck #slide_17 {
 }
 
 html.js-slide-deck #slide_13 .slide_13-bg,
-html.js-slide-deck #slide_16 .slide_16-bg,
 html.js-slide-deck #slide_17 .slide_17-photo-bg {
   position: absolute;
   inset: 0;
@@ -6113,6 +6189,26 @@ html.js-slide-deck #slide_17 .slide_17-photo-bg {
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
+}
+
+html.js-slide-deck #slide_16 .slide_16-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  z-index: 0;
+  background-repeat: no-repeat;
+  background-size: cover;
+  /* <1400px: без «right + overflow» — иначе на планшетах слишком уезжает */
+  background-position: 38% center;
+}
+
+/* Десктоп: сдвигаем фон так, что ~половина кадра уходит за правый край — в зоне фото видно лицо */
+@media (min-width: 1400px) {
+  html.js-slide-deck #slide_16 .slide_16-bg {
+    background-position: right min(-25vw, -320px) center;
+  }
 }
 
 html.js-slide-deck #slide_13 .slide_13-bg {
@@ -6128,6 +6224,16 @@ html.js-slide-deck #slide_17 .slide_17-content {
   height: 100%;
   max-height: 100%;
   flex: 1 1 auto;
+}
+
+@media (min-width: 1101px) {
+  html.js-slide-deck #slide_16 .slide_16-content,
+  html.js-slide-deck #slide_17 .slide_17-content {
+    min-height: 100dvh;
+    min-height: 100svh;
+    height: auto;
+    max-height: none;
+  }
 }
 
 /*

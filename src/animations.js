@@ -185,15 +185,32 @@ export function initGSAPAnimations(deck) {
   function runGenericSlideIntro(section, slideNum) {
     const headings = gsap.utils.toArray(section.querySelectorAll('h2, h3'));
     const paragraphs = gsap.utils.toArray(section.querySelectorAll('p'));
-    const images = gsap.utils.toArray(section.querySelectorAll('img.watch, img[class*="watch"], .watch-scene, .watch-wrapper'));
+    const rawImages = gsap.utils.toArray(
+      section.querySelectorAll('img.watch, img[class*="watch"], .watch-scene, .watch-wrapper')
+    );
+    /* Пары часов на 16/17 — absolute + translate(-50%); общий x на img ломает вёрстку */
+    const images = rawImages.filter((el) => !el.closest?.('.slide_16-watch-stack, .slide_17-watch-stack'));
+    const watchPairLeft =
+      slideNum === 16
+        ? section.querySelector('.slide_16-left')
+        : slideNum === 17
+          ? section.querySelector('.slide_17-left')
+          : null;
     const altRight = slideNum % 2 === 1;
     const xText = altRight ? -48 : 48;
     const xImg = altRight ? 40 : -40;
-    const targets = [...headings, ...paragraphs, ...images].filter(Boolean);
+    const targets = [...headings, ...paragraphs, ...images, watchPairLeft].filter(Boolean);
     setWillChange(targets, true);
 
     const tl = gsap.timeline({ onComplete: () => setWillChange(targets, false) });
-    if (images.length) {
+    if (watchPairLeft && (slideNum === 16 || slideNum === 17)) {
+      tl.fromTo(
+        watchPairLeft,
+        { opacity: 0, y: 32 },
+        { opacity: 1, y: 0, duration: 0.88, ease: 'power3.out' },
+        0.06
+      );
+    } else if (images.length) {
       tl.fromTo(
         images,
         { x: xImg, opacity: 0, scale: 0.94 },
@@ -201,18 +218,22 @@ export function initGSAPAnimations(deck) {
         0.06
       );
     }
-    tl.fromTo(
-      headings,
-      { x: xText, opacity: 0, scale: 0.97 },
-      { x: 0, opacity: 1, scale: 1, duration: 0.72, stagger: 0.08, ease: 'power2.out' },
-      0.12
-    );
-    tl.fromTo(
-      paragraphs,
-      { x: xText * 0.75, opacity: 0, scale: 0.98 },
-      { x: 0, opacity: 1, scale: 1, duration: 0.65, stagger: 0.07, ease: 'power2.out' },
-      0.22
-    );
+    if (headings.length) {
+      tl.fromTo(
+        headings,
+        { x: xText, opacity: 0, scale: 0.97 },
+        { x: 0, opacity: 1, scale: 1, duration: 0.72, stagger: 0.08, ease: 'power2.out' },
+        0.12
+      );
+    }
+    if (paragraphs.length) {
+      tl.fromTo(
+        paragraphs,
+        { x: xText * 0.75, opacity: 0, scale: 0.98 },
+        { x: 0, opacity: 1, scale: 1, duration: 0.65, stagger: 0.07, ease: 'power2.out' },
+        0.22
+      );
+    }
     return tl;
   }
 
@@ -266,10 +287,12 @@ export function initGSAPAnimations(deck) {
       parallaxShell = null;
       return;
     }
+    const firstWatch = section.querySelector('img.watch');
+    const watchInPair = firstWatch?.closest?.('.slide_16-watch-stack, .slide_17-watch-stack');
     parallaxMain =
       section.querySelector('.watch-img') ||
       section.querySelector('.slide_3-hero') ||
-      section.querySelector('img.watch') ||
+      (firstWatch && !watchInPair ? firstWatch : null) ||
       section.querySelector('.slide_4-watch');
     parallaxShell =
       section.querySelector('.slide_1--visual') ||
@@ -375,6 +398,8 @@ export function initGSAPAnimations(deck) {
     const imgs = gsap.utils.toArray('img.watch, .watch-img, .slide_3-hero, img.slide_4-watch');
     imgs.forEach((img) => {
       if (!(img instanceof HTMLElement)) return;
+      /* Пары 16/17: hover задаётся в CSS (transform); quickTo(scale) затирает translate(-50%,-50%). */
+      if (img.closest('.slide_16-watch-stack, .slide_17-watch-stack')) return;
       const toScale = gsap.quickTo(img, 'scale', {
         duration: 0.45,
         ease: 'power2.out',
