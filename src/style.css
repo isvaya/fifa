@@ -3597,7 +3597,7 @@ html.js-slide-deck #slide_11.slide-11-text-visible .slide_11-copy .signature {
 
 #slide_16:not(.slide-16-revealed) .slide_16-signature {
   opacity: 0;
-  clip-path: inset(0 100% 0 0);
+  transform: translate3d(0, 14px, 0);
 }
 
 @keyframes slide16_bg_from_right {
@@ -3622,12 +3622,15 @@ html.js-slide-deck #slide_11.slide-11-text-visible .slide_11-copy .signature {
   }
 }
 
+/* Без clip-path: на Samsung Internet анимация inset часто не работает; opacity+transform — везде */
 @keyframes slide16_signature_write {
   from {
-    clip-path: inset(0 100% 0 0);
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
   }
   to {
-    clip-path: inset(0 0 0 0);
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
   }
 }
 
@@ -3639,9 +3642,8 @@ html.js-slide-deck #slide_11.slide-11-text-visible .slide_11-copy .signature {
   animation: slide16_watches_from_left 0.96s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.14s both;
 }
 
-/* both: delay + кадр from; opacity:1 без keyframes — иначе мигание чёрный→белый с filter на img */
+/* both: delay + кадр from; filter на .slide_16-signature-wrap — нет мигания чёрный→белый */
 #slide_16.slide-16-revealed .slide_16-signature {
-  opacity: 1;
   animation: slide16_signature_write 1.12s cubic-bezier(0.3, 0.55, 0.25, 1) 0.68s both;
 }
 
@@ -3681,7 +3683,7 @@ html.js-slide-deck #slide_11.slide-11-text-visible .slide_11-copy .signature {
   #slide_16 .slide_16-signature {
     opacity: 1 !important;
     animation: none !important;
-    clip-path: none !important;
+    transform: none !important;
   }
 
   #slide_16 .slide_16-signature-wrap {
