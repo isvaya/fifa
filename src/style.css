@@ -3561,22 +3561,27 @@ html.js-slide-deck #slide_11.slide-11-text-visible .slide_11-copy .signature {
   min-height: 0;
 }
 
-.slide_16-signature {
+/* filter на обёртке: при clip-path на <img> иначе часть движков рисует чёрный PNG, потом к белому */
+.slide_16-signature-wrap {
   position: absolute;
   bottom: clamp(10%, 16vh, 20%);
   right: clamp(16px, 5vw, 88px);
 
   width: min(42vw, 420px);
   max-width: calc(100% - 2rem);
-  height: auto;
-  display: block;
 
   pointer-events: none;
-  /* PNG → белый: на части мобильных WebKit без -webkit-filter цепочка filter на <img> не срабатывает */
   -webkit-filter: brightness(0) invert(1) drop-shadow(0 2px 18px rgba(0, 0, 0, 0.45));
   filter: brightness(0) invert(1) drop-shadow(0 2px 18px rgba(0, 0, 0, 0.45));
   transform: translateZ(0);
   backface-visibility: hidden;
+}
+
+.slide_16-signature {
+  display: block;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
 }
 
 /* Слайд 16: фон справа → в кадр; часы слева; подпись — «написание» (clip-path). Hover — scale на часах */
@@ -3619,11 +3624,9 @@ html.js-slide-deck #slide_11.slide-11-text-visible .slide_11-copy .signature {
 
 @keyframes slide16_signature_write {
   from {
-    opacity: 0;
     clip-path: inset(0 100% 0 0);
   }
   to {
-    opacity: 1;
     clip-path: inset(0 0 0 0);
   }
 }
@@ -3636,8 +3639,9 @@ html.js-slide-deck #slide_11.slide-11-text-visible .slide_11-copy .signature {
   animation: slide16_watches_from_left 0.96s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.14s both;
 }
 
-/* both: до старта и во время delay держим кадр from — иначе подпись полностью видна, потом «печатается» */
+/* both: delay + кадр from; opacity:1 без keyframes — иначе мигание чёрный→белый с filter на img */
 #slide_16.slide-16-revealed .slide_16-signature {
+  opacity: 1;
   animation: slide16_signature_write 1.12s cubic-bezier(0.3, 0.55, 0.25, 1) 0.68s both;
 }
 
@@ -3678,6 +3682,9 @@ html.js-slide-deck #slide_11.slide-11-text-visible .slide_11-copy .signature {
     opacity: 1 !important;
     animation: none !important;
     clip-path: none !important;
+  }
+
+  #slide_16 .slide_16-signature-wrap {
     -webkit-filter: brightness(0) invert(1) drop-shadow(0 2px 18px rgba(0, 0, 0, 0.45)) !important;
     filter: brightness(0) invert(1) drop-shadow(0 2px 18px rgba(0, 0, 0, 0.45)) !important;
   }
@@ -3745,7 +3752,7 @@ html.js-slide-deck #slide_11.slide-11-text-visible .slide_11-copy .signature {
     transform: translate(calc(-50% + var(--watch-pair-shift, clamp(30px, 5.2vw, 91px)) + 50px), -50%) scale(0.84);
   }
 
-  .slide_16-signature {
+  .slide_16-signature-wrap {
     position: relative;
     bottom: auto;
     right: auto;
@@ -5634,7 +5641,7 @@ html.js-slide-deck #slide_11.slide-11-text-visible .slide_11-copy .signature {
     justify-content: center;
   }
 
-  #slide_16 .slide_16-signature {
+  #slide_16 .slide_16-signature-wrap {
     grid-row: 2;
     position: relative;
     bottom: auto;
@@ -5724,7 +5731,7 @@ html.js-slide-deck #slide_11.slide-11-text-visible .slide_11-copy .signature {
     transform: translate(calc(-50% + var(--watch-pair-shift, clamp(30px, 5.2vw, 91px)) + 50px), -50%) scale(0.82);
   }
 
-  #slide_16 .slide_16-signature {
+  #slide_16 .slide_16-signature-wrap {
     margin: clamp(74px, calc(2vh + 68px), 88px) auto 0;
     width: min(72vw, 260px);
     -webkit-filter: brightness(0) invert(1) drop-shadow(0 2px 18px rgba(0, 0, 0, 0.45));
