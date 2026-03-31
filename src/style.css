@@ -3572,7 +3572,11 @@ html.js-slide-deck #slide_11.slide-11-text-visible .slide_11-copy .signature {
   display: block;
 
   pointer-events: none;
+  /* PNG → белый: на части мобильных WebKit без -webkit-filter цепочка filter на <img> не срабатывает */
+  -webkit-filter: brightness(0) invert(1) drop-shadow(0 2px 18px rgba(0, 0, 0, 0.45));
   filter: brightness(0) invert(1) drop-shadow(0 2px 18px rgba(0, 0, 0, 0.45));
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 /* Слайд 16: фон справа → в кадр; часы слева; подпись — «написание» (clip-path). Hover — scale на часах */
@@ -3674,6 +3678,8 @@ html.js-slide-deck #slide_11.slide-11-text-visible .slide_11-copy .signature {
     opacity: 1 !important;
     animation: none !important;
     clip-path: none !important;
+    -webkit-filter: brightness(0) invert(1) drop-shadow(0 2px 18px rgba(0, 0, 0, 0.45)) !important;
+    filter: brightness(0) invert(1) drop-shadow(0 2px 18px rgba(0, 0, 0, 0.45)) !important;
   }
 }
 
@@ -3749,6 +3755,8 @@ html.js-slide-deck #slide_11.slide-11-text-visible .slide_11-copy .signature {
     margin-right: 0;
     margin-left: auto;
     margin-top: clamp(56px, calc(4vh + 36px), 76px);
+    -webkit-filter: brightness(0) invert(1) drop-shadow(0 2px 18px rgba(0, 0, 0, 0.45));
+    filter: brightness(0) invert(1) drop-shadow(0 2px 18px rgba(0, 0, 0, 0.45));
   }
 
   .slide_16-right {
@@ -5636,6 +5644,8 @@ html.js-slide-deck #slide_11.slide-11-text-visible .slide_11-copy .signature {
     width: min(88vw, 300px);
     max-width: 100%;
     margin: clamp(88px, calc(6vh + 68px), 124px) auto 0;
+    -webkit-filter: brightness(0) invert(1) drop-shadow(0 2px 18px rgba(0, 0, 0, 0.45));
+    filter: brightness(0) invert(1) drop-shadow(0 2px 18px rgba(0, 0, 0, 0.45));
   }
 
   #slide_16 .slide_16-watch-stack {
@@ -5717,6 +5727,8 @@ html.js-slide-deck #slide_11.slide-11-text-visible .slide_11-copy .signature {
   #slide_16 .slide_16-signature {
     margin: clamp(74px, calc(2vh + 68px), 88px) auto 0;
     width: min(72vw, 260px);
+    -webkit-filter: brightness(0) invert(1) drop-shadow(0 2px 18px rgba(0, 0, 0, 0.45));
+    filter: brightness(0) invert(1) drop-shadow(0 2px 18px rgba(0, 0, 0, 0.45));
   }
 }
 
