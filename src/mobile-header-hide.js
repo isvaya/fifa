@@ -5,6 +5,12 @@
 
 const MQ = '(max-width: 767px)';
 
+/** Слайды, на которых шапка должна быть видна (в т.ч. после возврата снизу). */
+function isHeaderVisibleSlideActive() {
+  const id = document.documentElement.dataset.activeSlide;
+  return id === 'slide_1' || id === 'slide_16';
+}
+
 function isModalOpen() {
   return document.body.classList.contains('order-modal-active');
 }
@@ -31,7 +37,7 @@ export function initMobileHeaderHide(deck) {
   }
 
   function onWheel(e) {
-    if (!mq.matches || isModalOpen()) return;
+    if (!mq.matches || isModalOpen() || isHeaderVisibleSlideActive()) return;
     if (Math.abs(e.deltaY) > 8) hideHeader();
   }
 
@@ -50,7 +56,7 @@ export function initMobileHeaderHide(deck) {
   }
 
   function onTouchMove(e) {
-    if (!mq.matches || touchY0 == null || e.touches.length !== 1) return;
+    if (!mq.matches || touchY0 == null || e.touches.length !== 1 || isHeaderVisibleSlideActive()) return;
     if (Math.abs(e.touches[0].clientY - touchY0) > 28) hideHeader();
   }
 
@@ -59,7 +65,7 @@ export function initMobileHeaderHide(deck) {
   }
 
   function onKeyDown(e) {
-    if (!mq.matches || isModalOpen()) return;
+    if (!mq.matches || isModalOpen() || isHeaderVisibleSlideActive()) return;
     const t = e.target;
     if (t instanceof HTMLInputElement || t instanceof HTMLTextAreaElement || t instanceof HTMLSelectElement) {
       return;
@@ -90,7 +96,12 @@ export function initMobileHeaderHide(deck) {
 
   if (deck && typeof deck.on === 'function') {
     deck.on((detail) => {
-      if (detail?.type === 'change') hideHeader();
+      if (detail?.type !== 'change') return;
+      if (isHeaderVisibleSlideActive()) {
+        document.body.classList.remove('header-hidden');
+      } else {
+        hideHeader();
+      }
     });
   }
 }
