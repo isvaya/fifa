@@ -130,10 +130,11 @@ export function initGSAPAnimations(deck) {
     const tl = gsap.timeline({
       onComplete: () => setWillChange(targets, false),
     });
+    /* Только opacity: любой y/scale на .watch-item затирает translateY(-50%) из CSS — «прыжок» снизу в центр */
     tl.fromTo(
       items,
-      { y: 36, opacity: 0, scale: 0.92 },
-      { y: 0, opacity: 1, scale: 1, duration: 0.72, stagger: 0.12, ease: 'power3.out' },
+      { opacity: 0 },
+      { opacity: 1, duration: 0.72, stagger: 0.12, ease: 'power3.out' },
       0.1
     );
     if (h2) {
