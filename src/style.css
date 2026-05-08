@@ -18,6 +18,14 @@ html {
   scroll-padding-top: max(96px, calc(env(safe-area-inset-top, 0px) + 64px));
 }
 
+/* Стабилизирует обработку вертикальных свайпов в режиме полноэкранного deck
+   (особенно в Android/Samsung браузерах и при эмуляции устройств). */
+html.js-slide-deck,
+html.js-slide-deck body,
+html.js-slide-deck section[id^='slide_'] {
+  touch-action: pan-y;
+}
+
 /*
  * Тач / без reduced-motion (класс вешает main.js): без blur на слайде 4 для GPU.
  */
@@ -754,16 +762,25 @@ body.order-success-active {
     box-shadow 0.24s ease,
     border-color 0.24s ease,
     background 0.24s ease;
+  -webkit-tap-highlight-color: transparent;
   box-shadow:
     0 10px 24px rgba(0, 0, 0, 0.42),
     0 0 0 1px rgba(255, 255, 255, 0.05) inset;
 }
 
-.scroll-top-btn span {
-  font-size: clamp(22px, 5.6vw, 28px);
-  line-height: 1;
-  color: rgba(255, 255, 255, 0.58);
-  transform: translateY(2px);
+.scroll-top-btn__icon {
+  width: clamp(20px, 5.4vw, 25px);
+  height: clamp(20px, 5.4vw, 25px);
+  display: block;
+  transform: translateY(1px);
+}
+
+.scroll-top-btn__icon path {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.54);
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .scroll-top-btn.scroll-top-btn--visible {
@@ -785,6 +802,11 @@ body.order-success-active {
 
 .scroll-top-btn:active {
   transform: translateY(1px) scale(0.98);
+}
+
+.scroll-top-btn:focus,
+.scroll-top-btn:focus-visible {
+  outline: none;
 }
 
 @media (max-width: 1024px) {
