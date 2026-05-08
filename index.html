@@ -412,6 +412,31 @@
     </div>
   </div>
 
+  <!-- After successful form submit (Formspree): compact confirmation, same visual language as order modal -->
+  <div
+    id="order-success-dialog"
+    class="order-success-dialog"
+    hidden
+    aria-hidden="true"
+    role="dialog"
+    aria-labelledby="order-success-title"
+    aria-describedby="order-success-text"
+    aria-modal="true"
+  >
+    <div class="order-success-dialog__backdrop" data-order-success-close tabindex="-1"></div>
+    <div class="order-success-dialog__panel">
+      <p id="order-success-title" class="order-success-dialog__title">Thank you</p>
+      <p id="order-success-text" class="order-success-dialog__text">
+        Your request has been received and forwarded to our administrator. We will contact you shortly.
+      </p>
+      <button type="button" class="order-success-dialog__btn" data-order-success-close>OK</button>
+    </div>
+  </div>
+
+  <button type="button" class="scroll-top-btn" id="scroll-top-btn" aria-label="Scroll to top" hidden>
+    <span aria-hidden="true">⌃</span>
+  </button>
+
   <script type="module" src="/src/main.js"></script>
 </body>
 </html>

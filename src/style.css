@@ -622,6 +622,189 @@ body.order-modal-active {
   }
 }
 
+/* ——— подтверждение после отправки заказа (Formspree) ——— */
+body.order-success-active {
+  overflow: hidden;
+}
+
+.order-success-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 230;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px))
+    max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+  box-sizing: border-box;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0.32s;
+}
+
+.order-success-dialog.order-success-dialog--open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.order-success-dialog__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(2, 6, 10, 0.88);
+  cursor: pointer;
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.order-success-dialog__panel {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: min(380px, 100%);
+  padding: clamp(22px, 4vw, 30px);
+  box-sizing: border-box;
+  background: linear-gradient(165deg, #0f1824 0%, #080f16 45%, #060a10 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+  color: #e8eef2;
+  text-align: center;
+}
+
+.order-success-dialog__title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(1.05rem, 3.2vw, 1.25rem);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin: 0 0 12px;
+  color: #fff;
+}
+
+.order-success-dialog__text {
+  margin: 0 0 22px;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  opacity: 0.88;
+}
+
+.order-success-dialog__btn {
+  padding: 12px 28px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #080f16;
+  background: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.order-success-dialog__btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .order-success-dialog {
+    transition: none;
+  }
+
+  .order-success-dialog__btn:hover {
+    transform: none;
+  }
+}
+
+.scroll-top-btn {
+  display: none;
+  position: fixed;
+  right: max(18px, calc(env(safe-area-inset-right, 0px) + 14px));
+  bottom: max(18px, calc(env(safe-area-inset-bottom, 0px) + 14px));
+  width: clamp(42px, 8.5vw, 52px);
+  height: clamp(42px, 8.5vw, 52px);
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  background:
+    radial-gradient(circle at 28% 22%, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0) 46%),
+    linear-gradient(155deg, rgba(20, 32, 46, 0.88) 0%, rgba(8, 15, 22, 0.86) 100%);
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
+  color: #fff;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 180;
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition:
+    opacity 0.24s ease,
+    transform 0.24s ease,
+    box-shadow 0.24s ease,
+    border-color 0.24s ease,
+    background 0.24s ease;
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.42),
+    0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+}
+
+.scroll-top-btn span {
+  font-size: clamp(22px, 5.6vw, 28px);
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.58);
+  transform: translateY(2px);
+}
+
+.scroll-top-btn.scroll-top-btn--visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.scroll-top-btn:hover {
+  border-color: rgba(255, 255, 255, 0.58);
+  background:
+    radial-gradient(circle at 28% 22%, rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0) 48%),
+    linear-gradient(155deg, rgba(28, 42, 59, 0.9) 0%, rgba(10, 17, 26, 0.9) 100%);
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.5),
+    0 0 20px rgba(255, 255, 255, 0.16),
+    0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+}
+
+.scroll-top-btn:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+@media (max-width: 1024px) {
+  .scroll-top-btn {
+    display: inline-flex;
+  }
+}
+
+@media (hover: none) {
+  .scroll-top-btn:hover {
+    border-color: rgba(255, 255, 255, 0.34);
+    background:
+      radial-gradient(circle at 28% 22%, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0) 46%),
+      linear-gradient(155deg, rgba(20, 32, 46, 0.88) 0%, rgba(8, 15, 22, 0.86) 100%);
+    box-shadow:
+      0 10px 24px rgba(0, 0, 0, 0.42),
+      0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+  }
+}
+
 /*               SECTION 2              */
 
 #slide_2 {

@@ -13,12 +13,18 @@ function prefersReducedMotion() {
 }
 
 function isModalOpen() {
-  return document.body.classList.contains('order-modal-active');
+  return (
+    document.body.classList.contains('order-modal-active') ||
+    document.body.classList.contains('order-success-active')
+  );
 }
 
 function isInsideOrderModal(target) {
   if (!(target instanceof Node)) return false;
-  return Boolean(document.getElementById('order-modal')?.contains(target));
+  return Boolean(
+    document.getElementById('order-modal')?.contains(target) ||
+      document.getElementById('order-success-dialog')?.contains(target)
+  );
 }
 
 function getScrollableAncestor(el, root) {

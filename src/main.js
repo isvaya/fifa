@@ -4,17 +4,68 @@ import { initMobileHeaderHide } from './mobile-header-hide.js';
 
 const FORMSPREE_FORM_ID = import.meta.env.VITE_FORMSPREE_FORM_ID || '';
 const ORDER_MAILTO = import.meta.env.VITE_ORDER_EMAIL || '';
+/** Полный URL бэкенда (папка backend): https://ваш-хост/api/order */
+const ORDER_API_URL = (import.meta.env.VITE_ORDER_API_URL || '').trim();
+
+function initScrollTopButton(deck) {
+  const btn = document.getElementById('scroll-top-btn');
+  if (!(btn instanceof HTMLButtonElement)) return;
+
+  const isReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function showButton() {
+    btn.hidden = false;
+    btn.classList.add('scroll-top-btn--visible');
+    btn.setAttribute('aria-hidden', 'false');
+  }
+
+  function hideButton() {
+    btn.classList.remove('scroll-top-btn--visible');
+    btn.setAttribute('aria-hidden', 'true');
+    const delayMs = isReducedMotion ? 0 : 240;
+    window.setTimeout(() => {
+      if (!btn.classList.contains('scroll-top-btn--visible')) btn.hidden = true;
+    }, delayMs);
+  }
+
+  function updateByNativeScroll() {
+    if (window.scrollY > 320) showButton();
+    else hideButton();
+  }
+
+  if (deck && typeof deck.getIndex === 'function' && typeof deck.on === 'function') {
+    const syncDeckState = () => {
+      if (deck.getIndex() > 0) showButton();
+      else hideButton();
+    };
+    deck.on(syncDeckState);
+    syncDeckState();
+  } else {
+    updateByNativeScroll();
+    window.addEventListener('scroll', updateByNativeScroll, { passive: true });
+  }
+
+  btn.addEventListener('click', () => {
+    if (deck && typeof deck.goTo === 'function') {
+      deck.goTo(0, 'prev');
+      return;
+    }
+    window.scrollTo({ top: 0, behavior: isReducedMotion ? 'auto' : 'smooth' });
+  });
+}
 
 function initOrderModal() {
   const openBtn = document.querySelector('.btn_order');
   const modal = document.getElementById('order-modal');
   const form = document.getElementById('order-form');
   const statusEl = document.getElementById('order-form-status');
+  const successDialog = document.getElementById('order-success-dialog');
   if (!openBtn || !modal || !form) return;
 
   const closeEls = modal.querySelectorAll('[data-order-close]');
   let lastFocus = null;
   let hideAfterCloseTimer = 0;
+  let successHideTimer = 0;
 
   function setStatus(msg, isError) {
     if (!statusEl) return;
@@ -53,6 +104,39 @@ function initOrderModal() {
     }, delayMs);
   }
 
+  function openSuccessDialog() {
+    if (!successDialog) return;
+    if (successHideTimer) {
+      clearTimeout(successHideTimer);
+      successHideTimer = 0;
+    }
+    successDialog.removeAttribute('hidden');
+    void successDialog.offsetWidth;
+    successDialog.classList.add('order-success-dialog--open');
+    successDialog.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('order-success-active');
+    const btn = successDialog.querySelector('.order-success-dialog__btn');
+    if (btn instanceof HTMLElement) requestAnimationFrame(() => btn.focus());
+  }
+
+  function closeSuccessDialog() {
+    if (!successDialog) return;
+    successDialog.classList.remove('order-success-dialog--open');
+    successDialog.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('order-success-active');
+    const delayMs = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 320;
+    successHideTimer = window.setTimeout(() => {
+      successDialog.setAttribute('hidden', '');
+      successHideTimer = 0;
+    }, delayMs);
+  }
+
+  if (successDialog) {
+    successDialog.querySelectorAll('[data-order-success-close]').forEach((el) => {
+      el.addEventListener('click', () => closeSuccessDialog());
+    });
+  }
+
   openBtn.addEventListener('click', (e) => {
     e.preventDefault();
     openModal();
@@ -63,7 +147,13 @@ function initOrderModal() {
   });
 
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && modal.classList.contains('order-modal--open')) {
+    if (e.key !== 'Escape') return;
+    if (successDialog?.classList.contains('order-success-dialog--open')) {
+      e.preventDefault();
+      closeSuccessDialog();
+      return;
+    }
+    if (modal.classList.contains('order-modal--open')) {
       e.preventDefault();
       closeModal();
     }
@@ -99,20 +189,58 @@ function initOrderModal() {
       comments: comments || '—',
     };
 
+    const apiBody = {
+      name,
+      full_name: fullName,
+      whatsapp,
+      email,
+      comments: comments || '—',
+    };
+
     try {
-      if (FORMSPREE_FORM_ID) {
-        const res = await fetch(`https://formspree.io/f/${FORMSPREE_FORM_ID}`, {
-          method: 'POST',
-          headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) {
-          throw new Error(data.error || data.errors?.[0]?.message || 'Send failed');
+      if (FORMSPREE_FORM_ID || ORDER_API_URL) {
+        const tasks = [];
+
+        if (FORMSPREE_FORM_ID) {
+          tasks.push(
+            (async () => {
+              const res = await fetch(`https://formspree.io/f/${FORMSPREE_FORM_ID}`, {
+                method: 'POST',
+                headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+              });
+              const data = await res.json().catch(() => ({}));
+              if (!res.ok) {
+                throw new Error(data.error || data.errors?.[0]?.message || 'E-mail delivery failed');
+              }
+            })()
+          );
         }
-        setStatus('Thank you! We will contact you soon.');
+
+        if (ORDER_API_URL) {
+          tasks.push(
+            (async () => {
+              const res = await fetch(ORDER_API_URL, {
+                method: 'POST',
+                headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+                body: JSON.stringify(apiBody),
+              });
+              const data = await res.json().catch(() => ({}));
+              if (!res.ok) {
+                const msg = typeof data.error === 'string' ? data.error : 'Telegram notification failed';
+                throw new Error(msg);
+              }
+            })()
+          );
+        }
+
+        await Promise.all(tasks);
+
+        setStatus('');
         form.reset();
-        setTimeout(() => closeModal(), 2200);
+        closeModal();
+        const openThanks = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 400;
+        window.setTimeout(() => openSuccessDialog(), openThanks);
       } else if (ORDER_MAILTO) {
         const body = [
           `Name: ${name}`,
@@ -129,7 +257,7 @@ function initOrderModal() {
         setTimeout(() => closeModal(), 1500);
       } else {
         setStatus(
-          'Form is not connected to mail yet. Add VITE_FORMSPREE_FORM_ID or VITE_ORDER_EMAIL in .env and rebuild.',
+          'Form is not connected yet. Add VITE_FORMSPREE_FORM_ID, VITE_ORDER_API_URL, or VITE_ORDER_EMAIL in .env and rebuild.',
           true
         );
       }
@@ -149,6 +277,7 @@ function boot() {
   } catch (err) {
     console.error('[FIFA] initFullPageSlides failed', err);
   }
+  initScrollTopButton(deck);
   initMobileHeaderHide(deck);
 }
 
